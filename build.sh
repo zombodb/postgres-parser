@@ -34,8 +34,8 @@ make install || exit 1
 
 # rename Postgres 'main' function entry point so it won't conflict
 # with users of this library
-sed -i bak 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
-sed -i bak 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
+sed -i'' 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
+sed -i'' 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
 
 cd "${MANIFEST_DIR}" || exit 1
 
