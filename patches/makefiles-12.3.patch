@@ -1,0 +1,65 @@
+diff --git a/src/Makefile b/src/Makefile
+index bcdbd9588a..d453242675 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -17,19 +17,11 @@ SUBDIRS = \
+ 	port \
+ 	timezone \
+ 	backend \
+-	backend/utils/mb/conversion_procs \
+-	backend/snowball \
+ 	include \
+ 	interfaces \
+-	backend/replication/libpqwalreceiver \
+-	backend/replication/pgoutput \
+ 	fe_utils \
+ 	bin \
+-	pl \
+-	makefiles \
+-	test/regress \
+-	test/isolation \
+-	test/perl
++	makefiles
+ 
+ ifeq ($(with_llvm), yes)
+ SUBDIRS += backend/jit/llvm
+diff --git a/src/backend/Makefile b/src/backend/Makefile
+index b03d5e510f..d40ceff5c3 100644
+--- a/src/backend/Makefile
++++ b/src/backend/Makefile
+@@ -59,8 +59,11 @@ ifneq ($(PORTNAME), cygwin)
+ ifneq ($(PORTNAME), win32)
+ ifneq ($(PORTNAME), aix)
+ 
++EXPANDED_OBJS = $(call expand_subsys,$^)
++LL_OBJS = $(shell echo $(EXPANDED_OBJS) | sed -e 's/\.a/.ll/g')
+ postgres: $(OBJS)
+ 	$(CC) $(CFLAGS) $(call expand_subsys,$^) $(LDFLAGS) $(LDFLAGS_EX) $(export_dynamic) $(LIBS) -o $@
++	llvm-link -S -v $(LL_OBJS) -o postgres.ll
+ 
+ endif
+ endif
+diff --git a/src/common/Makefile b/src/common/Makefile
+index 2f22b9b101..f6e90a28f5 100644
+--- a/src/common/Makefile
++++ b/src/common/Makefile
+@@ -116,6 +116,7 @@ libpgcommon_shlib.a: $(OBJS_SHLIB)
+ libpgcommon_srv.a: $(OBJS_SRV)
+ 	rm -f $@
+ 	$(AR) $(AROPT) $@ $^
++	llvm-link -S -v $(OBJS_SRV) -o libpgcommon_srv.ll
+ 
+ # Because this uses its own compilation rule, it doesn't use the
+ # dependency tracking logic from Makefile.global.  To make sure that
+diff --git a/src/port/Makefile b/src/port/Makefile
+index b9492b741f..3d64a7584b 100644
+--- a/src/port/Makefile
++++ b/src/port/Makefile
+@@ -102,6 +102,7 @@ libpgport_shlib.a: $(OBJS_SHLIB)
+ libpgport_srv.a: $(OBJS_SRV)
+ 	rm -f $@
+ 	$(AR) $(AROPT) $@ $^
++	llvm-link -S -v $(OBJS_SRV) -o libpgport_srv.ll
+ 
+ # Because this uses its own compilation rule, it doesn't use the
+ # dependency tracking logic from Makefile.global.  To make sure that
