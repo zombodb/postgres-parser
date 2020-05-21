@@ -1,2 +1,2 @@
 [build]
-rustflags="-Clink-args=-flto"
+rustflags="-Copt-level=3 -Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-args=-flto"
