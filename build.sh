@@ -1,7 +1,6 @@
 #! /bin/bash
 
 MANIFEST_DIR="${PWD}"
-UNAME=$(uname)
 PGVER="12.3"
 BUILD_DIR="${PWD}/target/${PGVER}-build"
 POSTGRES_A="${PWD}/target/libpostgres.a"
@@ -14,7 +13,7 @@ fi
 set -x
 
 if [ -f "${POSTGRES_A}" ]; then
-  # we already have postgres.ll, so don't bother generating it again
+  # we already have libpostgres.a, so don't bother generating it again
   echo ${POSTGRES_A}
   exit 0
 fi
@@ -43,12 +42,7 @@ sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
 cd "${MANIFEST_DIR}" || exit 1
 
 # optimize postgres.ll
-OPT_ARGS="-adce"
-if [ "${UNAME}" == "Darwin" ]; then
-  # on MacOS we need to realign the stack
-  OPT_ARGS="${OPT_ARGS} --stack-alignment=16 --stackrealign"
-fi
-opt --O3 ${OPT_ARGS} "${POSTGRES_LL}" -o target/optimized.bc || exit 1
+opt --O3 -adce "${POSTGRES_LL}" -o target/optimized.bc || exit 1
 
 # create an archive which the Rust create will statically link
 llvm-ar crv "${POSTGRES_A}" target/optimized.bc || exit 1
