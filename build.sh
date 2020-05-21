@@ -7,6 +7,10 @@ BUILD_DIR="${PWD}/target/${PGVER}-build"
 POSTGRES_A="${PWD}/target/libpostgres.a"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
 
+if [ "x${NUM_CPUS}" == "x" ]; then
+    NUM_CPUS="1"
+fi
+
 set -x
 
 if [ -f "${POSTGRES_A}" ]; then
@@ -28,7 +32,7 @@ patch -p1 < ../../../patches/makefiles-${PGVER}.patch || exit 1
 
 # configure, build, and (locally) install Postgres
 AR="llvm-ar" CC="clang" CFLAGS="-flto" ./configure --without-readline --without-zlib --prefix="${PWD}/temp-install" || exit 1
-make -j4 || exit 1
+make -j${NUM_CPUS} || exit 1
 make install || exit 1
 
 # rename Postgres 'main' function entry point so it won't conflict

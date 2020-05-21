@@ -22,6 +22,7 @@ fn run_build_sh(pwd: &PathBuf) -> Result<String, std::io::Error> {
 fn run_command(mut command: &mut Command) -> Result<String, std::io::Error> {
     eprintln!("command={:?}", command);
     command = command
+        .env("NUM_CPUS", num_cpus::get().to_string())
         .env_remove("DEBUG")
         .env_remove("MAKEFLAGS")
         .env_remove("MAKELEVEL")
