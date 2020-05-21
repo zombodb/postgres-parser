@@ -73,10 +73,10 @@ $ cargo build [--release]
 
 This will take awhile as again, the build process:
 
-    - Downloads Postgres source code
-    - Configures Postgres
-    - Compiles Postgres (in parallel up to # of your CPUS)
-    - Optimizes the resulting LLVM ir into LLVM bitcode
+ - Downloads Postgres source code
+ - Configures Postgres
+ - Compiles Postgres (in parallel up to # of your CPUS)
+ - Optimizes the resulting LLVM ir into LLVM bitcode
 
 On my relatively new MacBook Pro 16", this process takes about 2.5 minutes the first
 time.  
