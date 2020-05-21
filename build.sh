@@ -4,7 +4,6 @@ MANIFEST_DIR="${PWD}"
 UNAME=$(uname)
 PGVER="12.3"
 BUILD_DIR="${PWD}/target/${PGVER}-build"
-POSTGRES_O="${BUILD_DIR}/postgres.o"
 POSTGRES_A="${PWD}/target/libpostgres.a"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
 
