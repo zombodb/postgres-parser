@@ -27,7 +27,7 @@ cd postgresql-${PGVER} || exit 1
 patch -p1 < ../../../patches/makefiles-${PGVER}.patch || exit 1
 
 # configure, build, and (locally) install Postgres
-CC="clang" CFLAGS="-flto" ./configure --without-readline --prefix="${PWD}/temp-install" || exit 1
+CC="clang" CFLAGS="-flto" ./configure --without-readline --without-zlib --prefix="${PWD}/temp-install" || exit 1
 make -j4 || exit 1
 make install || exit 1
 
