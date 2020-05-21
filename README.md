@@ -20,7 +20,7 @@ At the end of the process we're left with a `libpostgres.a` archive, which
 `build.rs` instructs cargo to link against.
 
 There's a few `RUSTFLAGS` set in [`.cargo/config`](.cargo/config) which are
-necessary to tell Rust which linker we need to use (we don't want to mix/match)
+necessary to tell Rust which linker we need to use (we don't want to mix/match
 `clang` and `gcc` -- we only want `clang`!) along with the LTO flags.
 
 ### About & TODO
