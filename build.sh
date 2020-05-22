@@ -30,7 +30,13 @@ cd postgresql-${PGVER} || exit 1
 patch -p1 < ../../../patches/makefiles-${PGVER}.patch || exit 1
 
 # configure, build, and (locally) install Postgres
-AR="llvm-ar" CC="clang" CFLAGS="-flto" ./configure --without-readline --without-zlib --prefix="${PWD}/temp-install" || exit 1
+if [ "x${UNAME}" == "xLinux" ] ; then
+  # linux needs to use the "gold" linker
+  mkdir build_bin || exit 1
+  ln -s /usr/bin/ld.gold build_bin/ld || exit 1
+  CFLAGS="-B${PWD}/build_bin"
+fi
+AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${PWD}/temp-install" || exit 1
 make -j${NUM_CPUS} || exit 1
 make install || exit 1
 
