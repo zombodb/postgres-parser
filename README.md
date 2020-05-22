@@ -53,9 +53,8 @@ $ brew install llvm
 $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-In both environments, you want to ensure you're installing LLVM (and clang) 
-version 10.0.0.  It's possible that earlier versions will also work, but
-this has not been tested.
+As Linux goes, so far I've tested this on Ubuntu 18.04 with LLVM 6.0.0, and
+Ubuntu 20.04 with LLVM 10.0.0.
 
 You'll also want to make sure the LLVM and clang tools are on your `$PATH`.
 Especially the `clang`, `opt`, and `llvm-ar` tools.
@@ -91,9 +90,6 @@ I'd sincerely appreciate the time and effort you spend cloning this repo and at
 least trying to `cargo build` it on your machine.  If it doesn't work, or if my
 instructions are bad, I definitely want to know.  I'd like this to be as easy as
 possible for everyone.
-
-In fact, it'd be super cool if you simply tried to `cargo build` it without first
-ensuring you're on LLVM 10.0.0 -- it may be that LLVM 10.0.0 isn't required.
 
 ### Thanks
 
