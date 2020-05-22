@@ -41,10 +41,7 @@ format you want.
 For an Ubuntu-based Linux system you'll need:
 
 ```shell script
-$ sudo apt get install clang
-$ sudo apt get install llvm
-$ sudo apt get install make
-$ sudo apt get install curl
+$ sudo apt-get install clang llvm make curl
 $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
