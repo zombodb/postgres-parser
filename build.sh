@@ -1,5 +1,6 @@
 #! /bin/bash
 
+UNAME=${uname}
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
 BUILD_DIR="${PWD}/target/${PGVER}-build"
