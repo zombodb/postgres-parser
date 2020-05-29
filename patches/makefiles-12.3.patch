@@ -35,7 +35,7 @@ index b03d5e510f..d40ceff5c3 100644
 +LL_OBJS = $(shell echo $(EXPANDED_OBJS) | sed -e 's/\.a/.ll/g')
  postgres: $(OBJS)
  	$(CC) $(CFLAGS) $(call expand_subsys,$^) $(LDFLAGS) $(LDFLAGS_EX) $(export_dynamic) $(LIBS) -o $@
-+	llvm-link -S -v --only-needed $(LL_OBJS) -o postgres.ll
++	llvm-link -S -v $(LL_OBJS) -o postgres.ll
  
  endif
  endif
@@ -47,7 +47,7 @@ index 2f22b9b101..f6e90a28f5 100644
  libpgcommon_srv.a: $(OBJS_SRV)
  	rm -f $@
  	$(AR) $(AROPT) $@ $^
-+	llvm-link -S -v --only-needed $(OBJS_SRV) -o libpgcommon_srv.ll
++	llvm-link -S -v $(OBJS_SRV) -o libpgcommon_srv.ll
  
  # Because this uses its own compilation rule, it doesn't use the
  # dependency tracking logic from Makefile.global.  To make sure that
@@ -59,7 +59,7 @@ index b9492b741f..3d64a7584b 100644
  libpgport_srv.a: $(OBJS_SRV)
  	rm -f $@
  	$(AR) $(AROPT) $@ $^
-+	llvm-link -S -v --only-needed $(OBJS_SRV) -o libpgport_srv.ll
++	llvm-link -S -v $(OBJS_SRV) -o libpgport_srv.ll
  
  # Because this uses its own compilation rule, it doesn't use the
  # dependency tracking logic from Makefile.global.  To make sure that
