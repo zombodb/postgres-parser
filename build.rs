@@ -202,11 +202,17 @@ fn generate_safe_wrappers(input: String) -> String {
 
 fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
     let mut enum_stream = TokenStream2::new();
-    for k in struct_names {
-        let ident = syn::Ident::new(&k, enum_stream.span());
-        enum_stream.extend(quote! {
-            #ident(#ident),
-        });
+    for name in struct_names {
+        if "List" == *name {
+            enum_stream.extend(quote! {
+                List(Vec<Node>),
+            });
+        } else {
+            let ident = syn::Ident::new(&name, enum_stream.span());
+            enum_stream.extend(quote! {
+                #ident(#ident),
+            });
+        }
     }
 
     output.extend(quote! {
@@ -225,12 +231,8 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                 let name = s.ident.to_string();
                 if struct_names.contains(&name.as_str()) {
                     if "List" == name {
-                        output.extend(quote! {
-                            #[derive(Debug)]
-                            pub struct List {
-                                pub elements: Vec<Option<Node>>
-                            }
-                        });
+                        // don't need a struct for List as we just represent it as a Vec<Node>
+                        continue;
                     } else if "Value" == name {
                         output.extend(quote! {
                             #[derive(Debug)]
@@ -304,7 +306,7 @@ fn generate_single_struct(
                     }
                     let ty = match tystr.as_str() {
                         ":: std :: os :: raw :: c_char" => quote!(Option<String>),
-                        "List" => quote!(Option<List>),
+                        "List" => quote!(Option<Vec<Node>>),
                         _ => quote!(Option<Box<#path>>),
                     };
 

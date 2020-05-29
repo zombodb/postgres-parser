@@ -15,14 +15,13 @@ impl ConvertNode for crate::sys::List {
         for i in 0..self.length {
             let node = unsafe { list_nth(selfptr, i) } as *const crate::sys::Node;
 
-            if node.is_null() {
-                elements.push(None)
-            } else {
-                elements.push(Some(unsafe { node.as_ref().unwrap().convert() }));
+            // we should never see a null element inside a list
+            if !node.is_null() {
+                elements.push(unsafe { node.as_ref().unwrap().convert() });
             }
         }
 
-        crate::safe::Node::List(crate::safe::List { elements })
+        crate::safe::Node::List(elements)
     }
 }
 

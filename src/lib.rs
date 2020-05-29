@@ -27,10 +27,11 @@ lazy_static! {
 #[derive(Debug)]
 pub enum PgParserError {
     InternalNull,
+    NotAList,
     ParseError,
 }
 
-pub fn parse_query(statements: &str) -> std::result::Result<crate::safe::Node, PgParserError> {
+pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Node>, PgParserError> {
     extern "C" {
         pub fn raw_parser(str: *const std::os::raw::c_char) -> *mut crate::sys::List;
     }
@@ -40,8 +41,15 @@ pub fn parse_query(statements: &str) -> std::result::Result<crate::safe::Node, P
 
     match std::ffi::CString::new(statements) {
         Ok(c_str) => {
-            let stmt_list = unsafe { raw_parser(c_str.as_ptr()).as_mut().unwrap() };
-            Ok(stmt_list.convert())
+            let parse_list = unsafe { raw_parser(c_str.as_ptr()) };
+            if parse_list.is_null() {
+                Ok(Vec::new())
+            } else {
+                match unsafe { parse_list.as_ref().unwrap().convert() } {
+                    crate::safe::Node::List(vec) => Ok(vec),
+                    _ => Err(PgParserError::NotAList),
+                }
+            }
         }
         Err(_) => Err(PgParserError::InternalNull),
     }
