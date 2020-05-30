@@ -55,7 +55,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
 
     let out_path = PathBuf::from(manifest_dir);
 
-    let sys = bindings.to_string(); // generate_walkers(bindings.to_string());
+    let sys = generate_serde_support(bindings.to_string());
     let sys_rs = out_path.join("src").join("sys.rs");
     std::fs::write(&sys_rs, sys).unwrap_or_else(|e| panic!("Unable to save sys.rs: {:?}", e));
     rust_fmt(&sys_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust sys bindings"));
@@ -186,6 +186,25 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
     struct_names
 }
 
+fn generate_serde_support(input: String) -> String {
+    let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
+    let mut output = TokenStream2::new();
+
+    output.extend(quote! {use serde::{Serialize, Deserialize};});
+
+    for item in ast.items {
+        match item {
+            Item::Enum(e) => output.extend(quote! {
+                #[derive(Serialize, Deserialize)]
+                #e
+            }),
+            other => output.extend(quote! {#other}),
+        }
+    }
+
+    output.to_string()
+}
+
 fn generate_safe_wrappers(input: String) -> String {
     let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
     let mut output = TokenStream2::new();
@@ -193,6 +212,10 @@ fn generate_safe_wrappers(input: String) -> String {
     let node_tags = build_node_tag_set(&ast, build_struct_names(&ast));
     let mut struct_names = node_tags.keys().map(|v| v.as_str()).collect::<Vec<&str>>();
     struct_names.sort();
+
+    output.extend(quote!(
+        use serde::{Serialize, Deserialize};
+    ));
 
     generate_node_enum(&struct_names, &mut output);
     generate_structs(&ast, &struct_names, &mut output);
@@ -218,6 +241,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
     output.extend(quote! {
         #[allow(non_camel_case_types)]
         #[derive(Debug)]
+        #[derive(Serialize, Deserialize)]
         pub enum Node {
             #enum_stream
         }
@@ -236,11 +260,17 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                     } else if "Value" == name {
                         output.extend(quote! {
                             #[derive(Debug)]
+                            #[derive(Serialize, Deserialize)]
                             pub struct Value {
+                                #[serde(skip_serializing_if = "Option::is_none")]
                                 pub string: Option<String>,
+                                #[serde(skip_serializing_if = "Option::is_none")]
                                 pub int: Option<i32>,
+                                #[serde(skip_serializing_if = "Option::is_none")]
                                 pub float: Option<String>,
+                                #[serde(skip_serializing_if = "Option::is_none")]
                                 pub bit_string: Option<String>,
+                                #[serde(skip_serializing_if = "Option::is_none")]
                                 pub null: Option<()>
                             }
                         });
@@ -311,6 +341,7 @@ fn generate_single_struct(
                     };
 
                     fields_stream.extend(quote! {
+                        #[serde(skip_serializing_if = "Option::is_none")]
                         pub #name: #ty,
                     });
                 }
@@ -324,6 +355,7 @@ fn generate_single_struct(
         #[allow(non_camel_case_types)]
         #[allow(non_snake_case)]
         #[derive(Debug)]
+        #[derive(Serialize, Deserialize)]
         pub struct #struct_name {
             #fields_stream
         }
