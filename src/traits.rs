@@ -1,6 +1,6 @@
 use crate::sys::NodeTag;
 
-pub trait ConvertNode {
+pub(crate) trait ConvertNode {
     fn convert(&self) -> crate::safe::Node;
 }
 

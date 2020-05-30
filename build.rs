@@ -55,7 +55,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
 
     let out_path = PathBuf::from(manifest_dir);
 
-    let sys = generate_serde_support(bindings.to_string());
+    let sys = process_bindings(bindings.to_string());
     let sys_rs = out_path.join("src").join("sys.rs");
     std::fs::write(&sys_rs, sys).unwrap_or_else(|e| panic!("Unable to save sys.rs: {:?}", e));
     rust_fmt(&sys_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust sys bindings"));
@@ -186,13 +186,27 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
     struct_names
 }
 
-fn generate_serde_support(input: String) -> String {
+fn process_bindings(input: String) -> String {
     let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
     let mut output = TokenStream2::new();
 
-    output.extend(quote! {use serde::{Serialize, Deserialize};});
+    output.extend(quote!(
+        #![allow(improper_ctypes)]
+        #![allow(non_upper_case_globals)]
+        #![allow(non_camel_case_types)]
+        #![allow(non_snake_case)]
+        #![allow(dead_code)]
 
-    for item in ast.items {
+        use serde::{Serialize, Deserialize};
+    ));
+
+    generate_serde_support(&ast, &mut output);
+
+    output.to_string()
+}
+
+fn generate_serde_support(ast: &syn::File, output: &mut TokenStream2) {
+    for item in &ast.items {
         match item {
             Item::Enum(e) => output.extend(quote! {
                 #[derive(Serialize, Deserialize)]
@@ -201,8 +215,6 @@ fn generate_serde_support(input: String) -> String {
             other => output.extend(quote! {#other}),
         }
     }
-
-    output.to_string()
 }
 
 fn generate_safe_wrappers(input: String) -> String {
@@ -214,6 +226,11 @@ fn generate_safe_wrappers(input: String) -> String {
     struct_names.sort();
 
     output.extend(quote!(
+        #![allow(non_upper_case_globals)]
+        #![allow(non_camel_case_types)]
+        #![allow(non_snake_case)]
+        #![allow(dead_code)]
+
         use serde::{Serialize, Deserialize};
     ));
 
