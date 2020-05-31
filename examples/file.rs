@@ -3,7 +3,8 @@ use postgres_parser::*;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let filename = args.get(1).expect("no filename");
-    let contents = std::fs::read_to_string(filename).expect("failed to read file");
+    let contents =
+        std::fs::read_to_string(filename).expect(&format!("failed to read file: {}", filename));
 
     let scanner = SqlStatementScanner::new(&contents);
     for (i, stmt) in scanner.into_iter().enumerate() {
