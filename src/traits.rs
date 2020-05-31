@@ -58,3 +58,34 @@ impl ConvertNode for crate::sys::Value {
         crate::safe::Node::Value(value)
     }
 }
+
+impl ConvertNode for crate::sys::CreateForeignTableStmt {
+    fn convert(&self) -> crate::safe::Node {
+        let stmt = crate::safe::CreateForeignTableStmt {
+            base: match self.base.convert() {
+                crate::Node::CreateStmt(stmt) => stmt,
+                _ => panic!("could not convert sys::CreateForeignTableStmt"), // shouldn't happen
+            },
+            servername: if self.servername.is_null() {
+                None
+            } else {
+                Some(unsafe {
+                    std::ffi::CStr::from_ptr(self.servername)
+                        .to_str()
+                        .unwrap()
+                        .to_owned()
+                })
+            },
+            options: if self.options.is_null() {
+                None
+            } else {
+                match unsafe { self.options.as_ref().unwrap().convert() } {
+                    crate::safe::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
+        };
+
+        crate::safe::Node::CreateForeignTableStmt(stmt)
+    }
+}

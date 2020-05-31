@@ -168,13 +168,16 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
     for item in &file.items {
         match item {
             Item::Struct(s) => {
-                if s.fields
-                    .iter()
-                    .find(|p| match p.ident.as_ref() {
-                        Some(ident) => "type_" == ident.to_string() || "xpr" == ident.to_string(),
-                        None => false,
-                    })
-                    .is_some()
+                if s.ident.to_string() == "CreateForeignTableStmt"
+                    || s.fields
+                        .iter()
+                        .find(|p| match p.ident.as_ref() {
+                            Some(ident) => {
+                                "type_" == ident.to_string() || "xpr" == ident.to_string()
+                            }
+                            None => false,
+                        })
+                        .is_some()
                 {
                     struct_names.insert(s.ident.to_string());
                 }
@@ -396,6 +399,9 @@ fn generate_convert_trait_impls(
                     // we manually implemented this one
                     continue;
                 } else if "Value" == name {
+                    // we manually implemented this one
+                    continue;
+                } else if "CreateForeignTableStmt" == name {
                     // we manually implemented this one
                     continue;
                 } else {
