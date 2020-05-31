@@ -3,12 +3,10 @@ use postgres_parser::*;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let filename = args.get(1).expect("no filename");
-
     let contents = std::fs::read_to_string(filename).expect("failed to read file");
 
-    let statements = scan_sql(&contents);
-
-    for (i, stmt) in statements.into_iter().enumerate() {
+    let scanner = SqlStatementScanner::new(&contents);
+    for (i, stmt) in scanner.into_iter().enumerate() {
         println!("#{}\n{}", i, stmt.sql);
         match parse_query(stmt.sql) {
             Ok(parse_list) => {
