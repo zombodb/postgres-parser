@@ -1,7 +1,7 @@
 use crate::{parse_query, Node, PgParserError};
 use serde::{Deserialize, Serialize};
-use std::iter::{Enumerate, Peekable};
-use std::str::Chars;
+use std::iter::Peekable;
+use std::str::CharIndices;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannedStatement<'a> {
@@ -67,12 +67,12 @@ impl<'a> SqlStatementScannerIterator<'a> {
         let mut current_dollar_quote = None;
 
         let input = &self.sql[self.start..];
-        let mut iter = input.chars().enumerate().peekable();
+        let mut iter = input.char_indices().peekable();
         let mut putback = None;
 
         fn get_next(
             putback: &mut Option<(usize, char)>,
-            iter: &mut Peekable<Enumerate<Chars>>,
+            iter: &mut Peekable<CharIndices>,
         ) -> Option<(usize, char)> {
             if putback.is_some() {
                 // if we have a pushback item, take and return that
@@ -289,7 +289,7 @@ impl<'a> SqlStatementScannerIterator<'a> {
         let input = &self.sql[self.start..];
 
         let mut prevc = '\n' as char;
-        let mut iter = input.chars().enumerate().peekable();
+        let mut iter = input.char_indices().peekable();
         while let Some((idx, c)) = iter.next() {
             let nextc = match iter.peek() {
                 Some((_, c)) => *c,

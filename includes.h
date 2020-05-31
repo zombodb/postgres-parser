@@ -1,4 +1,5 @@
 #include "postgres.h"
+#include "mb/pg_wchar.h"
 #include "nodes/memnodes.h"
 #include "nodes/nodes.h"
 #include "nodes/parsenodes.h"

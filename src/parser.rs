@@ -5,10 +5,14 @@ use serde::{Deserialize, Serialize};
 lazy_static! {
     static ref MEMORY_CONTEXT: () = {
         extern "C" {
-            pub fn MemoryContextInit();
+            fn MemoryContextInit();
+            fn SetDatabaseEncoding(enc: i32);
         }
 
-        unsafe { MemoryContextInit() }
+        unsafe {
+            SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
+            MemoryContextInit();
+        }
     };
 }
 
