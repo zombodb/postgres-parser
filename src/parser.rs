@@ -1,9 +1,11 @@
 use crate::traits::ConvertNode;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::sync::Mutex;
 
 lazy_static! {
-    static ref MEMORY_CONTEXT: () = {
+    static ref PARSER_LOCK: Mutex<()> = Mutex::new(());
+    static ref ONETIME_SETUP: () = {
         extern "C" {
             fn MemoryContextInit();
             fn SetDatabaseEncoding(enc: i32);
@@ -16,7 +18,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum PgParserError {
     InternalNull,
     NotAList,
@@ -66,6 +68,13 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
         /// the error subsystem until you have done this.
         ///
         fn FlushErrorState();
+
+        ///
+        /// MemoryContextReset
+        ///		Release all space allocated within a context and delete all its
+        ///		descendant contexts (but not the named context itself).
+        ///
+        fn MemoryContextReset(context: crate::sys::MemoryContext);
 
         ///
         /// raw_parser
@@ -126,7 +135,6 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
 
             // make sure to cleanup after ourselves
             FreeErrorData(error_data_ptr);
-
             FlushErrorState();
 
             // and return the error
@@ -134,10 +142,13 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
         }
     }
 
-    // make sure Postgres' MemoryContext system is initialized
-    let _ = *MEMORY_CONTEXT;
+    // all access to the parser must be synchronized
+    let _mutex = PARSER_LOCK.lock();
 
-    match std::ffi::CString::new(statements) {
+    // make sure Postgres' MemoryContext system is initialized
+    let _ = *ONETIME_SETUP;
+
+    let result = match std::ffi::CString::new(statements) {
         // we have a valid query &str we can represent as a CString, so lets parse it
         Ok(c_str) => match unsafe { raw_parser_wrapper(c_str.as_ptr()) } {
             // it successfully parsed...
@@ -164,5 +175,13 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
 
         // we don't have a valid query &str we can represent as a CString
         Err(_) => Err(PgParserError::InternalNull),
+    };
+
+    // we've copied the result of the parser into owned Rust memory, so
+    // free up whatever Postgres (the parser) might have allocated
+    unsafe {
+        MemoryContextReset(crate::sys::CurrentMemoryContext);
     }
+
+    result
 }
