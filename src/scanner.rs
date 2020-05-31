@@ -1,6 +1,10 @@
-#[derive(Debug)]
+use crate::{parse_query, Node, PgParserError};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ScannedStatement<'a> {
     pub sql: &'a str,
+    pub parsed: std::result::Result<Vec<Node>, PgParserError>,
 }
 
 pub struct SqlStatementScanner<'a> {
@@ -50,6 +54,8 @@ impl<'a> SqlStatementScannerIterator<'a> {
         if self.start >= self.sql.len() {
             return None;
         }
+
+        let mut statement = None;
 
         let mut in_sl_comment = false;
         let mut in_ml_comment = false;
@@ -190,14 +196,12 @@ impl<'a> SqlStatementScannerIterator<'a> {
                             };
                         }
 
-                        let statement = ScannedStatement {
-                            sql: &input[..=idx],
-                        };
+                        statement = Some(&input[..=idx]);
 
                         // this is where the next statement will start, if there is one
                         self.start += idx + 1;
 
-                        return Some(statement);
+                        break;
                     }
                 }
 
@@ -206,16 +210,22 @@ impl<'a> SqlStatementScannerIterator<'a> {
             }
         }
 
-        if self.start < self.sql.trim_end().len() {
-            // we have a trailing statement that didn't end with a semicolon
-            let result = Some(ScannedStatement { sql: input });
+        if statement.is_none() {
+            if self.start < self.sql.trim_end().len() {
+                // we have a trailing statement that didn't end with a semicolon
+                statement = Some(input);
 
-            // and we're done here
-            self.start += input.len();
-
-            result
-        } else {
-            None
+                // and we're done here
+                self.start += input.len();
+            } else {
+                return None;
+            }
         }
+
+        let statement = statement.unwrap();
+        Some(ScannedStatement {
+            sql: statement,
+            parsed: parse_query(statement),
+        })
     }
 }

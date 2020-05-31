@@ -1,5 +1,6 @@
 use crate::traits::ConvertNode;
 use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
 
 lazy_static! {
     static ref MEMORY_CONTEXT: () = {
@@ -11,7 +12,7 @@ lazy_static! {
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum PgParserError {
     InternalNull,
     NotAList,

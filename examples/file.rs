@@ -7,8 +7,9 @@ fn main() {
 
     let scanner = SqlStatementScanner::new(&contents);
     for (i, stmt) in scanner.into_iter().enumerate() {
-        println!("#{}\n{}", i, stmt.sql);
-        match parse_query(stmt.sql) {
+        println!("#{}\n{}", i + 1, stmt.sql.trim_end());
+
+        match stmt.parsed {
             Ok(parse_list) => {
                 let as_json =
                     serde_json::to_string(&parse_list).expect("failed to convert to json");
@@ -18,5 +19,6 @@ fn main() {
                 println!("-- ERROR:  {:?}", e);
             }
         };
+        println!();
     }
 }
