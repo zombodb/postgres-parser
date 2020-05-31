@@ -1,10 +1,13 @@
 use crate::{parse_query, Node, PgParserError};
 use serde::{Deserialize, Serialize};
+use std::iter::{Enumerate, Peekable};
+use std::str::Chars;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannedStatement<'a> {
     pub sql: &'a str,
     pub parsed: std::result::Result<Vec<Node>, PgParserError>,
+    pub payload: Option<&'a str>,
 }
 
 pub struct SqlStatementScanner<'a> {
@@ -55,7 +58,7 @@ impl<'a> SqlStatementScannerIterator<'a> {
             return None;
         }
 
-        let mut statement = None;
+        let mut sql = None;
 
         let mut in_sl_comment = false;
         let mut in_ml_comment = false;
@@ -65,12 +68,22 @@ impl<'a> SqlStatementScannerIterator<'a> {
 
         let input = &self.sql[self.start..];
         let mut iter = input.chars().enumerate().peekable();
-        loop {
-            let (mut idx, c) = match iter.next() {
-                Some((idx, c)) => (idx, c),
-                None => break,
-            };
+        let mut putback = None;
 
+        fn get_next(
+            putback: &mut Option<(usize, char)>,
+            iter: &mut Peekable<Enumerate<Chars>>,
+        ) -> Option<(usize, char)> {
+            if putback.is_some() {
+                // if we have a pushback item, take and return that
+                putback.take()
+            } else {
+                // otherwise just return the next item in the iterator
+                iter.next()
+            }
+        }
+
+        while let Some((mut idx, c)) = get_next(&mut putback, &mut iter) {
             let mut nextc = match iter.peek() {
                 Some((_, c)) => *c,
                 None => 0 as char,
@@ -85,15 +98,18 @@ impl<'a> SqlStatementScannerIterator<'a> {
 
                         // scan ahead for the ending quote
                         let mut incomplete = false;
+
                         loop {
                             match iter.next() {
                                 Some((idx, c)) => {
                                     end = idx;
                                     if c == '$' {
                                         break;
-                                    } else if c.is_whitespace() {
-                                        // dollar quotes can't contain spaces
-                                        incomplete = true;
+                                    } else if !c.is_alphanumeric() && c != '_' {
+                                        // it's not a valid dollar quote
+                                        // we save this value and push it back
+                                        // so we can process it as it is
+                                        putback = Some((idx, c));
                                         break;
                                     }
                                 }
@@ -102,6 +118,10 @@ impl<'a> SqlStatementScannerIterator<'a> {
                                     break;
                                 }
                             }
+                        }
+
+                        if putback.is_some() {
+                            continue;
                         }
 
                         if !incomplete {
@@ -196,7 +216,7 @@ impl<'a> SqlStatementScannerIterator<'a> {
                             };
                         }
 
-                        statement = Some(&input[..=idx]);
+                        sql = Some(&input[..=idx]);
 
                         // this is where the next statement will start, if there is one
                         self.start += idx + 1;
@@ -210,10 +230,10 @@ impl<'a> SqlStatementScannerIterator<'a> {
             }
         }
 
-        if statement.is_none() {
+        if sql.is_none() {
             if self.start < self.sql.trim_end().len() {
                 // we have a trailing statement that didn't end with a semicolon
-                statement = Some(input);
+                sql = Some(input);
 
                 // and we're done here
                 self.start += input.len();
@@ -222,10 +242,74 @@ impl<'a> SqlStatementScannerIterator<'a> {
             }
         }
 
-        let statement = statement.unwrap();
+        let sql = sql.unwrap();
+        let (parsed, payload) = match parse_query(sql) {
+            // if it only has one Node (which most will if the scanner worked correctly!), it
+            // might be a "CopyStmt" node, and if it is we need to
+            // gather up its data payload
+            Ok(vec) if vec.len() == 1 => {
+                let payload = match vec.get(0).unwrap() {
+                    Node::RawStmt(raw) => match raw.stmt.as_ref().unwrap().as_ref() {
+                        Node::CopyStmt(copy) => {
+                            if copy.is_from == true
+                                && copy.is_program == false
+                                && copy.filename.is_none()
+                            {
+                                // it's a "COPY table FROM stdin;" statement, so it should
+                                // have a payload that follows
+                                self.scan_copy_data()
+                            } else {
+                                // it's not the COPY statement we're looking for
+                                None
+                            }
+                        }
+                        _ => None,
+                    },
+                    _ => None,
+                };
+
+                (Ok(vec), payload)
+            }
+
+            // more than one Node was parsed
+            Ok(vec) => (Ok(vec), None),
+
+            // parsing failed
+            Err(e) => (Err(e), None),
+        };
+
         Some(ScannedStatement {
-            sql: statement,
-            parsed: parse_query(statement),
+            sql,
+            parsed,
+            payload,
         })
+    }
+
+    fn scan_copy_data(&mut self) -> Option<&'a str> {
+        let input = &self.sql[self.start..];
+
+        let mut prevc = '\n' as char;
+        let mut iter = input.chars().enumerate().peekable();
+        while let Some((idx, c)) = iter.next() {
+            let nextc = match iter.peek() {
+                Some((_, c)) => *c,
+                None => 0 as char,
+            };
+
+            match c {
+                // found the terminator
+                '\\' if nextc == '.' && prevc == '\n' => {
+                    self.start += idx + 2; // +2 to skip the '.' for the next statement scan
+
+                    return Some(&input[..=idx + 1]); // +1 to include the '.' in the copy data
+                }
+                _ => {}
+            }
+
+            prevc = c;
+        }
+
+        // no matching copy data found
+        None
     }
 }

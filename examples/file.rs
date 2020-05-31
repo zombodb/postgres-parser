@@ -14,6 +14,9 @@ fn main() {
                 let as_json =
                     serde_json::to_string(&parse_list).expect("failed to convert to json");
                 println!("-- {}", as_json);
+                if stmt.payload.is_some() {
+                    println!("/* DATA:\n{}\n*/", stmt.payload.unwrap());
+                }
             }
             Err(e) => {
                 println!("-- ERROR:  {:?}", e);
