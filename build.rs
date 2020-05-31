@@ -171,7 +171,7 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
                 if s.fields
                     .iter()
                     .find(|p| match p.ident.as_ref() {
-                        Some(ident) => "type_" == ident.to_string(),
+                        Some(ident) => "type_" == ident.to_string() || "xpr" == ident.to_string(),
                         None => false,
                     })
                     .is_some()

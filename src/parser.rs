@@ -53,6 +53,16 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
         fn FreeErrorData(data: *mut crate::sys::ErrorData);
 
         ///
+        /// FlushErrorState --- flush the error state after error recovery
+        ///
+        /// This should be called by an error handler after it's done processing
+        /// the error; or as soon as it's done CopyErrorData, if it intends to
+        /// do stuff that is likely to provoke another error.  You are not "out" of
+        /// the error subsystem until you have done this.
+        ///
+        fn FlushErrorState();
+
+        ///
         /// raw_parser
         ///		Given a query in string form, do lexical and grammatical analysis.
         ///
@@ -111,6 +121,8 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
 
             // make sure to cleanup after ourselves
             FreeErrorData(error_data_ptr);
+
+            FlushErrorState();
 
             // and return the error
             result

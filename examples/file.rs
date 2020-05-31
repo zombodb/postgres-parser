@@ -6,14 +6,19 @@ fn main() {
 
     let contents = std::fs::read_to_string(filename).expect("failed to read file");
 
-    let parse_list = match parse_query(&contents) {
-        Ok(query) => query,
-        Err(e) => {
-            eprintln!("{:?}", e);
-            return;
-        }
-    };
-    let as_json = serde_json::to_string_pretty(&parse_list).expect("failed to convert to json");
+    let statements = scan_sql(&contents);
 
-    println!("{}", as_json);
+    for (i, stmt) in statements.into_iter().enumerate() {
+        println!("#{}\n{}", i, stmt.sql);
+        match parse_query(stmt.sql) {
+            Ok(parse_list) => {
+                let as_json =
+                    serde_json::to_string(&parse_list).expect("failed to convert to json");
+                println!("-- {}", as_json);
+            }
+            Err(e) => {
+                println!("-- ERROR:  {:?}", e);
+            }
+        };
+    }
 }
