@@ -12,8 +12,8 @@ lazy_static! {
         }
 
         unsafe {
-            SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
             MemoryContextInit();
+            SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
         }
     };
 }
@@ -75,6 +75,30 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
         ///		descendant contexts (but not the named context itself).
         ///
         fn MemoryContextReset(context: crate::sys::MemoryContext);
+
+        ///
+        /// AllocSetContextCreateInternal
+        ///		Create a new AllocSet context.
+        ///
+        /// parent: parent context, or NULL if top-level context
+        /// name: name of context (must be statically allocated)
+        /// min_context_size: minimum context size
+        /// init_block_size: initial allocation block size
+        /// max_block_size: maximum allocation block size
+        ///
+        /// Most callers should abstract the context size parameters using a macro
+        /// such as ALLOCSET_DEFAULT_SIZES.
+        ///
+        /// Note: don't call this directly; go through the wrapper macro
+        /// AllocSetContextCreate.
+        ///
+        fn AllocSetContextCreateInternal(
+            parent: crate::sys::MemoryContext,
+            name: *const std::os::raw::c_char,
+            min_context_size: crate::sys::Size,
+            init_block_size: crate::sys::Size,
+            max_block_size: crate::sys::Size,
+        ) -> crate::sys::MemoryContext;
 
         ///
         /// raw_parser
@@ -148,6 +172,31 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
     // make sure Postgres' MemoryContext system is initialized
     let _ = *ONETIME_SETUP;
 
+    // create and switch to a new memory context so that we can free it without
+    // damaging anything that might be allocated by Postgres in Postgres' TopMemoryContext,
+    // which is what CurrentMemoryContext should be pointing to
+    let (memory_context, old_context) = unsafe {
+        assert_eq!(
+            crate::sys::CurrentMemoryContext,
+            crate::sys::TopMemoryContext
+        );
+
+        let our_context = AllocSetContextCreateInternal(
+            crate::sys::TopMemoryContext,
+            std::ffi::CStr::from_bytes_with_nul(b"parser context\0")
+                .unwrap()
+                .as_ptr(),
+            crate::sys::ALLOCSET_DEFAULT_MINSIZE as crate::sys::Size,
+            crate::sys::ALLOCSET_DEFAULT_INITSIZE as crate::sys::Size,
+            crate::sys::ALLOCSET_DEFAULT_MAXSIZE as crate::sys::Size,
+        );
+
+        let old = crate::sys::CurrentMemoryContext;
+        crate::sys::CurrentMemoryContext = our_context;
+
+        (our_context, old)
+    };
+
     let result = match std::ffi::CString::new(statements) {
         // we have a valid query &str we can represent as a CString, so lets parse it
         Ok(c_str) => match unsafe { raw_parser_wrapper(c_str.as_ptr()) } {
@@ -178,9 +227,11 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
     };
 
     // we've copied the result of the parser into owned Rust memory, so
-    // free up whatever Postgres (the parser) might have allocated
+    // free up whatever Postgres (the parser) might have allocated in our
+    // MemoryContext and switch back to the previous one
     unsafe {
-        MemoryContextReset(crate::sys::CurrentMemoryContext);
+        MemoryContextReset(memory_context);
+        crate::sys::CurrentMemoryContext = old_context;
     }
 
     result
