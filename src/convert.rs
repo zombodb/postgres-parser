@@ -23,15 +23,15 @@
 use crate::sys::NodeTag;
 
 /// A crate-public trait for converting `crate::sys::Node`-types into
-/// their `crate::safe::*` counterparts
+/// their `crate::nodes::*` counterparts
 pub(crate) trait ConvertNode {
     /// Implementations should perform a "deep copy" to convert the "sys" node
     /// into its "safe" counterpart
-    fn convert(&self) -> crate::safe::Node;
+    fn convert(&self) -> crate::nodes::Node;
 }
 
 impl ConvertNode for crate::sys::List {
-    fn convert(&self) -> crate::safe::Node {
+    fn convert(&self) -> crate::nodes::Node {
         extern "C" {
             fn list_nth(list: *const crate::sys::List, n: i32) -> *mut std::os::raw::c_void;
         }
@@ -47,13 +47,13 @@ impl ConvertNode for crate::sys::List {
             }
         }
 
-        crate::safe::Node::List(elements)
+        crate::nodes::Node::List(elements)
     }
 }
 
 impl ConvertNode for crate::sys::Value {
-    fn convert(&self) -> crate::safe::Node {
-        use crate::safe::Value;
+    fn convert(&self) -> crate::nodes::Node {
+        use crate::nodes::Value;
 
         fn make_string(value: &crate::sys::Value) -> String {
             let cstr = unsafe { value.val.str.as_ref() };
@@ -81,13 +81,13 @@ impl ConvertNode for crate::sys::Value {
             _ => panic!("unexpected Value type: {:?}", self.type_),
         }
 
-        crate::safe::Node::Value(value)
+        crate::nodes::Node::Value(value)
     }
 }
 
 impl ConvertNode for crate::sys::CreateForeignTableStmt {
-    fn convert(&self) -> crate::safe::Node {
-        let stmt = crate::safe::CreateForeignTableStmt {
+    fn convert(&self) -> crate::nodes::Node {
+        let stmt = crate::nodes::CreateForeignTableStmt {
             base: match self.base.convert() {
                 crate::Node::CreateStmt(stmt) => stmt,
                 _ => panic!("could not convert sys::CreateForeignTableStmt"), // shouldn't happen
@@ -106,12 +106,12 @@ impl ConvertNode for crate::sys::CreateForeignTableStmt {
                 None
             } else {
                 match unsafe { self.options.as_ref().unwrap().convert() } {
-                    crate::safe::Node::List(list) => Some(list),
+                    crate::nodes::Node::List(list) => Some(list),
                     _ => panic!("not a List!"),
                 }
             },
         };
 
-        crate::safe::Node::CreateForeignTableStmt(stmt)
+        crate::nodes::Node::CreateForeignTableStmt(stmt)
     }
 }

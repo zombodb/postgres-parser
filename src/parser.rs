@@ -33,14 +33,88 @@ lazy_static! {
     };
 }
 
+/// Represents various errors that can occur while parsing an SQL statement.
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum PgParserError {
-    InternalNull,
-    NotAList,
+    /// The SQL statement could not be parsed
     ParseError { message: String, cursor_pos: i32 },
+
+    /// Internal SqlStatementScannerError -- more than one statement was scanned
+    MultipleStatements(Vec<crate::Node>),
+
+    /// We couldn't determine the error Postgres tried to tell us
+    UnknownParseError,
+
+    /// One of the returned parsed queries didn't parse to a `postgres-parser::RawStmt` (this is unlikely to ever happen)
+    NotARawStmt,
+
+    /// The input SQL statement `&str` contained an internal zero-byte
+    InternalNull,
+
+    /// The result from Postgres' parser was not a `Node::List` (this is unlikely to ever happen)
+    NotAList,
 }
 
-pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Node>, PgParserError> {
+/// Parse a string of delimited SQL statements.
+///
+/// This function should be used to parse single statements, or even multiple statements, that
+/// are (hopefully) known to already be syntatically correct.
+///
+/// `parse_query()` passes the entire string of `statements` to Postgres' `raw_parser()`, returning
+/// an `Ok(Vec<postgres-parser::Node>)` types.
+///
+/// If one of the statements fails to parse, then it is considered that all the statements failed
+/// to parse.  As such, a single `Err(PgParserError)` will be returned.
+///
+/// To parse multiple statements and evaluate their parsing success individually, you likely want
+/// to use `postgres-parser::SqlStatementScanner` instead.
+///
+/// ## Examples
+///
+/// An example of parsing a single query:
+/// ```rust
+/// use postgres_parser::*;
+/// let parse_list = parse_query("SELECT 1");
+///
+/// match parse_list {
+///     // dump the contents of the Vec of nodes, which will only have one
+///     Ok(vec) => println!("{:?}", vec),
+///     Err(e) => panic!(e)
+/// }
+/// ```
+///
+/// Parsing multiple queries is exactly the same:
+/// ```rust
+/// use postgres_parser::*;
+/// let parse_list = parse_query("SELECT 1; SELECT 2; SELECT 3");
+///
+/// match parse_list {
+///     // dump the contents of the Vec of nodes, which will have three elements
+///     Ok(vec) => println!("{:?}", vec),
+///     Err(e) => panic!(e)
+/// }
+/// ```
+///
+/// But if one of those is isn't syntatically correct:
+/// ```rust
+/// use postgres_parser::*;
+/// let parse_list = parse_query("SELECT 1; invalid query; SELECT 3");
+///
+/// match parse_list {
+///     Ok(vec) => println!("{:?}", vec),
+///
+///     // we received an Err because one of the queries didn't parse
+///     Err(e) => assert!(true)
+/// }
+/// ```
+///
+/// Parsing nothing (or just a `;`) returns an empty Vec:
+/// ```rust
+/// use postgres_parser::*;
+/// let parse_list = parse_query(";").unwrap();
+/// assert!(parse_list.is_empty())
+/// ```
+pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, PgParserError> {
     type SigjmpBuf = [::std::os::raw::c_int; 38usize];
 
     #[cfg(target_os = "linux")]
@@ -157,27 +231,34 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
 
             // and now we'll make a copy of the current "ErrorData"
             let error_data_ptr = CopyErrorData();
-            let error_data = error_data_ptr.as_ref().expect("could not CopyErrorData");
+            let error_data = error_data_ptr
+                .as_ref()
+                .expect("CopyErrorData returned null"); // error_data_ptr should never be null
 
-            // so we can pull out the details of the error
-            let message = std::ffi::CStr::from_ptr(error_data.message);
-            let cursor_pos = error_data.cursorpos;
+            let result = if error_data.message.is_null() {
+                // we have no error message
+                PgParserError::UnknownParseError
+            } else {
+                // pull out the details of the error
+                let message = std::ffi::CStr::from_ptr(error_data.message);
+                let cursor_pos = error_data.cursorpos;
 
-            // and convert it into a PgParserError::ParseError
-            let result = Err(PgParserError::ParseError {
-                message: message
-                    .to_str()
-                    .expect("failed to convert parse error message into a &str")
-                    .to_string(),
-                cursor_pos,
-            });
+                // and convert it into a PgParserError::ParseError
+                PgParserError::ParseError {
+                    message: message
+                        .to_str()
+                        .expect("failed to convert parse error message into a &str")
+                        .to_string(),
+                    cursor_pos,
+                }
+            };
 
             // make sure to cleanup after ourselves
             FreeErrorData(error_data_ptr);
             FlushErrorState();
 
             // and return the error
-            result
+            Err(result)
         }
     }
 
@@ -206,10 +287,10 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
             crate::sys::ALLOCSET_DEFAULT_MAXSIZE as crate::sys::Size,
         );
 
-        let old = crate::sys::CurrentMemoryContext;
+        let old_context = crate::sys::CurrentMemoryContext;
         crate::sys::CurrentMemoryContext = our_context;
 
-        (our_context, old)
+        (our_context, old_context)
     };
 
     let result = match std::ffi::CString::new(statements) {
@@ -223,8 +304,26 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::safe::Nod
                 } else {
                     // we did get a query, so lets convert it into a Node::List
                     match unsafe { parse_list.as_ref().unwrap().convert() } {
-                        // and that worked, so we return its contained Vec<Node>
-                        crate::safe::Node::List(vec) => Ok(vec),
+                        // and that worked, so build up a new Vec of Nodes from the
+                        // contained RawStmts
+                        crate::nodes::Node::List(vec) => {
+                            let mut raw_statements = Vec::new();
+                            let mut err = false;
+                            for node in vec {
+                                match node {
+                                    crate::Node::RawStmt(mut rawstmt) => {
+                                        raw_statements.push(*rawstmt.stmt.take().unwrap())
+                                    }
+                                    _ => err = true,
+                                }
+                            }
+
+                            if err {
+                                Err(PgParserError::NotARawStmt)
+                            } else {
+                                Ok(raw_statements)
+                            }
+                        }
 
                         // it didn't convert into a Node::List.  This seems pretty impossible
                         // but need to handle it anyways

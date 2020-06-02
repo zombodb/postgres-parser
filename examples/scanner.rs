@@ -15,25 +15,48 @@
 */
 use postgres_parser::*;
 
+/// A simple CLI example that parses the entire file specified by the first argument.
+///
+/// This example uses the `SqlStatementScanner` to scan the file and parse each full SQL
+/// statement, one at a time.
+///
+/// It outputs each original SQL statement and its corresponding JSON representation.  If the
+/// statement was a "COPY ... FROM stdin;" statement, then the subsequent data payload is
+/// also output.
+///
+/// ## Usage
+///
+/// ```shell
+/// $ target/debug/examples/scanner /path/to/schema.sql
+/// ```
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let filename = args.get(1).expect("no filename");
     let contents =
         std::fs::read_to_string(filename).expect(&format!("failed to read file: {}", filename));
 
+    // the scanner is essentially an iterator that iterates over each complete SQL statement
+    // in its input.  Here we construct a new SqlStatementScanner and iterate over the results
     let scanner = SqlStatementScanner::new(&contents);
     for (i, stmt) in scanner.into_iter().enumerate() {
+        // output the raw SQL string from the scanner
         println!("#{}\n{}", i + 1, stmt.sql.trim_end());
 
-        match stmt.parsed {
-            Ok(parse_list) => {
-                let as_json =
-                    serde_json::to_string(&parse_list).expect("failed to convert to json");
+        // and now we look at what it parsed
+        match stmt.parsetree {
+            // it was able, via Postgres' parser, to successfully parse the statement
+            // output it as json
+            Ok(parsetree) => {
+                let as_json = serde_json::to_string(&parsetree).expect("failed to convert to json");
                 println!("-- {}", as_json);
+
+                // output corresponding payload data (likely COPY ... FROM stdin; data)
                 if stmt.payload.is_some() {
                     println!("/* DATA:\n{}\n*/", stmt.payload.unwrap());
                 }
             }
+
+            // it couldn't be parsed.  Just display the underlying parse error
             Err(e) => {
                 println!("-- ERROR:  {:?}", e);
             }

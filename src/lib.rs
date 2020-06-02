@@ -15,11 +15,11 @@
 */
 mod convert;
 mod parser;
-mod safe;
 mod scanner;
 
+pub mod nodes;
 pub mod sys;
 
+pub use nodes::Node;
 pub use parser::*;
-pub use safe::Node;
 pub use scanner::*;

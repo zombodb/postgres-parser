@@ -15,6 +15,14 @@
 */
 use postgres_parser::*;
 
+/// A simple CLI example that parses its first argument (as an SQL statement) and outputs
+/// a pretty JSON form of the parsed structure.
+///
+/// ## Usage
+///
+/// ```shell
+/// $ target/debug/examples/json "SELECT 1"
+/// ```
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let query_string = args.get(1).expect("no arguments");

@@ -15,6 +15,14 @@
 */
 use postgres_parser::*;
 
+/// A simple CLI example that parses its first argument (as an SQL statement) and outputs
+/// the resulting parse tree in Rust's standard "Debug" output
+///
+/// ## Usage
+///
+/// ```shell
+/// $ target/debug/examples/dump "SELECT 1"
+/// ```
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let parse_list = parse_query(args.get(1).expect("no arguments")).unwrap();

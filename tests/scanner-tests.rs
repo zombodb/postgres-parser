@@ -1,6 +1,26 @@
 use postgres_parser::{ScannedStatement, SqlStatementScanner};
 
 #[test]
+fn test_no_statements() {
+    let mut statements = SqlStatementScanner::new("").into_iter();
+    assert!(statements.next().is_none())
+}
+
+#[test]
+fn test_only_whitespace() {
+    let mut statements = SqlStatementScanner::new("   \n\r\n\t   ").into_iter();
+    assert!(statements.next().is_none())
+}
+
+#[test]
+fn test_null_statement() {
+    let mut statements = SqlStatementScanner::new(";").into_iter();
+    let first = statements.next().expect("no statements");
+    assert!(first.parsetree.is_ok());
+    assert!(first.parsetree.unwrap().is_none())
+}
+
+#[test]
 fn test_single_statement() {
     let scanner = SqlStatementScanner::new("SELECT 1;");
     let statements: Vec<ScannedStatement> = scanner.into_iter().collect();
@@ -10,7 +30,7 @@ fn test_single_statement() {
     let first = statements.get(0).unwrap();
     assert_eq!(first.sql, "SELECT 1;");
     assert!(first.payload.is_none());
-    assert!(first.parsed.is_ok());
+    assert!(first.parsetree.is_ok());
 }
 
 #[test]
@@ -20,12 +40,12 @@ fn test_two_statements() {
     let first = scanner.next().expect("no first query");
     assert_eq!(first.sql, "SELECT 1;\n"); // note trailing \n -- trailing whitespace after ';' is included
     assert!(first.payload.is_none());
-    assert!(first.parsed.is_ok());
+    assert!(first.parsetree.is_ok());
 
     let second = scanner.next().expect("no second query");
     assert_eq!(second.sql, "SELECT 2;");
     assert!(second.payload.is_none());
-    assert!(second.parsed.is_ok());
+    assert!(second.parsetree.is_ok());
 
     assert!(scanner.next().is_none());
 }
@@ -140,9 +160,9 @@ fn test_5_errors() {
     assert_eq!(statements.len(), 6);
     for (i, s) in statements.into_iter().enumerate() {
         if i == 5 {
-            assert!(s.parsed.is_ok())
+            assert!(s.parsetree.is_ok())
         } else {
-            assert!(s.parsed.is_err())
+            assert!(s.parsetree.is_err())
         }
     }
 }

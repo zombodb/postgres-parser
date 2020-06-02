@@ -18,13 +18,51 @@ use serde::{Deserialize, Serialize};
 use std::iter::Peekable;
 use std::str::CharIndices;
 
+/// An individual SQL statement scanned from a larger set of SQL statements
+///
+/// Includes the raw SQL, its parsing result, and potentially an attached payload.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScannedStatement<'a> {
+    /// The raw SQL statement
     pub sql: &'a str,
-    pub parsed: std::result::Result<Vec<Node>, PgParserError>,
+
+    /// Parsing results
+    pub parsetree: std::result::Result<Option<Node>, PgParserError>,
+
+    /// If the parsed statement resulted in a "COPY ... FROM stdin;" statement,
+    /// this will contain the copy data that follows
     pub payload: Option<&'a str>,
 }
 
+/// The `SqlStatementScanner` allows for scanning a blob of SQL statements and ultimately
+/// iterating over each statement, one at a time, producing a `ScannedStatement` that includes
+/// the raw SQL, that SQL's parsetree, and optional "COPY ... FROM stdin;" payload data.
+///
+/// When parsing multiple SQL statements, the `SqlStatementScanner` is superior to directly calling
+/// `parse_query()` as each individual statement is parsed on its own.  This provides for syntax
+/// checking each statement individually, instead of failing if any statement is syntactically
+/// incorrect.
+///
+/// ## Statement Scanning Notes
+///
+/// - Trailing whitespace after a statement end (`"SELECT 1;  \n\n    SELECT 2;"`) are included with
+/// the preceding statement.  As such, this would scan into two statements: `["SELECT 1;  \n\n    ", "SELECT 2;"]`
+/// - Statement-terminating semicolons are included with the statement
+/// - The final statement need not have a terminating semicolon
+///
+///
+/// ## Examples
+///
+/// Parsing multiple statements:
+///
+/// ```rust
+/// use postgres_parser::SqlStatementScanner;
+/// let scanner = SqlStatementScanner::new("SELECT 0; SELECT 1; SELECT 2;");
+/// for (idx, statement) in scanner.iter().enumerate() {
+///     assert_eq!(statement.sql.trim_end(), &format!("SELECT {};", idx));
+/// }
+/// ```
+///
 pub struct SqlStatementScanner<'a> {
     sql: &'a str,
 }
@@ -54,6 +92,7 @@ impl<'a> IntoIterator for SqlStatementScanner<'a> {
     }
 }
 
+/// Iterator for the `SqlStatementScanner`
 pub struct SqlStatementScannerIterator<'a> {
     sql: &'a str,
     start: usize,
@@ -260,34 +299,35 @@ impl<'a> SqlStatementScannerIterator<'a> {
         let sql = sql.unwrap();
         let (parsed, payload) = match parse_query(sql) {
             // if it only has one Node (which most will if the scanner worked correctly!), it
-            // might be a "CopyStmt" node, and if it is we need to
-            // gather up its data payload
-            Ok(vec) if vec.len() == 1 => {
-                let payload = match vec.get(0).unwrap() {
-                    Node::RawStmt(raw) => match raw.stmt.as_ref().unwrap().as_ref() {
-                        Node::CopyStmt(copy) => {
-                            if copy.is_from == true
-                                && copy.is_program == false
-                                && copy.filename.is_none()
-                            {
-                                // it's a "COPY table FROM stdin;" statement, so it should
-                                // have a payload that follows
-                                self.scan_copy_data()
-                            } else {
-                                // it's not the COPY statement we're looking for
-                                None
-                            }
+            // might be a "CopyStmt" node, and if it is we need to gather up its data payload
+            Ok(mut vec) if vec.len() == 1 => {
+                let stmt = vec.get(0).unwrap();
+                let payload = match stmt {
+                    Node::CopyStmt(copy) => {
+                        if copy.is_from == true
+                            && copy.is_program == false
+                            && copy.filename.is_none()
+                        {
+                            // it's a "COPY table FROM stdin;" statement, so it should
+                            // have a payload that follows
+                            self.scan_copy_data()
+                        } else {
+                            // it's not the COPY statement we're looking for
+                            None
                         }
-                        _ => None,
-                    },
+                    }
                     _ => None,
                 };
 
-                (Ok(vec), payload)
+                (Ok(Some(vec.remove(0))), payload)
             }
 
-            // more than one Node was parsed
-            Ok(vec) => (Ok(vec), None),
+            // no Nodes were parsed.  Query was likely just whitespace or a single ";"
+            // this is still an Ok() situation
+            Ok(vec) if vec.len() == 0 => (Ok(None), None),
+
+            // more than one Node was parsed -- this shouldn't happen if the scanner works properly!
+            Ok(vec) => (Err(PgParserError::MultipleStatements(vec)), None),
 
             // parsing failed
             Err(e) => (Err(e), None),
@@ -295,7 +335,7 @@ impl<'a> SqlStatementScannerIterator<'a> {
 
         Some(ScannedStatement {
             sql,
-            parsed,
+            parsetree: parsed,
             payload,
         })
     }

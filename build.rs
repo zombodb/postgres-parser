@@ -100,10 +100,10 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
     std::fs::write(&sys_rs, sys).unwrap_or_else(|e| panic!("Unable to save sys.rs: {:?}", e));
     rust_fmt(&sys_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust sys bindings"));
 
-    let safe = generate_safe_wrappers(bindings.to_string());
-    let safe_rs = out_path.join("src").join("safe.rs");
-    std::fs::write(&safe_rs, safe).unwrap_or_else(|e| panic!("Unable to save safe.rs: {:?}", e));
-    rust_fmt(&safe_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust safe bindings"));
+    let nodes = generate_safe_wrappers(bindings.to_string());
+    let nodes_rs = out_path.join("src").join("nodes.rs");
+    std::fs::write(&nodes_rs, nodes).unwrap_or_else(|e| panic!("Unable to save safe.rs: {:?}", e));
+    rust_fmt(&nodes_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust safe bindings"));
 }
 
 fn extract_types(include_path: &PathBuf) -> Result<Vec<String>, std::io::Error> {
@@ -120,6 +120,7 @@ fn extract_types(include_path: &PathBuf) -> Result<Vec<String>, std::io::Error> 
                     let parts: Vec<_> = line.split_whitespace().collect();
                     if let Some(typename) = parts.get(2) {
                         if "Query" == *typename
+                            || "SubPlan" == *typename
                             || "RangeTblEntry" == *typename
                             || "RangeTblFunction" == *typename
                             || "Bitmapset" == *typename
@@ -265,7 +266,10 @@ fn process_bindings(input: String) -> String {
     let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
     let mut output = TokenStream2::new();
 
-    output.extend(quote!(
+    output.extend(quote! {
+        //! Generated types and constants from Postgres' header files necessary to represent
+        //! a parse tree as raw "C" structures.  Also contains various enum types used by
+        //! this module and the `nodes` module
         #![allow(improper_ctypes)]
         #![allow(non_upper_case_globals)]
         #![allow(non_camel_case_types)]
@@ -273,7 +277,7 @@ fn process_bindings(input: String) -> String {
         #![allow(dead_code)]
 
         use serde::{Serialize, Deserialize};
-    ));
+    });
 
     generate_serde_support(&ast, &mut output);
 
@@ -300,14 +304,15 @@ fn generate_safe_wrappers(input: String) -> String {
     let mut struct_names = node_tags.keys().map(|v| v.as_str()).collect::<Vec<&str>>();
     struct_names.sort();
 
-    output.extend(quote!(
+    output.extend(quote! {
+        //! Generated types to represent a parse tree in a safe manner as returned from `parse_query()`
         #![allow(non_upper_case_globals)]
         #![allow(non_camel_case_types)]
         #![allow(non_snake_case)]
         #![allow(dead_code)]
 
         use serde::{Serialize, Deserialize};
-    ));
+    });
 
     generate_node_enum(&struct_names, &mut output);
     generate_structs(&ast, &struct_names, &mut output);
@@ -331,8 +336,9 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
     }
 
     output.extend(quote! {
+        /// All the various Postgres parse tree nodes that can be returned upon parsing an SQL statement
         #[allow(non_camel_case_types)]
-        #[derive(Debug)]
+        #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
         pub enum Node {
             #enum_stream
@@ -353,7 +359,7 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                         continue;
                     } else if "Value" == name {
                         output.extend(quote! {
-                            #[derive(Debug)]
+                            #[derive(Debug, Eq, PartialEq)]
                             #[derive(Serialize, Deserialize)]
                             #attributes
                             pub struct Value {
@@ -450,7 +456,7 @@ fn generate_single_struct(
     output.extend(quote! {
         #[allow(non_camel_case_types)]
         #[allow(non_snake_case)]
-        #[derive(Debug)]
+        #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
         #attributes
         pub struct #struct_name {
@@ -486,7 +492,7 @@ fn generate_convert_trait_impls(
                         let conversion = generate_convert_fn(s, struct_names);
                         output.extend(quote! {
                             impl crate::convert::ConvertNode for crate::sys::#ident {
-                                fn convert(&self) -> crate::safe::Node {
+                                fn convert(&self) -> crate::nodes::Node {
                                     #conversion
                                 }
                             }
@@ -530,7 +536,7 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
                     "bool" => quote!(self.#name as bool),
                     "Value" => quote! {
                         match self.#name.convert() {
-                            crate::safe::Node::Value(value) => value,
+                            crate::nodes::Node::Value(value) => value,
                             _=> panic!("Value didn't convert to Value")
                         }
                     },
@@ -562,7 +568,7 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
                                 None
                             } else {
                                 match unsafe { self.#name.as_ref().unwrap().convert() } {
-                                    crate::safe::Node::List(list) => Some(list),
+                                    crate::nodes::Node::List(list) => Some(list),
                                     _ => panic!("not a List!"),
                                 }
                             }
@@ -579,7 +585,7 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
                                 None
                             } else {
                                 match unsafe { self.#name.as_ref().unwrap().convert() } {
-                                    crate::safe::Node::#path(value) => Some(Box::new(value)),
+                                    crate::nodes::Node::#path(value) => Some(Box::new(value)),
                                     _=> panic!("{} didn't convert to {}", stringify!(#name), stringify!(#path))
                                 }
                             }
@@ -623,7 +629,7 @@ fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenS
 
     output.extend(quote! {
         impl crate::convert::ConvertNode for crate::sys::Node {
-            fn convert(&self) -> crate::safe::Node {
+            fn convert(&self) -> crate::nodes::Node {
                 match self.type_ {
                     #match_arms
                     crate::sys::NodeTag::T_String |
