@@ -1,6 +1,23 @@
+/*
+    Copyright (c) 2020, ZomboDB, LLC
+
+    Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and
+    without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the
+    following two paragraphs appear in all copies.
+
+    IN NO EVENT SHALL ZomboDB, LLC BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+    DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF ZomboDB, LLC
+    HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+    ZomboDB, LLC SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND
+    ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+*/
 use bindgen::EnumVariation;
 use quote::quote;
 use std::collections::{HashMap, HashSet};
+use std::fs::File;
+use std::io::BufRead;
 use std::path::PathBuf;
 use std::process::Command;
 use syn::export::TokenStream2;
@@ -36,7 +53,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
     include_path.push("include");
     include_path.push("server");
 
-    let bindings = bindgen::Builder::default()
+    let mut builder = bindgen::Builder::default()
         .header(include_h.to_str().unwrap())
         .clang_arg(&format!("-I{}", include_path.display()))
         .blacklist_function(".*") // we only want a few functions so we'll 'extern "C"' them ourselves
@@ -45,11 +62,34 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
         .derive_default(true)
         .derive_eq(true)
         .derive_hash(true)
+        .generate_comments(true)
         .layout_tests(true)
         .default_enum_style(EnumVariation::Rust {
             non_exhaustive: false,
         })
-        .rustfmt_bindings(false)
+        .rustfmt_bindings(false);
+
+    // whitelist types from "parsenodes.h"
+    for typename in extract_types(&include_path).unwrap() {
+        builder = builder.whitelist_type(typename);
+    }
+
+    // and a few others that don't come from there
+    builder = builder
+        .whitelist_type("pg_enc")
+        .whitelist_type("sigjmp_buf")
+        .whitelist_type("ErrorContextCallback")
+        .whitelist_type("ErrorData")
+        .whitelist_type("MemoryContext")
+        .whitelist_type("MemoryContextData")
+        .whitelist_type("Size")
+        .whitelist_var("PG_exception_stack")
+        .whitelist_var("error_context_stack")
+        .whitelist_var("CurrentMemoryContext")
+        .whitelist_var("TopMemoryContext")
+        .whitelist_var("ALLOCSET_DEFAULT_.*");
+
+    let bindings = builder
         .generate()
         .unwrap_or_else(|_| panic!("Unable to generate Rust bindings from Postgres headers"));
 
@@ -64,6 +104,38 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
     let safe_rs = out_path.join("src").join("safe.rs");
     std::fs::write(&safe_rs, safe).unwrap_or_else(|e| panic!("Unable to save safe.rs: {:?}", e));
     rust_fmt(&safe_rs).unwrap_or_else(|_| panic!("failed to run rustfmt on rust safe bindings"));
+}
+
+fn extract_types(include_path: &PathBuf) -> Result<Vec<String>, std::io::Error> {
+    let parsenodes_h = include_path.join("nodes").join("parsenodes.h");
+    let primnodes_h = include_path.join("nodes").join("primnodes.h");
+    let mut types = Vec::new();
+
+    for file in vec![File::open(parsenodes_h)?, File::open(primnodes_h)?] {
+        let reader = std::io::BufReader::new(file);
+
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                if line.starts_with("typedef") {
+                    let parts: Vec<_> = line.split_whitespace().collect();
+                    if let Some(typename) = parts.get(2) {
+                        if "Query" == *typename
+                            || "RangeTblEntry" == *typename
+                            || "RangeTblFunction" == *typename
+                            || "Bitmapset" == *typename
+                        {
+                            // we don't want these types -- they're not really a parsenode, even tho
+                            // it's defined there
+                            continue;
+                        }
+                        types.push(typename.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(types)
 }
 
 fn run_build_sh(pwd: &PathBuf) -> Result<String, std::io::Error> {
@@ -273,6 +345,8 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
         match item {
             Item::Struct(s) => {
                 let name = s.ident.to_string();
+                let attributes = extract_doc_attributes(&s.attrs);
+
                 if struct_names.contains(&name.as_str()) {
                     if "List" == name {
                         // don't need a struct for List as we just represent it as a Vec<Node>
@@ -281,6 +355,7 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                         output.extend(quote! {
                             #[derive(Debug)]
                             #[derive(Serialize, Deserialize)]
+                            #attributes
                             pub struct Value {
                                 #[serde(skip_serializing_if = "Option::is_none")]
                                 pub string: Option<String>,
@@ -310,8 +385,9 @@ fn generate_single_struct(
     output: &mut TokenStream2,
 ) {
     let struct_name = &item.ident;
-    let mut fields_stream = TokenStream2::new();
+    let attributes = extract_doc_attributes(&item.attrs);
 
+    let mut fields_stream = TokenStream2::new();
     for field in &item.fields {
         let name = field.ident.as_ref().unwrap();
         let namestr = name.to_string();
@@ -376,6 +452,7 @@ fn generate_single_struct(
         #[allow(non_snake_case)]
         #[derive(Debug)]
         #[derive(Serialize, Deserialize)]
+        #attributes
         pub struct #struct_name {
             #fields_stream
         }
@@ -408,7 +485,7 @@ fn generate_convert_trait_impls(
                     if struct_names.contains(&name.as_str()) {
                         let conversion = generate_convert_fn(s, struct_names);
                         output.extend(quote! {
-                            impl crate::traits::ConvertNode for crate::sys::#ident {
+                            impl crate::convert::ConvertNode for crate::sys::#ident {
                                 fn convert(&self) -> crate::safe::Node {
                                     #conversion
                                 }
@@ -545,7 +622,7 @@ fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenS
     }
 
     output.extend(quote! {
-        impl crate::traits::ConvertNode for crate::sys::Node {
+        impl crate::convert::ConvertNode for crate::sys::Node {
             fn convert(&self) -> crate::safe::Node {
                 match self.type_ {
                     #match_arms
@@ -562,4 +639,18 @@ fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenS
             }
         }
     });
+}
+
+fn extract_doc_attributes(attributes: &Vec<syn::Attribute>) -> TokenStream2 {
+    let mut stream = TokenStream2::new();
+
+    for att in attributes {
+        let str = format!("{}", quote!(#att));
+
+        if str.starts_with("# [ doc =") {
+            stream.extend(quote!(#att))
+        }
+    }
+
+    stream
 }

@@ -3,6 +3,7 @@
 #include "nodes/memnodes.h"
 #include "nodes/nodes.h"
 #include "nodes/parsenodes.h"
+#include "nodes/pg_list.h"
 #include "parser/parser.h"
 #include "utils/elog.h"
 #include "utils/memutils.h"

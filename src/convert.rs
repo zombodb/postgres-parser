@@ -1,6 +1,32 @@
+/*
+    Copyright (c) 2020, ZomboDB, LLC
+
+    Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and
+    without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the
+    following two paragraphs appear in all copies.
+
+    IN NO EVENT SHALL ZomboDB, LLC BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+    DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF ZomboDB, LLC
+    HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+    ZomboDB, LLC SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND
+    ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+*/
+
+//! Contains a trait named `ConvertNode` and a few hand-written implementations
+//! to allow for the conversion of Postgres' "parsenode" `Node` pointer types into
+//! owned Rust types.
+//!
+//! Implementations for the `ConvertNode` type are (mostly) machine-generated and
+//! appear in `safe.rs`
 use crate::sys::NodeTag;
 
+/// A crate-public trait for converting `crate::sys::Node`-types into
+/// their `crate::safe::*` counterparts
 pub(crate) trait ConvertNode {
+    /// Implementations should perform a "deep copy" to convert the "sys" node
+    /// into its "safe" counterpart
     fn convert(&self) -> crate::safe::Node;
 }
 

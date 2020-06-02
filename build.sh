@@ -1,4 +1,19 @@
 #! /bin/bash
+#
+#    Copyright (c) 2020, ZomboDB, LLC
+#
+#    Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and
+#    without a written agreement is hereby granted, provided that the above copyright notice and this paragraph and the
+#    following two paragraphs appear in all copies.
+#
+#    IN NO EVENT SHALL ZomboDB, LLC BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+#    DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF ZomboDB, LLC
+#    HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+#    ZomboDB, LLC SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND
+#    ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
 
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
@@ -24,7 +39,9 @@ mkdir -p "${BUILD_DIR}" || exit 1
 cd "${BUILD_DIR}" || exit 1
 
 # download/untar Postgres
-wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+if [ ! -f postgresql-${PGVER}.tar.bz2 ] ; then
+  wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+fi
 tar xjf postgresql-${PGVER}.tar.bz2 || exit 1
 
 # patch its Makefiles
@@ -39,10 +56,21 @@ if [ "x${UNAME}" == "xLinux" ] ; then
   CFLAGS="-B${PWD}/build_bin"
 fi
 AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
+make -j${NUM_CPUS} clean || exit 1
 make -j${NUM_CPUS} || exit 1
+rm -rf "${INSTALL_DIR}" || exit 1
 make install || exit 1
 
-# rename Postgres 'main' function entry point so it won't conflict
+# adjust comment style so Rust's 'bindgen' will pick them up
+# we do this against the headers in the ${INSTALL_DIR} as we
+# don't want to risk messing up original Postgres sources
+for f in "${INSTALL_DIR}/include/server/nodes/parsenodes.h" "${INSTALL_DIR}/include/server/nodes/primnodes.h" ; do
+  sed -i'' -e 's/\/\*/\/**/g' $f || exit 1  # C-style comments start with two asterisks
+  sed -i'' -e 's/-//g' $f || exit 1    # remove consecutive dashes
+  sed -i'' -e "s/\\\`/'/g" $f || exit 1     # backticks to single quotes
+done
+
+# rename Postgres "main' function entry point so it won't conflict
 # with users of this library
 sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
 sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
