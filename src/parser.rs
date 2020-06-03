@@ -21,14 +21,9 @@ use std::sync::Mutex;
 lazy_static! {
     static ref PARSER_LOCK: Mutex<()> = Mutex::new(());
     static ref ONETIME_SETUP: () = {
-        extern "C" {
-            fn MemoryContextInit();
-            fn SetDatabaseEncoding(enc: i32);
-        }
-
         unsafe {
-            MemoryContextInit();
-            SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
+            crate::sys::MemoryContextInit();
+            crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
         }
     };
 }
@@ -130,75 +125,6 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
             -> std::os::raw::c_int;
     }
 
-    extern "C" {
-        ///
-        /// CopyErrorData --- obtain a copy of the topmost error stack entry
-        ///
-        /// This is only for use in error handler code.  The data is copied into the
-        /// current memory context, so callers should always switch away from
-        /// ErrorContext first; otherwise it will be lost when FlushErrorState is done.
-        ///
-        fn CopyErrorData() -> *mut crate::sys::ErrorData;
-
-        ///
-        /// FreeErrorData --- free the structure returned by CopyErrorData.
-        ///
-        /// Error handlers should use this in preference to assuming they know all
-        /// the separately-allocated fields.
-        ///
-        fn FreeErrorData(data: *mut crate::sys::ErrorData);
-
-        ///
-        /// FlushErrorState --- flush the error state after error recovery
-        ///
-        /// This should be called by an error handler after it's done processing
-        /// the error; or as soon as it's done CopyErrorData, if it intends to
-        /// do stuff that is likely to provoke another error.  You are not "out" of
-        /// the error subsystem until you have done this.
-        ///
-        fn FlushErrorState();
-
-        ///
-        /// MemoryContextReset
-        ///		Release all space allocated within a context and delete all its
-        ///		descendant contexts (but not the named context itself).
-        ///
-        fn MemoryContextReset(context: crate::sys::MemoryContext);
-
-        ///
-        /// AllocSetContextCreateInternal
-        ///		Create a new AllocSet context.
-        ///
-        /// parent: parent context, or NULL if top-level context
-        /// name: name of context (must be statically allocated)
-        /// min_context_size: minimum context size
-        /// init_block_size: initial allocation block size
-        /// max_block_size: maximum allocation block size
-        ///
-        /// Most callers should abstract the context size parameters using a macro
-        /// such as ALLOCSET_DEFAULT_SIZES.
-        ///
-        /// Note: don't call this directly; go through the wrapper macro
-        /// AllocSetContextCreate.
-        ///
-        fn AllocSetContextCreateInternal(
-            parent: crate::sys::MemoryContext,
-            name: *const std::os::raw::c_char,
-            min_context_size: crate::sys::Size,
-            init_block_size: crate::sys::Size,
-            max_block_size: crate::sys::Size,
-        ) -> crate::sys::MemoryContext;
-
-        ///
-        /// raw_parser
-        ///		Given a query in string form, do lexical and grammatical analysis.
-        ///
-        /// Returns a list of raw (un-analyzed) parse trees.  The immediate elements
-        /// of the list are always RawStmt nodes.
-        ///
-        fn raw_parser(str: *const std::os::raw::c_char) -> *mut crate::sys::List;
-    }
-
     //
     // a wrapper around Postgres' "raw_parser()" function that sets up a jump point
     // so we can translate possible Postgres elog(ERROR)s during parsing into proper
@@ -221,7 +147,7 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
             crate::sys::PG_exception_stack = jmp_buff.as_mut_ptr();
 
             // parse the query and return a successful response if it doesn't raise an ERROR
-            Ok(raw_parser(str))
+            Ok(crate::sys::raw_parser(str))
         } else {
             // Postgres raised an ERROR and we handle it here
 
@@ -230,7 +156,7 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
             crate::sys::error_context_stack = prev_error_context_stack;
 
             // and now we'll make a copy of the current "ErrorData"
-            let error_data_ptr = CopyErrorData();
+            let error_data_ptr = crate::sys::CopyErrorData();
             let error_data = error_data_ptr
                 .as_ref()
                 .expect("CopyErrorData returned null"); // error_data_ptr should never be null
@@ -254,8 +180,8 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
             };
 
             // make sure to cleanup after ourselves
-            FreeErrorData(error_data_ptr);
-            FlushErrorState();
+            crate::sys::FreeErrorData(error_data_ptr);
+            crate::sys::FlushErrorState();
 
             // and return the error
             Err(result)
@@ -277,7 +203,7 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
             crate::sys::TopMemoryContext
         );
 
-        let our_context = AllocSetContextCreateInternal(
+        let our_context = crate::sys::AllocSetContextCreateInternal(
             crate::sys::TopMemoryContext,
             std::ffi::CStr::from_bytes_with_nul(b"parser context\0")
                 .unwrap()
@@ -344,7 +270,7 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
     // free up whatever Postgres (the parser) might have allocated in our
     // MemoryContext and switch back to the previous one
     unsafe {
-        MemoryContextReset(memory_context);
+        crate::sys::MemoryContextReset(memory_context);
         crate::sys::CurrentMemoryContext = old_context;
     }
 
