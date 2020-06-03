@@ -110,19 +110,21 @@ pub enum PgParserError {
 /// assert!(parse_list.is_empty())
 /// ```
 pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, PgParserError> {
-    type SigjmpBuf = [::std::os::raw::c_int; 38usize];
-
     #[cfg(target_os = "linux")]
     extern "C" {
         #[link_name = "__sigsetjmp"]
-        pub fn sigsetjmp(env: *mut SigjmpBuf, savemask: std::os::raw::c_int)
-            -> std::os::raw::c_int;
+        pub fn sigsetjmp(
+            env: *mut crate::sys::sigjmp_buf,
+            savemask: std::os::raw::c_int,
+        ) -> std::os::raw::c_int;
     }
 
     #[cfg(target_os = "macos")]
     extern "C" {
-        pub fn sigsetjmp(env: *mut SigjmpBuf, savemask: std::os::raw::c_int)
-            -> std::os::raw::c_int;
+        pub fn sigsetjmp(
+            env: *mut crate::sys::sigjmp_buf,
+            savemask: std::os::raw::c_int,
+        ) -> std::os::raw::c_int;
     }
 
     //
