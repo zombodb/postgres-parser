@@ -85,6 +85,6 @@ cd "${MANIFEST_DIR}" || exit 1
 # optimize postgres.ll
 opt --O3 -adce "${POSTGRES_LL}" -o target/optimized.bc || exit 1
 
-# create an archive which the Rust create will statically link
+# create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_A}" target/optimized.bc || exit 1
 echo "${POSTGRES_A};${INSTALL_DIR}"
