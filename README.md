@@ -1,6 +1,5 @@
 ## postgres-parser
 
-Currently, this project is not remotely ready for use of any kind!
 
 This project is the beginnings of using Postgres' SQL Parser
 (effectively `gram.y` and the `List *raw_parser(const char *str)` function)
@@ -23,18 +22,58 @@ There's a few `RUSTFLAGS` set in [`.cargo/config`](.cargo/config) which are
 necessary to tell Rust which linker we need to use (we don't want to mix/match
 `clang` and `gcc` -- we only want `clang`!) along with the LTO flags.
 
-### About & TODO
+### Using this Crate
 
-Right now, this project simply produces a dumb CLI binary that attempts to
-parse its first argument as an SQL query.
+Using this create is just like any other.  Add it as a dependency to your `Cargo.toml`:
 
-Future (very near future!) updates will convert it into a Rust library (instead 
-of the binary it currently is) and provide proper Rust wrappers around Postgres' 
-parser, syntax error handling, along with conversion of all Postgres' 
-various parse node structs.
+```toml
+[dependencies]
+postgres-parser = "0.0.1"
+```
 
-There will also be `serde` support for serializing parse trees to whatever serde
-format you want.
+Note that any crate that uses `postgres-parser` as a dependency will need a custom [`.cargo/config`](.cargo/config).
+And as such, so will any crates which rely on crates which use `postgres-parser`.
+
+This is necessary to ensure that Rust is using `clang` proper, and enabling LTO during the build
+process:
+
+```toml
+[target.'cfg(target_os="macos")']
+rustflags=[
+    "-C", "linker=clang",
+    "-C", "link-arg=-flto"
+]
+
+[target.'cfg(target_os="linux")']
+rustflags=[
+    "-C", "linker=clang",
+    "-C", "link-arg=-fuse-ld=gold",
+    "-C", "link-arg=-flto"
+]
+```
+
+Additionally, see the [System Requirements](#System+Requirements) section below.
+
+Here's a simple example that outputs a SQL parse tree as JSON.
+
+```rust
+use postgres_parser::*;
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let query_string = args.get(1).expect("no arguments");
+    let parse_list = match parse_query(query_string) {
+        Ok(query) => query,
+        Err(e) => {
+            eprintln!("{:?}", e);
+            std::process::exit(1);
+        }
+    };
+
+    let as_json = serde_json::to_string_pretty(&parse_list).expect("failed to convert to json");
+    println!("{}", as_json);
+}
+```
 
 ### System Requirements
 
@@ -84,12 +123,30 @@ Subsequent builds (assuming no `cargo clean`) are able to elide all of the above
 steps as the final `libpostgres.a` archive artifact is cached in the `target/`
 directory.
 
+
+### Known Issues
+
+- The parser currently only accepts SQL statements that adhere to what Postgres considers `SQL_ASCII` text.
+The reason for this is that setting Postgres to support full `UTF8` (which is incredibly easy), somehow
+causes the resulting compiled binary to bloat to nearly 10 megabytes.  This is being investigated
+
+- Building on MacOS with XCode `>=11.4.0` doesn't work.  This appears to be a problem with these versions
+of XCode.  This is the bug: https://openradar.appspot.com/FB7647406.  This happens while building Postgres.
+Any suggestions for a work around would be greatly appreciated.
+
+- Single-threaded query parsing... Postgres isn't thread safe, so we're required to lock on a Mutex while
+parsing queries.  Which means one-at-a-time.  There may be some things we can do in the future to improve
+this situation.  The underlying dilemma is around how Postgres allocates memory, and this approach to
+embedding Postgres' parser necessitates it use that system
+
 ### Please Help!
 
-I'd sincerely appreciate the time and effort you spend cloning this repo and at
-least trying to `cargo build` it on your machine.  If it doesn't work, or if my
-instructions are bad, I definitely want to know.  I'd like this to be as easy as
-possible for everyone.
+We'd sincerely appreciate the time and effort you spend cloning this repo and at
+least trying to `cargo test --all`.  If it doesn't work, or if these instructions are bad, 
+we definitely want to know.  We'd like this to be as easy as possible for everyone.
+
+Furthermore, this is v0.0.1.  Please feel free to submit bug reports, feature requests, and
+most especially Pull Requests.
 
 ### Thanks
 

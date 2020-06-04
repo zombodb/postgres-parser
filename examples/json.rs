@@ -15,7 +15,7 @@
 */
 use postgres_parser::*;
 
-/// A simple CLI example that parses its first argument (as an SQL statement) and outputs
+/// A simple CLI example that parses its first argument (as a SQL statement) and outputs
 /// a pretty JSON form of the parsed structure.
 ///
 /// ## Usage

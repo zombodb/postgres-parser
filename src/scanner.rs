@@ -228,7 +228,7 @@ impl<'a> SqlStatementScannerIterator<'a> {
                     }
                 }
 
-                // we're in an SQL-style single_line comment
+                // we're in a SQL-style single_line comment
                 '-' if nextc == '-' => {
                     if !in_ml_comment {
                         in_sl_comment = true;

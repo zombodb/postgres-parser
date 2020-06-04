@@ -344,7 +344,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
     }
 
     output.extend(quote! {
-        /// All the various Postgres parse tree nodes that can be returned upon parsing an SQL statement
+        /// All the various Postgres parse tree nodes that can be returned upon parsing a SQL statement
         #[allow(non_camel_case_types)]
         #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]

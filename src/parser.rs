@@ -13,9 +13,10 @@
     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND
     ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 */
+//! Provides a safe function (`parse_query()`) that parses SQL statements.
 use crate::convert::ConvertNode;
+use crate::PgParserError;
 use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 lazy_static! {
@@ -26,28 +27,6 @@ lazy_static! {
             // crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
         }
     };
-}
-
-/// Represents various errors that can occur while parsing an SQL statement.
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
-pub enum PgParserError {
-    /// The SQL statement could not be parsed
-    ParseError { message: String, cursor_pos: i32 },
-
-    /// Internal SqlStatementScannerError -- more than one statement was scanned
-    MultipleStatements(Vec<crate::Node>),
-
-    /// We couldn't determine the error Postgres tried to tell us
-    UnknownParseError,
-
-    /// One of the returned parsed queries didn't parse to a `postgres-parser::RawStmt` (this is unlikely to ever happen)
-    NotARawStmt,
-
-    /// The input SQL statement `&str` contained an internal zero-byte
-    InternalNull,
-
-    /// The result from Postgres' parser was not a `Node::List` (this is unlikely to ever happen)
-    NotAList,
 }
 
 /// Parse a string of delimited SQL statements.
