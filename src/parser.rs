@@ -23,7 +23,7 @@ lazy_static! {
     static ref ONETIME_SETUP: () = {
         unsafe {
             crate::sys::MemoryContextInit();
-            crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
+            // crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
         }
     };
 }

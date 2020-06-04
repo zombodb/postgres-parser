@@ -1,12 +1,12 @@
-[target.'cfg(target_os="macos")']
-rustflags=[
-    "-C", "linker=clang",
-    "-C", "link-arg=-flto"
-]
+# [target.'cfg(target_os="macos")']
+# rustflags=[
+#    "-C", "linker=clang",
+#    "-C", "link-arg=-flto"
+#]
 
-[target.'cfg(target_os="linux")']
-rustflags=[
-    "-C", "linker=clang",
-    "-C", "link-arg=-fuse-ld=gold",
-    "-C", "link-arg=-flto"
-]
+#[target.'cfg(target_os="linux")']
+#rustflags=[
+#    "-C", "linker=clang",
+#    "-C", "link-arg=-fuse-ld=gold",
+#    "-C", "link-arg=-flto"
+#]

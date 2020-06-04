@@ -22,6 +22,7 @@ BUILD_DIR="${PWD}/target/${PGVER}-build"
 POSTGRES_A="${PWD}/target/libpostgres.a"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
 INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install/"
+POSTGRES_BC="${PWD}/target/postgres.bc"
 
 if [ "x${NUM_CPUS}" == "x" ]; then
     NUM_CPUS="1"
@@ -35,56 +36,81 @@ if [ -f "${POSTGRES_A}" ] && [ -d "${INSTALL_DIR}" ]; then
   exit 0
 fi
 
-mkdir -p "${BUILD_DIR}" || exit 1
-cd "${BUILD_DIR}" || exit 1
+if [ ! -f "${POSTGRES_LL}" ] ; then
+  mkdir -p "${BUILD_DIR}" || exit 1
+  cd "${BUILD_DIR}" || exit 1
 
-# download/untar Postgres
-if [ ! -f postgresql-${PGVER}.tar.bz2 ] ; then
-  wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+  # download/untar Postgres
+  if [ ! -f postgresql-${PGVER}.tar.bz2 ] ; then
+    wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+  fi
+  tar xjf postgresql-${PGVER}.tar.bz2 || exit 1
+
+  # patch its Makefiles
+  cd postgresql-${PGVER} || exit 1
+  patch -p1 < ../../../patches/makefiles-${PGVER}.patch || exit 1
+
+  # configure, build, and (locally) install Postgres
+  if [ "x${UNAME}" == "xLinux" ] ; then
+    # linux needs to use the "gold" linker
+    mkdir build_bin || exit 1
+    ln -s /usr/bin/ld.gold build_bin/ld || exit 1
+    CFLAGS="-B${PWD}/build_bin"
+  fi
+  AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
+  make -j${NUM_CPUS} clean || exit 1
+  make -j${NUM_CPUS} || exit 1
+  rm -rf "${INSTALL_DIR}" || exit 1
+  make install || exit 1
+
+  # adjust comment style so Rust's 'bindgen' will pick them up
+  # we do this against the headers in the ${INSTALL_DIR} as we
+  # don't want to risk messing up original Postgres sources
+  for f in "${INSTALL_DIR}/include/server/nodes/parsenodes.h" "${INSTALL_DIR}/include/server/nodes/primnodes.h" ; do
+    sed -i'' -e 's/\/\*/\/**/g' $f || exit 1  # C-style comments start with two asterisks
+    sed -i'' -e 's/-//g' $f || exit 1         # remove consecutive dashes
+    sed -i'' -e "s/\\\`/'/g" $f || exit 1     # backticks to single quotes
+
+    # tabs to three spaces
+    expand -t 3 $f > $f.expand || exit 1
+    rm $f || exit 1
+    mv $f.expand $f
+  done
+
+  # rename Postgres "main' function entry point so it won't conflict
+  # with users of this library
+  sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
+  sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
+
+  cd "${MANIFEST_DIR}" || exit 1
 fi
-tar xjf postgresql-${PGVER}.tar.bz2 || exit 1
 
-# patch its Makefiles
-cd postgresql-${PGVER} || exit 1
-patch -p1 < ../../../patches/makefiles-${PGVER}.patch || exit 1
+# assemble postgres.ll into bitcode
+if [ ! -f "${POSTGRES_BC}" ] ; then
+  llvm-as "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
+fi 
 
-# configure, build, and (locally) install Postgres
-if [ "x${UNAME}" == "xLinux" ] ; then
-  # linux needs to use the "gold" linker
-  mkdir build_bin || exit 1
-  ln -s /usr/bin/ld.gold build_bin/ld || exit 1
-  CFLAGS="-B${PWD}/build_bin"
-fi
-AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
-make -j${NUM_CPUS} clean || exit 1
-make -j${NUM_CPUS} || exit 1
-rm -rf "${INSTALL_DIR}" || exit 1
-make install || exit 1
+# reduce postgres.bc down to the symbols we (and they) need
+llvm-lto -O3 \
+-exported-symbol=_raw_parser \
+-exported-symbol=_MemoryContextInit \
+-exported-symbol=_list_nth \
+-exported-symbol=_MemoryContextReset \
+-exported-symbol=_PG_exception_stack \
+-exported-symbol=_error_context_stack \
+-exported-symbol=_CurrentMemoryContext \
+-exported-symbol=_TopMemoryContext \
+-exported-symbol=_AllocSetContextCreateInternal \
+-exported-symbol=_CopyErrorData \
+-exported-symbol=_FreeErrorData \
+-exported-symbol=_FlushErrorState \
+-save-merged-module \
+-o target/raw_parser.o "${POSTGRES_BC}" || exit 1
 
-# adjust comment style so Rust's 'bindgen' will pick them up
-# we do this against the headers in the ${INSTALL_DIR} as we
-# don't want to risk messing up original Postgres sources
-for f in "${INSTALL_DIR}/include/server/nodes/parsenodes.h" "${INSTALL_DIR}/include/server/nodes/primnodes.h" ; do
-  sed -i'' -e 's/\/\*/\/**/g' $f || exit 1  # C-style comments start with two asterisks
-  sed -i'' -e 's/-//g' $f || exit 1         # remove consecutive dashes
-  sed -i'' -e "s/\\\`/'/g" $f || exit 1     # backticks to single quotes
+## including _SetDatabaseEncoding bloats the resulting merged.bc file to about 14M on my Mac.  Why?
+# -exported-symbol=_SetDatabaseEncoding \
 
-  # tabs to three spaces
-  expand -t 3 $f > $f.expand || exit 1
-  rm $f || exit 1
-  mv $f.expand $f
-done
-
-# rename Postgres "main' function entry point so it won't conflict
-# with users of this library
-sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
-sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
-
-cd "${MANIFEST_DIR}" || exit 1
-
-# optimize postgres.ll
-opt --O3 -adce "${POSTGRES_LL}" -o target/optimized.bc || exit 1
 
 # create an archive which the Rust crate will statically link
-llvm-ar crv "${POSTGRES_A}" target/optimized.bc || exit 1
+llvm-ar crv "${POSTGRES_A}" target/raw_parser.o.merged.bc || exit 1
 echo "${POSTGRES_A};${INSTALL_DIR}"
