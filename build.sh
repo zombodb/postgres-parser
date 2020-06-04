@@ -77,18 +77,16 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
     mv $f.expand $f
   done
 
-  # rename Postgres "main' function entry point so it won't conflict
-  # with users of this library
-  sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
-  sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
-
   cd "${MANIFEST_DIR}" || exit 1
 fi
 
+# rename Postgres "main' function entry point so it won't conflict
+# with users of this library
+sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
+sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
+
 # assemble postgres.ll into bitcode
-if [ ! -f "${POSTGRES_BC}" ] ; then
-  llvm-as "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
-fi 
+llvm-as "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_A}" "${POSTGRES_BC}" || exit 1
