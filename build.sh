@@ -69,7 +69,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
   for f in "${INSTALL_DIR}/include/server/nodes/parsenodes.h" "${INSTALL_DIR}/include/server/nodes/primnodes.h" ; do
     sed -i'' -e 's/\/\*/\/**/g' $f || exit 1  # C-style comments start with two asterisks
     sed -i'' -e 's/-//g' $f || exit 1         # remove consecutive dashes
-    sed -i'' -e "s/\\\`/'/g" $f || exit 1     # backticks to single quotes
+    sed -i'' -e "s/\`/'/g" $f || exit 1     # backticks to single quotes
 
     # tabs to three spaces
     expand -t 3 $f > $f.expand || exit 1
