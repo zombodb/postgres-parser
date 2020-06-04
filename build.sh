@@ -90,27 +90,6 @@ if [ ! -f "${POSTGRES_BC}" ] ; then
   llvm-as "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 fi 
 
-# reduce postgres.bc down to the symbols we (and they) need
-llvm-lto -O3 \
--exported-symbol=_raw_parser \
--exported-symbol=_MemoryContextInit \
--exported-symbol=_list_nth \
--exported-symbol=_MemoryContextReset \
--exported-symbol=_PG_exception_stack \
--exported-symbol=_error_context_stack \
--exported-symbol=_CurrentMemoryContext \
--exported-symbol=_TopMemoryContext \
--exported-symbol=_AllocSetContextCreateInternal \
--exported-symbol=_CopyErrorData \
--exported-symbol=_FreeErrorData \
--exported-symbol=_FlushErrorState \
--save-merged-module \
--o target/raw_parser.o "${POSTGRES_BC}" || exit 1
-
-## including _SetDatabaseEncoding bloats the resulting merged.bc file to about 14M on my Mac.  Why?
-# -exported-symbol=_SetDatabaseEncoding \
-
-
 # create an archive which the Rust crate will statically link
-llvm-ar crv "${POSTGRES_A}" target/raw_parser.o.merged.bc || exit 1
+llvm-ar crv "${POSTGRES_A}" "${POSTGRES_BC}" || exit 1
 echo "${POSTGRES_A};${INSTALL_DIR}"
