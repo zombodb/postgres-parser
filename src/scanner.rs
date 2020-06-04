@@ -202,14 +202,14 @@ impl<'a> SqlStatementScannerIterator<'a> {
 
                 // toggle us in/out of double quotes
                 '"' => {
-                    if !(in_sl_comment || in_ml_comment) {
+                    if !(in_sl_comment || in_ml_comment || in_single_quote) {
                         in_double_quote = !in_double_quote;
                     }
                 }
 
                 // toggle us in/out of single quotes
                 '\'' => {
-                    if !(in_sl_comment || in_ml_comment) {
+                    if !(in_sl_comment || in_ml_comment || in_double_quote) {
                         in_single_quote = !in_single_quote;
                     }
                 }

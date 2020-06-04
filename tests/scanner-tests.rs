@@ -166,3 +166,23 @@ fn test_5_errors() {
         }
     }
 }
+
+#[test]
+fn test_quoted_quotes() {
+    let statements: Vec<ScannedStatement> =
+        SqlStatementScanner::new("select '(\",a)'::textrange;select '(,,a)'::textrange;")
+            .into_iter()
+            .collect();
+
+    assert_eq!(statements.len(), 2);
+}
+
+#[test]
+fn test_escaped_single_quotes() {
+    let statements: Vec<ScannedStatement> =
+        SqlStatementScanner::new("select 'is''t';select 'that';select 'special';")
+            .into_iter()
+            .collect();
+
+    assert_eq!(statements.len(), 3);
+}
