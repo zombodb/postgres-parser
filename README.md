@@ -152,6 +152,6 @@ most especially Pull Requests.
 
 Thanks for checking this out.  [Here's the obligatory GitHub Sponsors link](https://github.com/sponsors/eeeebbbbrrrr).
   
-If you like what we're doing and where this is going, your sponsorship will keep me 
+If you like what we're doing and where this is going, your sponsorship will keep us 
 motivated.
 
