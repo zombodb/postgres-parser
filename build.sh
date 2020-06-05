@@ -15,20 +15,24 @@
 #    ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
+set -x
+
+TARGET_DIR=${CARGO_TARGET_DIR}
+if [ "x${TARGET_DIR}" == "x" ] ; then
+  TARGET_DIR="${PWD}/target/"
+fi
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
-BUILD_DIR="${PWD}/target/${PGVER}-build"
-POSTGRES_A="${PWD}/target/libpostgres.a"
+POSTGRES_A="${TARGET_DIR}/libpostgres.a"
+POSTGRES_BC="${TARGET_DIR}/postgres.bc"
+BUILD_DIR="${TARGET_DIR}/${PGVER}-build"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
 INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install/"
-POSTGRES_BC="${PWD}/target/postgres.bc"
 
 if [ "x${NUM_CPUS}" == "x" ]; then
     NUM_CPUS="1"
 fi
-
-set -x
 
 if [ -f "${POSTGRES_A}" ] && [ -d "${INSTALL_DIR}" ]; then
   # we already have libpostgres.a, so don't bother generating it again

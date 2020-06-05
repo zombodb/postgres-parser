@@ -1,12 +1,12 @@
 [package]
 name = "postgres-parser"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["ZomboDB, LLC <zombodb@gmail.com>"]
 edition = "2018"
 license = "PostgreSQL"
 description = "An llvm-based Safe Wrapper for Postgres' Parser"
 homepage = "https://github.com/zombodb/postgres-parser"
-documentation = "https://github.com/zombodb/postgres-parser"
+documentation = "https://docs.rs/postgres-parser"
 repository = "https://github.com/zombodb/postgres-parser"
 readme = "README.md"
 build = "build.rs"
