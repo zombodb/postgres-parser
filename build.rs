@@ -25,6 +25,14 @@ use syn::spanned::Spanned;
 use syn::{Item, Type};
 
 fn main() -> Result<(), std::io::Error> {
+    if running_on_docs_rs() {
+        // we're runningo n docs.rs, so just don't bother generating anything
+        // our generated .rs files are under source control, so they'll already be there
+        //
+        // and we don't need to generate "libpostgres.a" just to build docs
+        return Ok(());
+    }
+
     let manifest_dir =
         PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR unset"));
 
@@ -43,6 +51,12 @@ fn main() -> Result<(), std::io::Error> {
 
     bindgen(&manifest_dir, install_dir);
     Ok(())
+}
+
+fn running_on_docs_rs() -> bool {
+    std::env::var("RUSTDOCFLAGS")
+        .unwrap_or("".to_string())
+        .contains("docs.rs")
 }
 
 fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {

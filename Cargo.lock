@@ -220,7 +220,7 @@ checksum = "19b17cddbe7ec3f8bc800887bab5e717348c95ea2ca0b1bf0837fb964dc67099"
 
 [[package]]
 name = "postgres-parser"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "bindgen",
  "lazy_static",
