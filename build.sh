@@ -25,7 +25,7 @@ fi
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
-POSTGRES_A="${TARGET_DIR}/libpostgres.a"
+POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
 POSTGRES_BC="${TARGET_DIR}/postgres.bc"
 BUILD_DIR="${TARGET_DIR}/${PGVER}-build"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
@@ -35,9 +35,9 @@ if [ "x${NUM_CPUS}" == "x" ]; then
     NUM_CPUS="1"
 fi
 
-if [ -f "${POSTGRES_A}" ] && [ -d "${INSTALL_DIR}" ]; then
-  # we already have libpostgres.a, so don't bother generating it again
-  echo "${POSTGRES_A};${INSTALL_DIR}"
+if [ -f "${POSTGRES_PARSER_A}" ] && [ -d "${INSTALL_DIR}" ]; then
+  # we already have libpostgres_parser.a, so don't bother generating it again
+  echo "${POSTGRES_PARSER_A};${INSTALL_DIR}"
   exit 0
 fi
 
@@ -72,14 +72,14 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
   # we do this against the headers in the ${INSTALL_DIR} as we
   # don't want to risk messing up original Postgres sources
   for f in "${INSTALL_DIR}/include/server/nodes/parsenodes.h" "${INSTALL_DIR}/include/server/nodes/primnodes.h" ; do
-    sed -i'' -e 's/\/\*/\/**/g' $f || exit 1  # C-style comments start with two asterisks
-    sed -i'' -e 's/-//g' $f || exit 1         # remove consecutive dashes
-    sed -i'' -e "s/\`/'/g" $f || exit 1     # backticks to single quotes
+    sed -i'' -e 's/\/\*/\/**/g' "$f" || exit 1  # C-style comments start with two asterisks
+    sed -i'' -e 's/-//g' "$f" || exit 1         # remove consecutive dashes
+    sed -i'' -e "s/\`/'/g" "$f" || exit 1     # backticks to single quotes
 
     # tabs to three spaces
-    expand -t 3 $f > $f.expand || exit 1
-    rm $f || exit 1
-    mv $f.expand $f
+    expand -t 3 "$f" > "$f.expand" || exit 1
+    rm "$f" || exit 1
+    mv "$f.expand" "$f" || exit 1
   done
 
   cd "${MANIFEST_DIR}" || exit 1
@@ -90,9 +90,31 @@ fi
 sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
 sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
 
-# assemble postgres.ll into bitcode
-llvm-as "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
+# assemble/optimize postgres.ll into bitcode
+opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
+
+# perform LTO against $POSTGRES_BC, exporting only the symbols we
+# need in order to use Postgres' parser
+llvm-lto "${POSTGRES_BC}" \
+  --exported-symbol=_raw_parser \
+  --exported-symbol=_list_nth \
+  --exported-symbol=_MemoryContextInit \
+  --exported-symbol=_CopyErrorData \
+  --exported-symbol=_FreeErrorData \
+  --exported-symbol=_FlushErrorState \
+  --exported-symbol=_MemoryContextReset \
+  --exported-symbol=_AllocSetContextCreateInternal \
+  --exported-symbol=_PG_exception_stack \
+  --exported-symbol=_error_context_stack \
+  --exported-symbol=_CurrentMemoryContext \
+  --exported-symbol=_TopMemoryContext \
+  --filetype=obj \
+  -o "${TARGET_DIR}/raw_parser.o" || exit 1
+
+# NOTE:
+#    including this causes the library to essentially include all of Postgres -- unsure why?
+#    --exported-symbol=_SetDatabaseEncoding \
 
 # create an archive which the Rust crate will statically link
-llvm-ar crv "${POSTGRES_A}" "${POSTGRES_BC}" || exit 1
-echo "${POSTGRES_A};${INSTALL_DIR}"
+llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
+echo "${POSTGRES_PARSER_A};${INSTALL_DIR}"

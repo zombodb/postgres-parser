@@ -29,7 +29,7 @@ fn main() -> Result<(), std::io::Error> {
         // we're runningo n docs.rs, so just don't bother generating anything
         // our generated .rs files are under source control, so they'll already be there
         //
-        // and we don't need to generate "libpostgres.a" just to build docs
+        // and we don't need to generate "libpostgres_parser.a" just to build docs
         return Ok(());
     }
 
@@ -38,16 +38,16 @@ fn main() -> Result<(), std::io::Error> {
 
     let paths = run_build_sh(&manifest_dir)?;
     let paths: Vec<&str> = paths.rsplit(';').collect();
-    let (postgres_a, install_dir) = (
+    let (postgres_parser_a, install_dir) = (
         PathBuf::from(paths.get(1).unwrap()),
         PathBuf::from(paths.get(0).unwrap()),
     );
 
     println!(
         "cargo:rustc-link-search={}",
-        postgres_a.parent().unwrap().display()
+        postgres_parser_a.parent().unwrap().display()
     );
-    println!("cargo:rustc-link-lib=static=postgres");
+    println!("cargo:rustc-link-lib=static=postgres_parser");
 
     bindgen(&manifest_dir, install_dir);
     Ok(())
@@ -179,7 +179,10 @@ fn rust_fmt(path: &PathBuf) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn run_command(mut command: &mut Command, want_postgres_a: bool) -> Result<String, std::io::Error> {
+fn run_command(
+    mut command: &mut Command,
+    want_postgres_parser_a: bool,
+) -> Result<String, std::io::Error> {
     eprintln!("command={:?}", command);
     command = command
         .env("NUM_CPUS", num_cpus::get().to_string())
@@ -197,7 +200,7 @@ fn run_command(mut command: &mut Command, want_postgres_a: bool) -> Result<Strin
 
     let output = command.output()?;
 
-    let mut postgres_a = None;
+    let mut postgres_parser_a = None;
     if !output.stdout.is_empty() {
         for line in String::from_utf8(output.stdout).unwrap().lines() {
             if line.starts_with("cargo:") {
@@ -207,7 +210,7 @@ fn run_command(mut command: &mut Command, want_postgres_a: bool) -> Result<Strin
             }
 
             // output postgres.a file is just the last line from stdout
-            postgres_a = Some(line.to_owned());
+            postgres_parser_a = Some(line.to_owned());
         }
     }
 
@@ -217,8 +220,8 @@ fn run_command(mut command: &mut Command, want_postgres_a: bool) -> Result<Strin
         }
     }
 
-    if let None = postgres_a {
-        if want_postgres_a {
+    if let None = postgres_parser_a {
+        if want_postgres_parser_a {
             Err(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "Could not determine location of generated 'postgres.a'",
@@ -227,7 +230,7 @@ fn run_command(mut command: &mut Command, want_postgres_a: bool) -> Result<Strin
             Ok(String::default())
         }
     } else if output.status.success() {
-        Ok(postgres_a.unwrap())
+        Ok(postgres_parser_a.unwrap())
     } else {
         Err(std::io::Error::last_os_error())
     }

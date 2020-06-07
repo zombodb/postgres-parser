@@ -7,20 +7,16 @@ from Rust.
 
 The way this works is by downloading the Postgres source code, patching
 a few of its Makefiles (see [`patches/makefiles-12.3.patch`](patches/makefiles-12.3.patch)),
-compiling it to LLVM IR, converting that to LLVM bitcode, and
-linking against it with Rust, using LTO (link-time-optimization) to ensure 
-that the resulting Rust library only contains the bits needed parse SQL 
-statements, and not the entirety of Postgres.
+compiling it to LLVM IR, optimizing/assembling that to LLVM bitcode, performing
+link-time optimization (LTO) to generate a static library containing only the symbols/code
+necessary to properly use Postgres' `raw_parser()` function, and finally, 
+linking against that library with Rust.
 
 This is accomplished via a custom [`build.rs`](build.rs) program, which 
 shells out to [`build.sh`](build.sh) to perform all the hard work.
 
-At the end of the process we're left with a `libpostgres.a` archive, which
+At the end of the process we're left with a `libpostgres_parser.a` archive, which
 `build.rs` instructs cargo to link against.
-
-There's a few `RUSTFLAGS` set in [`.cargo/config`](.cargo/config) which are
-necessary to tell Rust which linker we need to use (we don't want to mix/match
-`clang` and `gcc` -- we only want `clang`!) along with the LTO flags.
 
 ### Using this Crate
 
@@ -28,28 +24,7 @@ Using this create is just like any other.  Add it as a dependency to your `Cargo
 
 ```toml
 [dependencies]
-postgres-parser = "0.0.1"
-```
-
-Note that any crate that uses `postgres-parser` as a dependency will need a custom [`.cargo/config`](.cargo/config).
-And as such, so will any crates which rely on crates which use `postgres-parser`.
-
-This is necessary to ensure that Rust is using `clang` proper, and enabling LTO during the build
-process:
-
-```toml
-[target.'cfg(target_os="macos")']
-rustflags=[
-    "-C", "linker=clang",
-    "-C", "link-arg=-flto"
-]
-
-[target.'cfg(target_os="linux")']
-rustflags=[
-    "-C", "linker=clang",
-    "-C", "link-arg=-fuse-ld=gold",
-    "-C", "link-arg=-flto"
-]
+postgres-parser = "0.0.4"
 ```
 
 Additionally, see the [System Requirements](#System+Requirements) section below.
@@ -120,7 +95,7 @@ On my incredibly old Mac Mini, running Ubuntu 16.04 (yikes!), this process takes
 25 minutes.  So be patient if you have an older computer.
 
 Subsequent builds (assuming no `cargo clean`) are able to elide all of the above 
-steps as the final `libpostgres.a` archive artifact is cached in the `target/`
+steps as the final `libpostgres_parser.a` archive artifact is cached in the `target/`
 directory.
 
 
