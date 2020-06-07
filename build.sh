@@ -96,24 +96,25 @@ opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 # perform LTO against $POSTGRES_BC, exporting only the symbols we
 # need in order to use Postgres' parser
 llvm-lto "${POSTGRES_BC}" \
-  --exported-symbol=_raw_parser \
-  --exported-symbol=_list_nth \
-  --exported-symbol=_MemoryContextInit \
-  --exported-symbol=_CopyErrorData \
-  --exported-symbol=_FreeErrorData \
-  --exported-symbol=_FlushErrorState \
-  --exported-symbol=_MemoryContextReset \
-  --exported-symbol=_AllocSetContextCreateInternal \
-  --exported-symbol=_PG_exception_stack \
-  --exported-symbol=_error_context_stack \
-  --exported-symbol=_CurrentMemoryContext \
-  --exported-symbol=_TopMemoryContext \
+  --exported-symbol=_raw_parser --exported-symbol=raw_parser \
+  --exported-symbol=_list_nth --exported-symbol=list_nth \
+  --exported-symbol=_MemoryContextInit --exported-symbol=MemoryContextInit \
+  --exported-symbol=_CopyErrorData --exported-symbol=CopyErrorData \
+  --exported-symbol=_FreeErrorData --exported-symbol=FreeErrorData \
+  --exported-symbol=_FlushErrorState --exported-symbol=FlushErrorState \
+  --exported-symbol=_MemoryContextReset --exported-symbol=MemoryContextReset \
+  --exported-symbol=_AllocSetContextCreateInternal --exported-symbol=AllocSetContextCreateInternal \
+  --exported-symbol=_PG_exception_stack --exported-symbol=PG_exception_stack \
+  --exported-symbol=_error_context_stack --exported-symbol=error_context_stack \
+  --exported-symbol=_CurrentMemoryContext --exported-symbol=CurrentMemoryContext \
+  --exported-symbol=_TopMemoryContext --exported-symbol=TopMemoryContext \
   --filetype=obj \
+  --relocation-model=pic \
   -o "${TARGET_DIR}/raw_parser.o" || exit 1
 
 # NOTE:
 #    including this causes the library to essentially include all of Postgres -- unsure why?
-#    --exported-symbol=_SetDatabaseEncoding \
+#    --exported-symbol=_SetDatabaseEncoding --exported-symbol=SetDatabaseEncoding \
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
