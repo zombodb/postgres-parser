@@ -1,4 +1,5 @@
 [![Actions Status](https://github.com/zombodb/postgres-parser/workflows/cargo%20test%20--all/badge.svg)](https://github.com/zombodb/postgres-parser/actions)
+[![Twitter Follow](https://img.shields.io/twitter/follow/zombodb.svg?style=social)](https://twitter.com/zombodb)  
 
 ## postgres-parser
 
