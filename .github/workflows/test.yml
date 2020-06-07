@@ -22,8 +22,14 @@ jobs:
       - name: install postgres build dependencies
         run: sudo apt install -y clang llvm make curl
 
-      - name: debug
-        run: which llvm-lto && ls -la /usr/bin/ && find / -name "llvm-lto"
+      - name: debug1
+        run: which llvm-lto
+
+      - name: debug2
+        run: ls -la /usr/bin/
+
+      - name: debug3
+        run: sudo find / -name "llvm-lto"
 
       - name: Checkout sources
         uses: actions/checkout@v2
