@@ -20,7 +20,7 @@ jobs:
     steps:
       # Ubuntu system dependencies required to build Postgres from sources
       - name: install postgres build dependencies
-        run: sudo apt install -y bison flex zlib1g zlib1g-dev pkg-config libssl-dev
+        run: sudo apt install -y clang llvm make curl
 
       - name: Checkout sources
         uses: actions/checkout@v2
