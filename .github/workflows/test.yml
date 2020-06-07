@@ -32,11 +32,9 @@ jobs:
       - name: install macos postgres build dependencies
         if: ${{ matrix.os == 'macos-latest' }}
         run: brew install wget llvm
-
-      - name: hack llvm-ar for macos
+      - name: adjust macos PATH
         if: ${{ matrix.os == 'macos-latest' }}
-        run: sudo ln -s /System/Volumes/Data/usr/local/Cellar/llvm/10.0.0_3/bin/llvm-ar /usr/bin/llvm-ar
-
+        run: echo "::add-path::/System/Volumes/Data/usr/local/Cellar/llvm/10.0.0_3/bin/"
 
       - name: Checkout sources
         uses: actions/checkout@v2
