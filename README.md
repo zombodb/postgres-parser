@@ -1,4 +1,7 @@
 [![Actions Status](https://github.com/zombodb/postgres-parser/workflows/cargo%20test%20--all/badge.svg)](https://github.com/zombodb/postgres-parser/actions)
+[![crates.io badge](https://img.shields.io/crates/v/postgres-parser.svg)](https://crates.io/crates/postgers-parser)
+[![docs.rs badge](https://docs.rs/postgres-parser/badge.svg)](https://docs.rs/postges-parser)
+
 [![Twitter Follow](https://img.shields.io/twitter/follow/zombodb.svg?style=social)](https://twitter.com/zombodb)  
 
 ## postgres-parser
