@@ -14,7 +14,7 @@ link-time optimization (LTO) to generate a static library containing only the sy
 necessary to properly use Postgres' `raw_parser()` function, and finally, 
 linking against that library with Rust.
 
-This is accomplished via a custom [`build.rs`](build.rs) program, which 
+This is accomplished via a custom [`build.rs`](build.rs) script, which 
 shells out to [`build.sh`](build.sh) to perform all the hard work.
 
 At the end of the process we're left with a `libpostgres_parser.a` archive, which
@@ -69,7 +69,7 @@ $ brew install llvm
 $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-As Linux goes, so far I've tested this on Ubuntu 18.04 with LLVM 6.0.0, and
+As Linux goes, so far this has been tested on Ubuntu 18.04 with LLVM 6.0.0, and
 Ubuntu 20.04 with LLVM 10.0.0.
 
 You'll also want to make sure the LLVM and clang tools are on your `$PATH`.
