@@ -22,9 +22,6 @@ jobs:
       - name: install postgres build dependencies
         run: sudo apt install -y clang llvm make curl
 
-      - name: debug1
-        run: which llvm-lto
-
       - name: debug2
         run: ls -la /usr/bin/
 
