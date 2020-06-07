@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: debug
-      - run: sudo find / -name "llvm-ar*" && exit 1
+        run: sudo find / -name "llvm-ar*" && exit 1
 
       # Ubuntu system dependencies required to build Postgres from sources
       - name: install linux postgres build dependencies
