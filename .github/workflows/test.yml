@@ -20,17 +20,17 @@ jobs:
     steps:
       # Ubuntu system dependencies required to build Postgres from sources
       - name: install postgres build dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo apt install -y clang llvm make curl
-        if: ${{ matrix.os == "ubuntu-latest" }}
 
       - name: hack llvm-lto
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: sudo ln -s /usr/bin/llvm-lto-9 /usr/bin/llvm-lto
-        if: ${{ matrix.os == "ubuntu-latest" }}
 
       # macOS system dependencies required to build Postgres from sources
       - name: install postgres build dependencies
+        if: ${{ matrix.os == 'macos-latest' }}
         run: brew install wget llvm
-        if: ${{ matrix.os == "ubuntu-latest" }}
 
       - name: Checkout sources
         uses: actions/checkout@v2
