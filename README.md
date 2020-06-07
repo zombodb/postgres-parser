@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/zombodb/postgres-parser/workflows/test/badge.svg)](https://github.com/zombodb/postgres-parser/actions)
+[![Actions Status](https://github.com/zombodb/postgres-parser/workflows/.github/workflows/test.yml/badge.svg)](https://github.com/zombodb/postgres-parser/actions)
 
 ## postgres-parser
 
