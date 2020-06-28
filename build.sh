@@ -99,7 +99,8 @@ opt "${POSTGRES_LL}" -o "${POSTGRES_BC}" \
   -globaldce \
   -O2 || exit 1
 
-clang -flto -c "${POSTGRES_BC}" -o "${TARGET_DIR}/raw_parser.o"
+# compile into a native object
+clang -c "${POSTGRES_BC}" -o "${TARGET_DIR}/raw_parser.o"
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
