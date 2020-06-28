@@ -72,7 +72,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
         .clang_arg(&format!("-I{}", include_path.display()))
         .whitelist_function("list_nth")
         .whitelist_function("MemoryContextInit")
-        // .whitelist_function("SetDatabaseEncoding")
+        .whitelist_function("SetDatabaseEncoding")
         .whitelist_function("CopyErrorData")
         .whitelist_function("FreeErrorData")
         .whitelist_function("FlushErrorState")

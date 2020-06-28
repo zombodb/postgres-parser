@@ -604,6 +604,9 @@ pub enum pg_enc {
     PG_SHIFT_JIS_2004 = 41,
     _PG_LAST_ENCODING_ = 42,
 }
+extern "C" {
+    pub fn SetDatabaseEncoding(encoding: ::std::os::raw::c_int);
+}
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]

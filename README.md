@@ -107,9 +107,9 @@ directory.
 
 ### Known Issues
 
-- The parser currently only accepts SQL statements that adhere to what Postgres considers `SQL_ASCII` text.
-The reason for this is that setting Postgres to support full `UTF8` (which is incredibly easy), somehow
-causes the resulting compiled binary to bloat to nearly 10 megabytes.  This is being investigated
+- While the parser supports `UTF8` input, this somehow causes the resulting compiled binary to bloat to nearly 
+10 megabytes.  Seemingly, including Postgres' `SetDatabaseEncoding` function causes LLVM's `opt` to fail to
+do proper global dead code elimination.  This is being investigated.
 
 - Building on MacOS with XCode `>=11.4.0` doesn't work.  This appears to be a problem with these versions
 of XCode.  This is the bug: https://openradar.appspot.com/FB7647406.  This happens while building Postgres.

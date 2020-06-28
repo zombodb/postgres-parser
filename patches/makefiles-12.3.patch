@@ -48,7 +48,7 @@ index 2f22b9b101..f6e90a28f5 100644
  	rm -f $@
  	$(AR) $(AROPT) $@ $^
 +	llvm-link -S -v $(OBJS_SRV) -o libpgcommon_srv.ll
- 
+
  # Because this uses its own compilation rule, it doesn't use the
  # dependency tracking logic from Makefile.global.  To make sure that
 diff --git a/src/port/Makefile b/src/port/Makefile
