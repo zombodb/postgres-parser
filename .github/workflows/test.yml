@@ -12,6 +12,7 @@ jobs:
   test:
     name: Test Suite
     runs-on: ${{ matrix.os }}
+    if: "!contains(github.event.head_commit.message, 'nogha')"
 
     strategy:
       matrix:
