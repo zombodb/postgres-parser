@@ -108,7 +108,7 @@ llvm-lto "${POSTGRES_BC}" \
   --exported-symbol=_error_context_stack --exported-symbol=error_context_stack \
   --exported-symbol=_CurrentMemoryContext --exported-symbol=CurrentMemoryContext \
   --exported-symbol=_TopMemoryContext --exported-symbol=TopMemoryContext \
-  --exported-symbol=_SetDatabaseEncoding --exported-symbol=SetDatabaseEncoding \  
+  --exported-symbol=_SetDatabaseEncoding --exported-symbol=SetDatabaseEncoding \
   --filetype=obj \
   --relocation-model=pic \
   -o "${TARGET_DIR}/raw_parser.o" || exit 1

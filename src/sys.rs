@@ -7244,7 +7244,7 @@ pub struct Value {
 #[repr(C)]
 pub struct Value_ValUnion {
     pub ival: __BindgenUnionField<::std::os::raw::c_int>,
-    pub str: __BindgenUnionField<*mut ::std::os::raw::c_char>,
+    pub str_: __BindgenUnionField<*mut ::std::os::raw::c_char>,
     pub bindgen_union_field: u64,
 }
 #[test]
@@ -7270,13 +7270,13 @@ fn bindgen_test_layout_Value_ValUnion() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Value_ValUnion>())).str as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<Value_ValUnion>())).str_ as *const _ as usize },
         0usize,
         concat!(
             "Offset of field: ",
             stringify!(Value_ValUnion),
             "::",
-            stringify!(str)
+            stringify!(str_)
         )
     );
 }
@@ -22750,7 +22750,7 @@ impl Default for DropSubscriptionStmt {
     }
 }
 extern "C" {
-    pub fn raw_parser(str: *const ::std::os::raw::c_char) -> *mut List;
+    pub fn raw_parser(str_: *const ::std::os::raw::c_char) -> *mut List;
 }
 extern "C" {
     pub static mut TopMemoryContext: MemoryContext;
