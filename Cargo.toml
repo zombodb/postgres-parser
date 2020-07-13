@@ -19,7 +19,7 @@ serde = { version = "1.0.114", features = ["derive"] }
 bindgen = "0.54.0"
 num_cpus = "1.13.0"
 proc-macro2 = "1.0.17"
-quote = "1.0.6"
+quote = "1.0.7"
 syn = { version = "1.0.23", features = [ "extra-traits", "full", "fold", "parsing" ] }
 
 [dev-dependencies]
