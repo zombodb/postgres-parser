@@ -23,7 +23,7 @@ quote = "1.0.6"
 syn = { version = "1.0.23", features = [ "extra-traits", "full", "fold", "parsing" ] }
 
 [dev-dependencies]
-serde_json = "1.0.53"
+serde_json = "1.0.56"
 
 [profile.release]
 lto = true
