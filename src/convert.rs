@@ -52,7 +52,7 @@ impl ConvertNode for crate::sys::Value {
         use crate::nodes::Value;
 
         fn make_string(value: &crate::sys::Value) -> String {
-            let cstr = unsafe { value.val.str.as_ref() };
+            let cstr = unsafe { value.val.str_.as_ref() };
             let cstr = unsafe { std::ffi::CStr::from_ptr(*cstr) };
 
             cstr.to_str()

@@ -86,6 +86,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
         .derive_hash(true)
         .generate_comments(true)
         .layout_tests(true)
+        .size_t_is_usize(true)
         .default_enum_style(EnumVariation::Rust {
             non_exhaustive: false,
         })
