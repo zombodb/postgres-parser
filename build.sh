@@ -23,6 +23,7 @@ if [ "x${TARGET_DIR}" == "x" ] ; then
   TARGET_DIR="${PWD}/target/"
 fi
 UNAME=$(uname)
+MACHINE=$(uname -m)
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
 POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
@@ -100,7 +101,11 @@ opt "${POSTGRES_LL}" -o "${POSTGRES_BC}" \
   -O2 || exit 1
 
 # compile into a native object
-clang -c -fPIC "${POSTGRES_BC}" -o "${TARGET_DIR}/raw_parser.o"
+FPIC=""
+if [ "x${UNAME}" == "xLinux" ] && [ "x${MACHINE}" == "x86_64" ] ; then
+	FPIC="-fPIC"
+fi
+clang -c ${FPIC} "${POSTGRES_BC}" -o "${TARGET_DIR}/raw_parser.o"
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
