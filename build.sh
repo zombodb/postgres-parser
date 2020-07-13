@@ -23,7 +23,6 @@ if [ "x${TARGET_DIR}" == "x" ] ; then
   TARGET_DIR="${PWD}/target/"
 fi
 UNAME=$(uname)
-MACHINE=$(uname -m)
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
 POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
@@ -63,14 +62,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
     ln -s /usr/bin/ld.gold build_bin/ld || exit 1
     CFLAGS="-B${PWD}/build_bin"
   fi
-
-  # configure postgres
-  AR="llvm-ar" \
-  CC="clang" \
-  CFLAGS="${CFLAGS} -O0 -flto" \
-  ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
-
-  # and compile/install it
+  AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
   make -j${NUM_CPUS} clean || exit 1
   make -j${NUM_CPUS} || exit 1
   rm -rf "${INSTALL_DIR}" || exit 1
@@ -93,19 +85,33 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
   cd "${MANIFEST_DIR}" || exit 1
 fi
 
-# optimize postgres.ll into bitcode while picking out only the symbols we need
-opt "${POSTGRES_LL}" -o "${POSTGRES_BC}" \
-  -internalize \
-  -internalize-public-api-file=./symbols.txt \
-  -globaldce \
-  -O2 || exit 1
+# rename Postgres "main' function entry point so it won't conflict
+# with users of this library
+sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
+sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
 
-# compile into a native object
-FPIC=""
-if [ "x${UNAME}" == "xLinux" ] && [ "x${MACHINE}" == "x86_64" ] ; then
-	FPIC="-fPIC"
-fi
-clang -c ${FPIC} "${POSTGRES_BC}" -o "${TARGET_DIR}/raw_parser.o"
+# assemble/optimize postgres.ll into bitcode
+opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
+
+# perform LTO against $POSTGRES_BC, exporting only the symbols we
+# need in order to use Postgres' parser
+llvm-lto "${POSTGRES_BC}" \
+  --exported-symbol=_raw_parser --exported-symbol=raw_parser \
+  --exported-symbol=_list_nth --exported-symbol=list_nth \
+  --exported-symbol=_MemoryContextInit --exported-symbol=MemoryContextInit \
+  --exported-symbol=_CopyErrorData --exported-symbol=CopyErrorData \
+  --exported-symbol=_FreeErrorData --exported-symbol=FreeErrorData \
+  --exported-symbol=_FlushErrorState --exported-symbol=FlushErrorState \
+  --exported-symbol=_MemoryContextReset --exported-symbol=MemoryContextReset \
+  --exported-symbol=_AllocSetContextCreateInternal --exported-symbol=AllocSetContextCreateInternal \
+  --exported-symbol=_PG_exception_stack --exported-symbol=PG_exception_stack \
+  --exported-symbol=_error_context_stack --exported-symbol=error_context_stack \
+  --exported-symbol=_CurrentMemoryContext --exported-symbol=CurrentMemoryContext \
+  --exported-symbol=_TopMemoryContext --exported-symbol=TopMemoryContext \
+  --exported-symbol=_SetDatabaseEncoding --exported-symbol=SetDatabaseEncoding \  
+  --filetype=obj \
+  --relocation-model=pic \
+  -o "${TARGET_DIR}/raw_parser.o" || exit 1
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
