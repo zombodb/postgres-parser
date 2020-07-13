@@ -85,11 +85,6 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
   cd "${MANIFEST_DIR}" || exit 1
 fi
 
-# rename Postgres "main' function entry point so it won't conflict
-# with users of this library
-sed -i'' -e 's/"main"/"pg_main"/g' "${POSTGRES_LL}" || exit 1
-sed -i'' -e 's/i32 @main/i32 @pg_main/g' "${POSTGRES_LL}" || exit 1
-
 # assemble/optimize postgres.ll into bitcode
 opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 
@@ -108,7 +103,6 @@ llvm-lto "${POSTGRES_BC}" \
   --exported-symbol=_error_context_stack --exported-symbol=error_context_stack \
   --exported-symbol=_CurrentMemoryContext --exported-symbol=CurrentMemoryContext \
   --exported-symbol=_TopMemoryContext --exported-symbol=TopMemoryContext \
-  --exported-symbol=_SetDatabaseEncoding --exported-symbol=SetDatabaseEncoding \
   --filetype=obj \
   --relocation-model=pic \
   -o "${TARGET_DIR}/raw_parser.o" || exit 1
