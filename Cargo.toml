@@ -20,7 +20,7 @@ bindgen = "0.54.1"
 num_cpus = "1.13.0"
 proc-macro2 = "1.0.18"
 quote = "1.0.6"
-syn = { version = "1.0.23", features = [ "extra-traits", "full", "fold", "parsing" ] }
+syn = { version = "1.0.35", features = [ "extra-traits", "full", "fold", "parsing" ] }
 
 [dev-dependencies]
 serde_json = "1.0.56"
