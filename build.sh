@@ -62,7 +62,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
     ln -s /usr/bin/ld.gold build_bin/ld || exit 1
     CFLAGS="-B${PWD}/build_bin"
   fi
-  AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
+  AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto -fPIC" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
   make -j${NUM_CPUS} clean || exit 1
   make -j${NUM_CPUS} || exit 1
   rm -rf "${INSTALL_DIR}" || exit 1
