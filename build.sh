@@ -20,7 +20,7 @@ set -x
 
 TARGET_DIR=${CARGO_TARGET_DIR}
 if [ "x${TARGET_DIR}" == "x" ] ; then
-  TARGET_DIR="${PWD}/target/"
+  TARGET_DIR="${PWD}/target"
 fi
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
@@ -29,7 +29,7 @@ POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
 POSTGRES_BC="${TARGET_DIR}/postgres.bc"
 BUILD_DIR="${TARGET_DIR}/${PGVER}-build"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
-INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install/"
+INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install"
 
 if [ "x${NUM_CPUS}" == "x" ]; then
     NUM_CPUS="1"
@@ -47,7 +47,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
 
   # download/untar Postgres
   if [ ! -f postgresql-${PGVER}.tar.bz2 ] ; then
-    wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+    wget -q https://ftp.postgresql.org/pub/source/v${PGVER}/postgresql-${PGVER}.tar.bz2 || exit 1
   fi
   tar xjf postgresql-${PGVER}.tar.bz2 || exit 1
 
