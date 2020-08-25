@@ -16,7 +16,7 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.114", features = ["derive"] }
 
 [build-dependencies]
-bindgen = "0.54.1"
+bindgen = "0.55.1"
 num_cpus = "1.13.0"
 proc-macro2 = "1.0.19"
 quote = "1.0.7"
