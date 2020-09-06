@@ -41,6 +41,11 @@ if [ -f "${POSTGRES_PARSER_A}" ] && [ -d "${INSTALL_DIR}" ]; then
   exit 0
 fi
 
+if [ ! $(which clang) ] ; then
+  echo "You must have clang in your path in order to build this crate"
+  exit 1
+fi
+
 if [ ! -f "${POSTGRES_LL}" ] ; then
   cd "${BUILD_DIR}" || exit 1
 
