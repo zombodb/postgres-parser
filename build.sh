@@ -72,7 +72,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
     if [ ! -l build_bin/ld ] ; then
       ln -s /usr/bin/ld.gold build_bin/ld || exit 1
     fi
-    CFLAGS="-B${PWD}/build_bin"
+    CFLAGS="${CFLAGS} -B${PWD}/build_bin"
   fi
   AR="llvm-ar" CC="${CC}" CFLAGS="${CFLAGS}" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
   make -j${NUM_CPUS} clean || exit 1
