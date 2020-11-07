@@ -44,8 +44,12 @@ if [ -f "${POSTGRES_PARSER_A}" ] && [ -d "${INSTALL_DIR}" ]; then
   exit 0
 fi
 
+if [ ! $(which clang) ] ; then
+  echo "You must have clang in your path in order to build this crate"
+  exit 1
+fi
+
 if [ ! -f "${POSTGRES_LL}" ] ; then
-  mkdir -p "${BUILD_DIR}" || exit 1
   cd "${BUILD_DIR}" || exit 1
 
   # download/untar Postgres
@@ -61,9 +65,13 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
   # configure, build, and (locally) install Postgres
   if [ "x${UNAME}" == "xLinux" ] ; then
     # linux needs to use the "gold" linker
-    mkdir build_bin || exit 1
-    ln -s /usr/bin/ld.gold build_bin/ld || exit 1
-    CFLAGS="${CFLAGS} -B${PWD}/build_bin"
+    if [ ! -d build_bin ] ; then
+      mkdir build_bin || exit 1
+    fi
+    if [ ! -l build_bin/ld ] ; then
+      ln -s /usr/bin/ld.gold build_bin/ld || exit 1
+    fi
+    CFLAGS="-B${PWD}/build_bin"
   fi
   AR="llvm-ar" CC="${CC}" CFLAGS="${CFLAGS}" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
   make -j${NUM_CPUS} clean || exit 1
