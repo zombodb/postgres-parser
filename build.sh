@@ -112,8 +112,9 @@ llvm-lto "${POSTGRES_BC}" \
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
-echo "${POSTGRES_PARSER_A};${INSTALL_DIR}"
 
 # create dynamic shared object
 CFLAGS="{$CFLAGS}" ${CC} -shared -o "${POSTGRES_PARSER_SO}" "${TARGET_DIR}/raw_parser.o" || exit 1
-echo "${POSTGRES_PARSER_SO};${INSTALL_DIR}"
+
+# output the static library information
+echo "${POSTGRES_PARSER_A};${INSTALL_DIR}"
