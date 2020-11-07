@@ -92,6 +92,7 @@ pub type bits32 = uint32;
 pub type uint64 = ::std::os::raw::c_ulong;
 pub type Size = usize;
 pub type Index = ::std::os::raw::c_uint;
+pub type SubTransactionId = uint32;
 pub type sigjmp_buf = [::std::os::raw::c_int; 38usize];
 #[repr(C)]
 #[derive(Debug, Hash, PartialEq, Eq)]
@@ -174,6 +175,7 @@ pub struct ErrorData {
     pub detail_log: *mut ::std::os::raw::c_char,
     pub hint: *mut ::std::os::raw::c_char,
     pub context: *mut ::std::os::raw::c_char,
+    pub backtrace: *mut ::std::os::raw::c_char,
     pub message_id: *const ::std::os::raw::c_char,
     pub schema_name: *mut ::std::os::raw::c_char,
     pub table_name: *mut ::std::os::raw::c_char,
@@ -190,7 +192,7 @@ pub struct ErrorData {
 fn bindgen_test_layout_ErrorData() {
     assert_eq!(
         ::std::mem::size_of::<ErrorData>(),
-        184usize,
+        192usize,
         concat!("Size of: ", stringify!(ErrorData))
     );
     assert_eq!(
@@ -369,8 +371,18 @@ fn bindgen_test_layout_ErrorData() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ErrorData>())).message_id as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<ErrorData>())).backtrace as *const _ as usize },
         104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ErrorData),
+            "::",
+            stringify!(backtrace)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ErrorData>())).message_id as *const _ as usize },
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -380,7 +392,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).schema_name as *const _ as usize },
-        112usize,
+        120usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -390,7 +402,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).table_name as *const _ as usize },
-        120usize,
+        128usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -400,7 +412,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).column_name as *const _ as usize },
-        128usize,
+        136usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -410,7 +422,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).datatype_name as *const _ as usize },
-        136usize,
+        144usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -420,7 +432,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).constraint_name as *const _ as usize },
-        144usize,
+        152usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -430,7 +442,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).cursorpos as *const _ as usize },
-        152usize,
+        160usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -440,7 +452,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).internalpos as *const _ as usize },
-        156usize,
+        164usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -450,7 +462,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).internalquery as *const _ as usize },
-        160usize,
+        168usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -460,7 +472,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).saved_errno as *const _ as usize },
-        168usize,
+        176usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -470,7 +482,7 @@ fn bindgen_test_layout_ErrorData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<ErrorData>())).assoc_context as *const _ as usize },
-        176usize,
+        184usize,
         concat!(
             "Offset of field: ",
             stringify!(ErrorData),
@@ -648,382 +660,387 @@ pub enum NodeTag {
     T_HashJoin = 38,
     T_Material = 39,
     T_Sort = 40,
-    T_Group = 41,
-    T_Agg = 42,
-    T_WindowAgg = 43,
-    T_Unique = 44,
-    T_Gather = 45,
-    T_GatherMerge = 46,
-    T_Hash = 47,
-    T_SetOp = 48,
-    T_LockRows = 49,
-    T_Limit = 50,
-    T_NestLoopParam = 51,
-    T_PlanRowMark = 52,
-    T_PartitionPruneInfo = 53,
-    T_PartitionedRelPruneInfo = 54,
-    T_PartitionPruneStepOp = 55,
-    T_PartitionPruneStepCombine = 56,
-    T_PlanInvalItem = 57,
-    T_PlanState = 58,
-    T_ResultState = 59,
-    T_ProjectSetState = 60,
-    T_ModifyTableState = 61,
-    T_AppendState = 62,
-    T_MergeAppendState = 63,
-    T_RecursiveUnionState = 64,
-    T_BitmapAndState = 65,
-    T_BitmapOrState = 66,
-    T_ScanState = 67,
-    T_SeqScanState = 68,
-    T_SampleScanState = 69,
-    T_IndexScanState = 70,
-    T_IndexOnlyScanState = 71,
-    T_BitmapIndexScanState = 72,
-    T_BitmapHeapScanState = 73,
-    T_TidScanState = 74,
-    T_SubqueryScanState = 75,
-    T_FunctionScanState = 76,
-    T_TableFuncScanState = 77,
-    T_ValuesScanState = 78,
-    T_CteScanState = 79,
-    T_NamedTuplestoreScanState = 80,
-    T_WorkTableScanState = 81,
-    T_ForeignScanState = 82,
-    T_CustomScanState = 83,
-    T_JoinState = 84,
-    T_NestLoopState = 85,
-    T_MergeJoinState = 86,
-    T_HashJoinState = 87,
-    T_MaterialState = 88,
-    T_SortState = 89,
-    T_GroupState = 90,
-    T_AggState = 91,
-    T_WindowAggState = 92,
-    T_UniqueState = 93,
-    T_GatherState = 94,
-    T_GatherMergeState = 95,
-    T_HashState = 96,
-    T_SetOpState = 97,
-    T_LockRowsState = 98,
-    T_LimitState = 99,
-    T_Alias = 100,
-    T_RangeVar = 101,
-    T_TableFunc = 102,
-    T_Expr = 103,
-    T_Var = 104,
-    T_Const = 105,
-    T_Param = 106,
-    T_Aggref = 107,
-    T_GroupingFunc = 108,
-    T_WindowFunc = 109,
-    T_SubscriptingRef = 110,
-    T_FuncExpr = 111,
-    T_NamedArgExpr = 112,
-    T_OpExpr = 113,
-    T_DistinctExpr = 114,
-    T_NullIfExpr = 115,
-    T_ScalarArrayOpExpr = 116,
-    T_BoolExpr = 117,
-    T_SubLink = 118,
-    T_SubPlan = 119,
-    T_AlternativeSubPlan = 120,
-    T_FieldSelect = 121,
-    T_FieldStore = 122,
-    T_RelabelType = 123,
-    T_CoerceViaIO = 124,
-    T_ArrayCoerceExpr = 125,
-    T_ConvertRowtypeExpr = 126,
-    T_CollateExpr = 127,
-    T_CaseExpr = 128,
-    T_CaseWhen = 129,
-    T_CaseTestExpr = 130,
-    T_ArrayExpr = 131,
-    T_RowExpr = 132,
-    T_RowCompareExpr = 133,
-    T_CoalesceExpr = 134,
-    T_MinMaxExpr = 135,
-    T_SQLValueFunction = 136,
-    T_XmlExpr = 137,
-    T_NullTest = 138,
-    T_BooleanTest = 139,
-    T_CoerceToDomain = 140,
-    T_CoerceToDomainValue = 141,
-    T_SetToDefault = 142,
-    T_CurrentOfExpr = 143,
-    T_NextValueExpr = 144,
-    T_InferenceElem = 145,
-    T_TargetEntry = 146,
-    T_RangeTblRef = 147,
-    T_JoinExpr = 148,
-    T_FromExpr = 149,
-    T_OnConflictExpr = 150,
-    T_IntoClause = 151,
-    T_ExprState = 152,
-    T_AggrefExprState = 153,
-    T_WindowFuncExprState = 154,
-    T_SetExprState = 155,
-    T_SubPlanState = 156,
-    T_AlternativeSubPlanState = 157,
-    T_DomainConstraintState = 158,
-    T_PlannerInfo = 159,
-    T_PlannerGlobal = 160,
-    T_RelOptInfo = 161,
-    T_IndexOptInfo = 162,
-    T_ForeignKeyOptInfo = 163,
-    T_ParamPathInfo = 164,
-    T_Path = 165,
-    T_IndexPath = 166,
-    T_BitmapHeapPath = 167,
-    T_BitmapAndPath = 168,
-    T_BitmapOrPath = 169,
-    T_TidPath = 170,
-    T_SubqueryScanPath = 171,
-    T_ForeignPath = 172,
-    T_CustomPath = 173,
-    T_NestPath = 174,
-    T_MergePath = 175,
-    T_HashPath = 176,
-    T_AppendPath = 177,
-    T_MergeAppendPath = 178,
-    T_GroupResultPath = 179,
-    T_MaterialPath = 180,
-    T_UniquePath = 181,
-    T_GatherPath = 182,
-    T_GatherMergePath = 183,
-    T_ProjectionPath = 184,
-    T_ProjectSetPath = 185,
-    T_SortPath = 186,
-    T_GroupPath = 187,
-    T_UpperUniquePath = 188,
-    T_AggPath = 189,
-    T_GroupingSetsPath = 190,
-    T_MinMaxAggPath = 191,
-    T_WindowAggPath = 192,
-    T_SetOpPath = 193,
-    T_RecursiveUnionPath = 194,
-    T_LockRowsPath = 195,
-    T_ModifyTablePath = 196,
-    T_LimitPath = 197,
-    T_EquivalenceClass = 198,
-    T_EquivalenceMember = 199,
-    T_PathKey = 200,
-    T_PathTarget = 201,
-    T_RestrictInfo = 202,
-    T_IndexClause = 203,
-    T_PlaceHolderVar = 204,
-    T_SpecialJoinInfo = 205,
-    T_AppendRelInfo = 206,
-    T_PlaceHolderInfo = 207,
-    T_MinMaxAggInfo = 208,
-    T_PlannerParamItem = 209,
-    T_RollupData = 210,
-    T_GroupingSetData = 211,
-    T_StatisticExtInfo = 212,
-    T_MemoryContext = 213,
-    T_AllocSetContext = 214,
-    T_SlabContext = 215,
-    T_GenerationContext = 216,
-    T_Value = 217,
-    T_Integer = 218,
-    T_Float = 219,
-    T_String = 220,
-    T_BitString = 221,
-    T_Null = 222,
-    T_List = 223,
-    T_IntList = 224,
-    T_OidList = 225,
-    T_ExtensibleNode = 226,
-    T_RawStmt = 227,
-    T_Query = 228,
-    T_PlannedStmt = 229,
-    T_InsertStmt = 230,
-    T_DeleteStmt = 231,
-    T_UpdateStmt = 232,
-    T_SelectStmt = 233,
-    T_AlterTableStmt = 234,
-    T_AlterTableCmd = 235,
-    T_AlterDomainStmt = 236,
-    T_SetOperationStmt = 237,
-    T_GrantStmt = 238,
-    T_GrantRoleStmt = 239,
-    T_AlterDefaultPrivilegesStmt = 240,
-    T_ClosePortalStmt = 241,
-    T_ClusterStmt = 242,
-    T_CopyStmt = 243,
-    T_CreateStmt = 244,
-    T_DefineStmt = 245,
-    T_DropStmt = 246,
-    T_TruncateStmt = 247,
-    T_CommentStmt = 248,
-    T_FetchStmt = 249,
-    T_IndexStmt = 250,
-    T_CreateFunctionStmt = 251,
-    T_AlterFunctionStmt = 252,
-    T_DoStmt = 253,
-    T_RenameStmt = 254,
-    T_RuleStmt = 255,
-    T_NotifyStmt = 256,
-    T_ListenStmt = 257,
-    T_UnlistenStmt = 258,
-    T_TransactionStmt = 259,
-    T_ViewStmt = 260,
-    T_LoadStmt = 261,
-    T_CreateDomainStmt = 262,
-    T_CreatedbStmt = 263,
-    T_DropdbStmt = 264,
-    T_VacuumStmt = 265,
-    T_ExplainStmt = 266,
-    T_CreateTableAsStmt = 267,
-    T_CreateSeqStmt = 268,
-    T_AlterSeqStmt = 269,
-    T_VariableSetStmt = 270,
-    T_VariableShowStmt = 271,
-    T_DiscardStmt = 272,
-    T_CreateTrigStmt = 273,
-    T_CreatePLangStmt = 274,
-    T_CreateRoleStmt = 275,
-    T_AlterRoleStmt = 276,
-    T_DropRoleStmt = 277,
-    T_LockStmt = 278,
-    T_ConstraintsSetStmt = 279,
-    T_ReindexStmt = 280,
-    T_CheckPointStmt = 281,
-    T_CreateSchemaStmt = 282,
-    T_AlterDatabaseStmt = 283,
-    T_AlterDatabaseSetStmt = 284,
-    T_AlterRoleSetStmt = 285,
-    T_CreateConversionStmt = 286,
-    T_CreateCastStmt = 287,
-    T_CreateOpClassStmt = 288,
-    T_CreateOpFamilyStmt = 289,
-    T_AlterOpFamilyStmt = 290,
-    T_PrepareStmt = 291,
-    T_ExecuteStmt = 292,
-    T_DeallocateStmt = 293,
-    T_DeclareCursorStmt = 294,
-    T_CreateTableSpaceStmt = 295,
-    T_DropTableSpaceStmt = 296,
-    T_AlterObjectDependsStmt = 297,
-    T_AlterObjectSchemaStmt = 298,
-    T_AlterOwnerStmt = 299,
-    T_AlterOperatorStmt = 300,
-    T_DropOwnedStmt = 301,
-    T_ReassignOwnedStmt = 302,
-    T_CompositeTypeStmt = 303,
-    T_CreateEnumStmt = 304,
-    T_CreateRangeStmt = 305,
-    T_AlterEnumStmt = 306,
-    T_AlterTSDictionaryStmt = 307,
-    T_AlterTSConfigurationStmt = 308,
-    T_CreateFdwStmt = 309,
-    T_AlterFdwStmt = 310,
-    T_CreateForeignServerStmt = 311,
-    T_AlterForeignServerStmt = 312,
-    T_CreateUserMappingStmt = 313,
-    T_AlterUserMappingStmt = 314,
-    T_DropUserMappingStmt = 315,
-    T_AlterTableSpaceOptionsStmt = 316,
-    T_AlterTableMoveAllStmt = 317,
-    T_SecLabelStmt = 318,
-    T_CreateForeignTableStmt = 319,
-    T_ImportForeignSchemaStmt = 320,
-    T_CreateExtensionStmt = 321,
-    T_AlterExtensionStmt = 322,
-    T_AlterExtensionContentsStmt = 323,
-    T_CreateEventTrigStmt = 324,
-    T_AlterEventTrigStmt = 325,
-    T_RefreshMatViewStmt = 326,
-    T_ReplicaIdentityStmt = 327,
-    T_AlterSystemStmt = 328,
-    T_CreatePolicyStmt = 329,
-    T_AlterPolicyStmt = 330,
-    T_CreateTransformStmt = 331,
-    T_CreateAmStmt = 332,
-    T_CreatePublicationStmt = 333,
-    T_AlterPublicationStmt = 334,
-    T_CreateSubscriptionStmt = 335,
-    T_AlterSubscriptionStmt = 336,
-    T_DropSubscriptionStmt = 337,
-    T_CreateStatsStmt = 338,
-    T_AlterCollationStmt = 339,
-    T_CallStmt = 340,
-    T_A_Expr = 341,
-    T_ColumnRef = 342,
-    T_ParamRef = 343,
-    T_A_Const = 344,
-    T_FuncCall = 345,
-    T_A_Star = 346,
-    T_A_Indices = 347,
-    T_A_Indirection = 348,
-    T_A_ArrayExpr = 349,
-    T_ResTarget = 350,
-    T_MultiAssignRef = 351,
-    T_TypeCast = 352,
-    T_CollateClause = 353,
-    T_SortBy = 354,
-    T_WindowDef = 355,
-    T_RangeSubselect = 356,
-    T_RangeFunction = 357,
-    T_RangeTableSample = 358,
-    T_RangeTableFunc = 359,
-    T_RangeTableFuncCol = 360,
-    T_TypeName = 361,
-    T_ColumnDef = 362,
-    T_IndexElem = 363,
-    T_Constraint = 364,
-    T_DefElem = 365,
-    T_RangeTblEntry = 366,
-    T_RangeTblFunction = 367,
-    T_TableSampleClause = 368,
-    T_WithCheckOption = 369,
-    T_SortGroupClause = 370,
-    T_GroupingSet = 371,
-    T_WindowClause = 372,
-    T_ObjectWithArgs = 373,
-    T_AccessPriv = 374,
-    T_CreateOpClassItem = 375,
-    T_TableLikeClause = 376,
-    T_FunctionParameter = 377,
-    T_LockingClause = 378,
-    T_RowMarkClause = 379,
-    T_XmlSerialize = 380,
-    T_WithClause = 381,
-    T_InferClause = 382,
-    T_OnConflictClause = 383,
-    T_CommonTableExpr = 384,
-    T_RoleSpec = 385,
-    T_TriggerTransition = 386,
-    T_PartitionElem = 387,
-    T_PartitionSpec = 388,
-    T_PartitionBoundSpec = 389,
-    T_PartitionRangeDatum = 390,
-    T_PartitionCmd = 391,
-    T_VacuumRelation = 392,
-    T_IdentifySystemCmd = 393,
-    T_BaseBackupCmd = 394,
-    T_CreateReplicationSlotCmd = 395,
-    T_DropReplicationSlotCmd = 396,
-    T_StartReplicationCmd = 397,
-    T_TimeLineHistoryCmd = 398,
-    T_SQLCmd = 399,
-    T_TriggerData = 400,
-    T_EventTriggerData = 401,
-    T_ReturnSetInfo = 402,
-    T_WindowObjectData = 403,
-    T_TIDBitmap = 404,
-    T_InlineCodeBlock = 405,
-    T_FdwRoutine = 406,
-    T_IndexAmRoutine = 407,
-    T_TableAmRoutine = 408,
-    T_TsmRoutine = 409,
-    T_ForeignKeyCacheInfo = 410,
-    T_CallContext = 411,
-    T_SupportRequestSimplify = 412,
-    T_SupportRequestSelectivity = 413,
-    T_SupportRequestCost = 414,
-    T_SupportRequestRows = 415,
-    T_SupportRequestIndexCondition = 416,
+    T_IncrementalSort = 41,
+    T_Group = 42,
+    T_Agg = 43,
+    T_WindowAgg = 44,
+    T_Unique = 45,
+    T_Gather = 46,
+    T_GatherMerge = 47,
+    T_Hash = 48,
+    T_SetOp = 49,
+    T_LockRows = 50,
+    T_Limit = 51,
+    T_NestLoopParam = 52,
+    T_PlanRowMark = 53,
+    T_PartitionPruneInfo = 54,
+    T_PartitionedRelPruneInfo = 55,
+    T_PartitionPruneStepOp = 56,
+    T_PartitionPruneStepCombine = 57,
+    T_PlanInvalItem = 58,
+    T_PlanState = 59,
+    T_ResultState = 60,
+    T_ProjectSetState = 61,
+    T_ModifyTableState = 62,
+    T_AppendState = 63,
+    T_MergeAppendState = 64,
+    T_RecursiveUnionState = 65,
+    T_BitmapAndState = 66,
+    T_BitmapOrState = 67,
+    T_ScanState = 68,
+    T_SeqScanState = 69,
+    T_SampleScanState = 70,
+    T_IndexScanState = 71,
+    T_IndexOnlyScanState = 72,
+    T_BitmapIndexScanState = 73,
+    T_BitmapHeapScanState = 74,
+    T_TidScanState = 75,
+    T_SubqueryScanState = 76,
+    T_FunctionScanState = 77,
+    T_TableFuncScanState = 78,
+    T_ValuesScanState = 79,
+    T_CteScanState = 80,
+    T_NamedTuplestoreScanState = 81,
+    T_WorkTableScanState = 82,
+    T_ForeignScanState = 83,
+    T_CustomScanState = 84,
+    T_JoinState = 85,
+    T_NestLoopState = 86,
+    T_MergeJoinState = 87,
+    T_HashJoinState = 88,
+    T_MaterialState = 89,
+    T_SortState = 90,
+    T_IncrementalSortState = 91,
+    T_GroupState = 92,
+    T_AggState = 93,
+    T_WindowAggState = 94,
+    T_UniqueState = 95,
+    T_GatherState = 96,
+    T_GatherMergeState = 97,
+    T_HashState = 98,
+    T_SetOpState = 99,
+    T_LockRowsState = 100,
+    T_LimitState = 101,
+    T_Alias = 102,
+    T_RangeVar = 103,
+    T_TableFunc = 104,
+    T_Expr = 105,
+    T_Var = 106,
+    T_Const = 107,
+    T_Param = 108,
+    T_Aggref = 109,
+    T_GroupingFunc = 110,
+    T_WindowFunc = 111,
+    T_SubscriptingRef = 112,
+    T_FuncExpr = 113,
+    T_NamedArgExpr = 114,
+    T_OpExpr = 115,
+    T_DistinctExpr = 116,
+    T_NullIfExpr = 117,
+    T_ScalarArrayOpExpr = 118,
+    T_BoolExpr = 119,
+    T_SubLink = 120,
+    T_SubPlan = 121,
+    T_AlternativeSubPlan = 122,
+    T_FieldSelect = 123,
+    T_FieldStore = 124,
+    T_RelabelType = 125,
+    T_CoerceViaIO = 126,
+    T_ArrayCoerceExpr = 127,
+    T_ConvertRowtypeExpr = 128,
+    T_CollateExpr = 129,
+    T_CaseExpr = 130,
+    T_CaseWhen = 131,
+    T_CaseTestExpr = 132,
+    T_ArrayExpr = 133,
+    T_RowExpr = 134,
+    T_RowCompareExpr = 135,
+    T_CoalesceExpr = 136,
+    T_MinMaxExpr = 137,
+    T_SQLValueFunction = 138,
+    T_XmlExpr = 139,
+    T_NullTest = 140,
+    T_BooleanTest = 141,
+    T_CoerceToDomain = 142,
+    T_CoerceToDomainValue = 143,
+    T_SetToDefault = 144,
+    T_CurrentOfExpr = 145,
+    T_NextValueExpr = 146,
+    T_InferenceElem = 147,
+    T_TargetEntry = 148,
+    T_RangeTblRef = 149,
+    T_JoinExpr = 150,
+    T_FromExpr = 151,
+    T_OnConflictExpr = 152,
+    T_IntoClause = 153,
+    T_ExprState = 154,
+    T_AggrefExprState = 155,
+    T_WindowFuncExprState = 156,
+    T_SetExprState = 157,
+    T_SubPlanState = 158,
+    T_AlternativeSubPlanState = 159,
+    T_DomainConstraintState = 160,
+    T_PlannerInfo = 161,
+    T_PlannerGlobal = 162,
+    T_RelOptInfo = 163,
+    T_IndexOptInfo = 164,
+    T_ForeignKeyOptInfo = 165,
+    T_ParamPathInfo = 166,
+    T_Path = 167,
+    T_IndexPath = 168,
+    T_BitmapHeapPath = 169,
+    T_BitmapAndPath = 170,
+    T_BitmapOrPath = 171,
+    T_TidPath = 172,
+    T_SubqueryScanPath = 173,
+    T_ForeignPath = 174,
+    T_CustomPath = 175,
+    T_NestPath = 176,
+    T_MergePath = 177,
+    T_HashPath = 178,
+    T_AppendPath = 179,
+    T_MergeAppendPath = 180,
+    T_GroupResultPath = 181,
+    T_MaterialPath = 182,
+    T_UniquePath = 183,
+    T_GatherPath = 184,
+    T_GatherMergePath = 185,
+    T_ProjectionPath = 186,
+    T_ProjectSetPath = 187,
+    T_SortPath = 188,
+    T_IncrementalSortPath = 189,
+    T_GroupPath = 190,
+    T_UpperUniquePath = 191,
+    T_AggPath = 192,
+    T_GroupingSetsPath = 193,
+    T_MinMaxAggPath = 194,
+    T_WindowAggPath = 195,
+    T_SetOpPath = 196,
+    T_RecursiveUnionPath = 197,
+    T_LockRowsPath = 198,
+    T_ModifyTablePath = 199,
+    T_LimitPath = 200,
+    T_EquivalenceClass = 201,
+    T_EquivalenceMember = 202,
+    T_PathKey = 203,
+    T_PathTarget = 204,
+    T_RestrictInfo = 205,
+    T_IndexClause = 206,
+    T_PlaceHolderVar = 207,
+    T_SpecialJoinInfo = 208,
+    T_AppendRelInfo = 209,
+    T_PlaceHolderInfo = 210,
+    T_MinMaxAggInfo = 211,
+    T_PlannerParamItem = 212,
+    T_RollupData = 213,
+    T_GroupingSetData = 214,
+    T_StatisticExtInfo = 215,
+    T_MemoryContext = 216,
+    T_AllocSetContext = 217,
+    T_SlabContext = 218,
+    T_GenerationContext = 219,
+    T_Value = 220,
+    T_Integer = 221,
+    T_Float = 222,
+    T_String = 223,
+    T_BitString = 224,
+    T_Null = 225,
+    T_List = 226,
+    T_IntList = 227,
+    T_OidList = 228,
+    T_ExtensibleNode = 229,
+    T_RawStmt = 230,
+    T_Query = 231,
+    T_PlannedStmt = 232,
+    T_InsertStmt = 233,
+    T_DeleteStmt = 234,
+    T_UpdateStmt = 235,
+    T_SelectStmt = 236,
+    T_AlterTableStmt = 237,
+    T_AlterTableCmd = 238,
+    T_AlterDomainStmt = 239,
+    T_SetOperationStmt = 240,
+    T_GrantStmt = 241,
+    T_GrantRoleStmt = 242,
+    T_AlterDefaultPrivilegesStmt = 243,
+    T_ClosePortalStmt = 244,
+    T_ClusterStmt = 245,
+    T_CopyStmt = 246,
+    T_CreateStmt = 247,
+    T_DefineStmt = 248,
+    T_DropStmt = 249,
+    T_TruncateStmt = 250,
+    T_CommentStmt = 251,
+    T_FetchStmt = 252,
+    T_IndexStmt = 253,
+    T_CreateFunctionStmt = 254,
+    T_AlterFunctionStmt = 255,
+    T_DoStmt = 256,
+    T_RenameStmt = 257,
+    T_RuleStmt = 258,
+    T_NotifyStmt = 259,
+    T_ListenStmt = 260,
+    T_UnlistenStmt = 261,
+    T_TransactionStmt = 262,
+    T_ViewStmt = 263,
+    T_LoadStmt = 264,
+    T_CreateDomainStmt = 265,
+    T_CreatedbStmt = 266,
+    T_DropdbStmt = 267,
+    T_VacuumStmt = 268,
+    T_ExplainStmt = 269,
+    T_CreateTableAsStmt = 270,
+    T_CreateSeqStmt = 271,
+    T_AlterSeqStmt = 272,
+    T_VariableSetStmt = 273,
+    T_VariableShowStmt = 274,
+    T_DiscardStmt = 275,
+    T_CreateTrigStmt = 276,
+    T_CreatePLangStmt = 277,
+    T_CreateRoleStmt = 278,
+    T_AlterRoleStmt = 279,
+    T_DropRoleStmt = 280,
+    T_LockStmt = 281,
+    T_ConstraintsSetStmt = 282,
+    T_ReindexStmt = 283,
+    T_CheckPointStmt = 284,
+    T_CreateSchemaStmt = 285,
+    T_AlterDatabaseStmt = 286,
+    T_AlterDatabaseSetStmt = 287,
+    T_AlterRoleSetStmt = 288,
+    T_CreateConversionStmt = 289,
+    T_CreateCastStmt = 290,
+    T_CreateOpClassStmt = 291,
+    T_CreateOpFamilyStmt = 292,
+    T_AlterOpFamilyStmt = 293,
+    T_PrepareStmt = 294,
+    T_ExecuteStmt = 295,
+    T_DeallocateStmt = 296,
+    T_DeclareCursorStmt = 297,
+    T_CreateTableSpaceStmt = 298,
+    T_DropTableSpaceStmt = 299,
+    T_AlterObjectDependsStmt = 300,
+    T_AlterObjectSchemaStmt = 301,
+    T_AlterOwnerStmt = 302,
+    T_AlterOperatorStmt = 303,
+    T_AlterTypeStmt = 304,
+    T_DropOwnedStmt = 305,
+    T_ReassignOwnedStmt = 306,
+    T_CompositeTypeStmt = 307,
+    T_CreateEnumStmt = 308,
+    T_CreateRangeStmt = 309,
+    T_AlterEnumStmt = 310,
+    T_AlterTSDictionaryStmt = 311,
+    T_AlterTSConfigurationStmt = 312,
+    T_CreateFdwStmt = 313,
+    T_AlterFdwStmt = 314,
+    T_CreateForeignServerStmt = 315,
+    T_AlterForeignServerStmt = 316,
+    T_CreateUserMappingStmt = 317,
+    T_AlterUserMappingStmt = 318,
+    T_DropUserMappingStmt = 319,
+    T_AlterTableSpaceOptionsStmt = 320,
+    T_AlterTableMoveAllStmt = 321,
+    T_SecLabelStmt = 322,
+    T_CreateForeignTableStmt = 323,
+    T_ImportForeignSchemaStmt = 324,
+    T_CreateExtensionStmt = 325,
+    T_AlterExtensionStmt = 326,
+    T_AlterExtensionContentsStmt = 327,
+    T_CreateEventTrigStmt = 328,
+    T_AlterEventTrigStmt = 329,
+    T_RefreshMatViewStmt = 330,
+    T_ReplicaIdentityStmt = 331,
+    T_AlterSystemStmt = 332,
+    T_CreatePolicyStmt = 333,
+    T_AlterPolicyStmt = 334,
+    T_CreateTransformStmt = 335,
+    T_CreateAmStmt = 336,
+    T_CreatePublicationStmt = 337,
+    T_AlterPublicationStmt = 338,
+    T_CreateSubscriptionStmt = 339,
+    T_AlterSubscriptionStmt = 340,
+    T_DropSubscriptionStmt = 341,
+    T_CreateStatsStmt = 342,
+    T_AlterCollationStmt = 343,
+    T_CallStmt = 344,
+    T_AlterStatsStmt = 345,
+    T_A_Expr = 346,
+    T_ColumnRef = 347,
+    T_ParamRef = 348,
+    T_A_Const = 349,
+    T_FuncCall = 350,
+    T_A_Star = 351,
+    T_A_Indices = 352,
+    T_A_Indirection = 353,
+    T_A_ArrayExpr = 354,
+    T_ResTarget = 355,
+    T_MultiAssignRef = 356,
+    T_TypeCast = 357,
+    T_CollateClause = 358,
+    T_SortBy = 359,
+    T_WindowDef = 360,
+    T_RangeSubselect = 361,
+    T_RangeFunction = 362,
+    T_RangeTableSample = 363,
+    T_RangeTableFunc = 364,
+    T_RangeTableFuncCol = 365,
+    T_TypeName = 366,
+    T_ColumnDef = 367,
+    T_IndexElem = 368,
+    T_Constraint = 369,
+    T_DefElem = 370,
+    T_RangeTblEntry = 371,
+    T_RangeTblFunction = 372,
+    T_TableSampleClause = 373,
+    T_WithCheckOption = 374,
+    T_SortGroupClause = 375,
+    T_GroupingSet = 376,
+    T_WindowClause = 377,
+    T_ObjectWithArgs = 378,
+    T_AccessPriv = 379,
+    T_CreateOpClassItem = 380,
+    T_TableLikeClause = 381,
+    T_FunctionParameter = 382,
+    T_LockingClause = 383,
+    T_RowMarkClause = 384,
+    T_XmlSerialize = 385,
+    T_WithClause = 386,
+    T_InferClause = 387,
+    T_OnConflictClause = 388,
+    T_CommonTableExpr = 389,
+    T_RoleSpec = 390,
+    T_TriggerTransition = 391,
+    T_PartitionElem = 392,
+    T_PartitionSpec = 393,
+    T_PartitionBoundSpec = 394,
+    T_PartitionRangeDatum = 395,
+    T_PartitionCmd = 396,
+    T_VacuumRelation = 397,
+    T_IdentifySystemCmd = 398,
+    T_BaseBackupCmd = 399,
+    T_CreateReplicationSlotCmd = 400,
+    T_DropReplicationSlotCmd = 401,
+    T_StartReplicationCmd = 402,
+    T_TimeLineHistoryCmd = 403,
+    T_SQLCmd = 404,
+    T_TriggerData = 405,
+    T_EventTriggerData = 406,
+    T_ReturnSetInfo = 407,
+    T_WindowObjectData = 408,
+    T_TIDBitmap = 409,
+    T_InlineCodeBlock = 410,
+    T_FdwRoutine = 411,
+    T_IndexAmRoutine = 412,
+    T_TableAmRoutine = 413,
+    T_TsmRoutine = 414,
+    T_ForeignKeyCacheInfo = 415,
+    T_CallContext = 416,
+    T_SupportRequestSimplify = 417,
+    T_SupportRequestSelectivity = 418,
+    T_SupportRequestCost = 419,
+    T_SupportRequestRows = 420,
+    T_SupportRequestIndexCondition = 421,
 }
 #[repr(C)]
 #[derive(Debug, Hash, PartialEq, Eq)]
@@ -1098,6 +1115,14 @@ pub enum OnConflictAction {
     ONCONFLICT_NONE = 0,
     ONCONFLICT_NOTHING = 1,
     ONCONFLICT_UPDATE = 2,
+}
+#[derive(Serialize, Deserialize)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum LimitOption {
+    LIMIT_OPTION_COUNT = 0,
+    LIMIT_OPTION_WITH_TIES = 1,
+    LIMIT_OPTION_DEFAULT = 2,
 }
 #[repr(C)]
 #[derive(Debug, Default, Hash, PartialEq, Eq)]
@@ -1305,6 +1330,7 @@ pub struct MemoryContextData {
     pub type_: NodeTag,
     pub isReset: bool,
     pub allowInCritSection: bool,
+    pub mem_allocated: Size,
     pub methods: *const MemoryContextMethods,
     pub parent: MemoryContext,
     pub firstchild: MemoryContext,
@@ -1318,7 +1344,7 @@ pub struct MemoryContextData {
 fn bindgen_test_layout_MemoryContextData() {
     assert_eq!(
         ::std::mem::size_of::<MemoryContextData>(),
-        72usize,
+        80usize,
         concat!("Size of: ", stringify!(MemoryContextData))
     );
     assert_eq!(
@@ -1359,8 +1385,18 @@ fn bindgen_test_layout_MemoryContextData() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<MemoryContextData>())).methods as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<MemoryContextData>())).mem_allocated as *const _ as usize },
         8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(MemoryContextData),
+            "::",
+            stringify!(mem_allocated)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<MemoryContextData>())).methods as *const _ as usize },
+        16usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1370,7 +1406,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).parent as *const _ as usize },
-        16usize,
+        24usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1380,7 +1416,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).firstchild as *const _ as usize },
-        24usize,
+        32usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1390,7 +1426,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).prevchild as *const _ as usize },
-        32usize,
+        40usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1400,7 +1436,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).nextchild as *const _ as usize },
-        40usize,
+        48usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1410,7 +1446,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).name as *const _ as usize },
-        48usize,
+        56usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1420,7 +1456,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).ident as *const _ as usize },
-        56usize,
+        64usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1430,7 +1466,7 @@ fn bindgen_test_layout_MemoryContextData() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<MemoryContextData>())).reset_cbs as *const _ as usize },
-        64usize,
+        72usize,
         concat!(
             "Offset of field: ",
             stringify!(MemoryContextData),
@@ -1504,12 +1540,67 @@ pub enum LockWaitPolicy {
 }
 pub type AttrNumber = int16;
 #[repr(C)]
-#[derive(Debug, Hash, PartialEq, Eq)]
+pub struct ListCell {
+    pub ptr_value: __BindgenUnionField<*mut ::std::os::raw::c_void>,
+    pub int_value: __BindgenUnionField<::std::os::raw::c_int>,
+    pub oid_value: __BindgenUnionField<Oid>,
+    pub bindgen_union_field: u64,
+}
+#[test]
+fn bindgen_test_layout_ListCell() {
+    assert_eq!(
+        ::std::mem::size_of::<ListCell>(),
+        8usize,
+        concat!("Size of: ", stringify!(ListCell))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<ListCell>(),
+        8usize,
+        concat!("Alignment of ", stringify!(ListCell))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ListCell>())).ptr_value as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ListCell),
+            "::",
+            stringify!(ptr_value)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ListCell>())).int_value as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ListCell),
+            "::",
+            stringify!(int_value)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<ListCell>())).oid_value as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(ListCell),
+            "::",
+            stringify!(oid_value)
+        )
+    );
+}
+impl Default for ListCell {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[repr(C)]
 pub struct List {
     pub type_: NodeTag,
     pub length: ::std::os::raw::c_int,
-    pub head: *mut ListCell,
-    pub tail: *mut ListCell,
+    pub max_length: ::std::os::raw::c_int,
+    pub elements: *mut ListCell,
+    pub initial_elements: __IncompleteArrayField<ListCell>,
 }
 #[test]
 fn bindgen_test_layout_List() {
@@ -1544,23 +1635,33 @@ fn bindgen_test_layout_List() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<List>())).head as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<List>())).max_length as *const _ as usize },
         8usize,
         concat!(
             "Offset of field: ",
             stringify!(List),
             "::",
-            stringify!(head)
+            stringify!(max_length)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<List>())).tail as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<List>())).elements as *const _ as usize },
         16usize,
         concat!(
             "Offset of field: ",
             stringify!(List),
             "::",
-            stringify!(tail)
+            stringify!(elements)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<List>())).initial_elements as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(List),
+            "::",
+            stringify!(initial_elements)
         )
     );
 }
@@ -1568,113 +1669,6 @@ impl Default for List {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
-}
-#[repr(C)]
-pub struct ListCell {
-    pub data: ListCell__bindgen_ty_1,
-    pub next: *mut ListCell,
-}
-#[repr(C)]
-pub struct ListCell__bindgen_ty_1 {
-    pub ptr_value: __BindgenUnionField<*mut ::std::os::raw::c_void>,
-    pub int_value: __BindgenUnionField<::std::os::raw::c_int>,
-    pub oid_value: __BindgenUnionField<Oid>,
-    pub bindgen_union_field: u64,
-}
-#[test]
-fn bindgen_test_layout_ListCell__bindgen_ty_1() {
-    assert_eq!(
-        ::std::mem::size_of::<ListCell__bindgen_ty_1>(),
-        8usize,
-        concat!("Size of: ", stringify!(ListCell__bindgen_ty_1))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ListCell__bindgen_ty_1>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ListCell__bindgen_ty_1))
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<ListCell__bindgen_ty_1>())).ptr_value as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ListCell__bindgen_ty_1),
-            "::",
-            stringify!(ptr_value)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<ListCell__bindgen_ty_1>())).int_value as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ListCell__bindgen_ty_1),
-            "::",
-            stringify!(int_value)
-        )
-    );
-    assert_eq!(
-        unsafe {
-            &(*(::std::ptr::null::<ListCell__bindgen_ty_1>())).oid_value as *const _ as usize
-        },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ListCell__bindgen_ty_1),
-            "::",
-            stringify!(oid_value)
-        )
-    );
-}
-impl Default for ListCell__bindgen_ty_1 {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-#[test]
-fn bindgen_test_layout_ListCell() {
-    assert_eq!(
-        ::std::mem::size_of::<ListCell>(),
-        16usize,
-        concat!("Size of: ", stringify!(ListCell))
-    );
-    assert_eq!(
-        ::std::mem::align_of::<ListCell>(),
-        8usize,
-        concat!("Alignment of ", stringify!(ListCell))
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ListCell>())).data as *const _ as usize },
-        0usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ListCell),
-            "::",
-            stringify!(data)
-        )
-    );
-    assert_eq!(
-        unsafe { &(*(::std::ptr::null::<ListCell>())).next as *const _ as usize },
-        8usize,
-        concat!(
-            "Offset of field: ",
-            stringify!(ListCell),
-            "::",
-            stringify!(next)
-        )
-    );
-}
-impl Default for ListCell {
-    fn default() -> Self {
-        unsafe { ::std::mem::zeroed() }
-    }
-}
-extern "C" {
-    pub fn list_nth(list: *const List, n: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_void;
 }
 #[doc = " Alias"]
 #[doc = "   specifies an alias for a range variable; the alias might also"]
@@ -2260,10 +2254,10 @@ pub struct Var {
     #[doc = " for subquery variables referencing outer"]
     #[doc = " relations; 0 in a normal var, >0 means N"]
     #[doc = " levels up"]
-    pub varnoold: Index,
-    #[doc = " original value of varno, for debugging"]
-    pub varoattno: AttrNumber,
-    #[doc = " original value of varattno"]
+    pub varnosyn: Index,
+    #[doc = " syntactic relation index (0 if unknown)"]
+    pub varattnosyn: AttrNumber,
+    #[doc = " syntactic attribute number"]
     pub location: ::std::os::raw::c_int,
 }
 #[test]
@@ -2344,23 +2338,23 @@ fn bindgen_test_layout_Var() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Var>())).varnoold as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<Var>())).varnosyn as *const _ as usize },
         28usize,
         concat!(
             "Offset of field: ",
             stringify!(Var),
             "::",
-            stringify!(varnoold)
+            stringify!(varnosyn)
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<Var>())).varoattno as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<Var>())).varattnosyn as *const _ as usize },
         32usize,
         concat!(
             "Offset of field: ",
             stringify!(Var),
             "::",
-            stringify!(varoattno)
+            stringify!(varattnosyn)
         )
     );
     assert_eq!(
@@ -9690,6 +9684,8 @@ pub struct IndexElem {
     #[doc = " name of collation; NIL = default"]
     pub opclass: *mut List,
     #[doc = " name of desired opclass; NIL = default"]
+    pub opclassopts: *mut List,
+    #[doc = " opclassspecific options, or NIL"]
     pub ordering: SortByDir,
     #[doc = " ASC/DESC/default"]
     pub nulls_ordering: SortByNulls,
@@ -9698,7 +9694,7 @@ pub struct IndexElem {
 fn bindgen_test_layout_IndexElem() {
     assert_eq!(
         ::std::mem::size_of::<IndexElem>(),
-        56usize,
+        64usize,
         concat!("Size of: ", stringify!(IndexElem))
     );
     assert_eq!(
@@ -9767,8 +9763,18 @@ fn bindgen_test_layout_IndexElem() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<IndexElem>())).ordering as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<IndexElem>())).opclassopts as *const _ as usize },
         48usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(IndexElem),
+            "::",
+            stringify!(opclassopts)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<IndexElem>())).ordering as *const _ as usize },
+        56usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexElem),
@@ -9778,7 +9784,7 @@ fn bindgen_test_layout_IndexElem() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexElem>())).nulls_ordering as *const _ as usize },
-        52usize,
+        60usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexElem),
@@ -12321,6 +12327,8 @@ pub struct SelectStmt {
     #[doc = " # of result tuples to skip"]
     pub limitCount: *mut Node,
     #[doc = " # of result tuples to return"]
+    pub limitOption: LimitOption,
+    #[doc = " limit type"]
     pub lockingClause: *mut List,
     #[doc = " FOR UPDATE (list of LockingClause's)"]
     pub withClause: *mut WithClause,
@@ -12337,7 +12345,7 @@ pub struct SelectStmt {
 fn bindgen_test_layout_SelectStmt() {
     assert_eq!(
         ::std::mem::size_of::<SelectStmt>(),
-        144usize,
+        152usize,
         concat!("Size of: ", stringify!(SelectStmt))
     );
     assert_eq!(
@@ -12476,8 +12484,18 @@ fn bindgen_test_layout_SelectStmt() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<SelectStmt>())).lockingClause as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<SelectStmt>())).limitOption as *const _ as usize },
         104usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(SelectStmt),
+            "::",
+            stringify!(limitOption)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<SelectStmt>())).lockingClause as *const _ as usize },
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12487,7 +12505,7 @@ fn bindgen_test_layout_SelectStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<SelectStmt>())).withClause as *const _ as usize },
-        112usize,
+        120usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12497,7 +12515,7 @@ fn bindgen_test_layout_SelectStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<SelectStmt>())).op as *const _ as usize },
-        120usize,
+        128usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12507,7 +12525,7 @@ fn bindgen_test_layout_SelectStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<SelectStmt>())).all as *const _ as usize },
-        124usize,
+        132usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12517,7 +12535,7 @@ fn bindgen_test_layout_SelectStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<SelectStmt>())).larg as *const _ as usize },
-        128usize,
+        136usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12527,7 +12545,7 @@ fn bindgen_test_layout_SelectStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<SelectStmt>())).rarg as *const _ as usize },
-        136usize,
+        144usize,
         concat!(
             "Offset of field: ",
             stringify!(SelectStmt),
@@ -12977,130 +12995,131 @@ pub enum AlterTableType {
     #[doc = " implicitly via CREATE OR REPLACE VIEW"]
     AT_ColumnDefault = 3,
     #[doc = " alter column default"]
-    AT_DropNotNull = 4,
+    AT_CookedColumnDefault = 4,
+    #[doc = " add a precooked column default"]
+    AT_DropNotNull = 5,
     #[doc = " alter column drop not null"]
-    AT_SetNotNull = 5,
+    AT_SetNotNull = 6,
     #[doc = " alter column set not null"]
-    AT_CheckNotNull = 6,
+    AT_DropExpression = 7,
+    #[doc = " alter column drop expression"]
+    AT_CheckNotNull = 8,
     #[doc = " check column is already marked not null"]
-    AT_SetStatistics = 7,
+    AT_SetStatistics = 9,
     #[doc = " alter column set statistics"]
-    AT_SetOptions = 8,
+    AT_SetOptions = 10,
     #[doc = " alter column set ( options )"]
-    AT_ResetOptions = 9,
+    AT_ResetOptions = 11,
     #[doc = " alter column reset ( options )"]
-    AT_SetStorage = 10,
+    AT_SetStorage = 12,
     #[doc = " alter column set storage"]
-    AT_DropColumn = 11,
+    AT_DropColumn = 13,
     #[doc = " drop column"]
-    AT_DropColumnRecurse = 12,
+    AT_DropColumnRecurse = 14,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_AddIndex = 13,
+    AT_AddIndex = 15,
     #[doc = " add index"]
-    AT_ReAddIndex = 14,
+    AT_ReAddIndex = 16,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_AddConstraint = 15,
+    AT_AddConstraint = 17,
     #[doc = " add constraint"]
-    AT_AddConstraintRecurse = 16,
+    AT_AddConstraintRecurse = 18,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_ReAddConstraint = 17,
+    AT_ReAddConstraint = 19,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_ReAddDomainConstraint = 18,
+    AT_ReAddDomainConstraint = 20,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_AlterConstraint = 19,
+    AT_AlterConstraint = 21,
     #[doc = " alter constraint"]
-    AT_ValidateConstraint = 20,
+    AT_ValidateConstraint = 22,
     #[doc = " validate constraint"]
-    AT_ValidateConstraintRecurse = 21,
+    AT_ValidateConstraintRecurse = 23,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_ProcessedConstraint = 22,
-    #[doc = " preprocessed add constraint (local in"]
-    #[doc = " parser/parse_utilcmd.c)"]
-    AT_AddIndexConstraint = 23,
+    AT_AddIndexConstraint = 24,
     #[doc = " add constraint using existing index"]
-    AT_DropConstraint = 24,
+    AT_DropConstraint = 25,
     #[doc = " drop constraint"]
-    AT_DropConstraintRecurse = 25,
+    AT_DropConstraintRecurse = 26,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_ReAddComment = 26,
+    AT_ReAddComment = 27,
     #[doc = " internal to commands/tablecmds.c"]
-    AT_AlterColumnType = 27,
+    AT_AlterColumnType = 28,
     #[doc = " alter column type"]
-    AT_AlterColumnGenericOptions = 28,
+    AT_AlterColumnGenericOptions = 29,
     #[doc = " alter column OPTIONS (...)"]
-    AT_ChangeOwner = 29,
+    AT_ChangeOwner = 30,
     #[doc = " change owner"]
-    AT_ClusterOn = 30,
+    AT_ClusterOn = 31,
     #[doc = " CLUSTER ON"]
-    AT_DropCluster = 31,
+    AT_DropCluster = 32,
     #[doc = " SET WITHOUT CLUSTER"]
-    AT_SetLogged = 32,
+    AT_SetLogged = 33,
     #[doc = " SET LOGGED"]
-    AT_SetUnLogged = 33,
+    AT_SetUnLogged = 34,
     #[doc = " SET UNLOGGED"]
-    AT_DropOids = 34,
+    AT_DropOids = 35,
     #[doc = " SET WITHOUT OIDS"]
-    AT_SetTableSpace = 35,
+    AT_SetTableSpace = 36,
     #[doc = " SET TABLESPACE"]
-    AT_SetRelOptions = 36,
+    AT_SetRelOptions = 37,
     #[doc = " SET (...)  AM specific parameters"]
-    AT_ResetRelOptions = 37,
+    AT_ResetRelOptions = 38,
     #[doc = " RESET (...)  AM specific parameters"]
-    AT_ReplaceRelOptions = 38,
+    AT_ReplaceRelOptions = 39,
     #[doc = " replace reloption list in its entirety"]
-    AT_EnableTrig = 39,
+    AT_EnableTrig = 40,
     #[doc = " ENABLE TRIGGER name"]
-    AT_EnableAlwaysTrig = 40,
+    AT_EnableAlwaysTrig = 41,
     #[doc = " ENABLE ALWAYS TRIGGER name"]
-    AT_EnableReplicaTrig = 41,
+    AT_EnableReplicaTrig = 42,
     #[doc = " ENABLE REPLICA TRIGGER name"]
-    AT_DisableTrig = 42,
+    AT_DisableTrig = 43,
     #[doc = " DISABLE TRIGGER name"]
-    AT_EnableTrigAll = 43,
+    AT_EnableTrigAll = 44,
     #[doc = " ENABLE TRIGGER ALL"]
-    AT_DisableTrigAll = 44,
+    AT_DisableTrigAll = 45,
     #[doc = " DISABLE TRIGGER ALL"]
-    AT_EnableTrigUser = 45,
+    AT_EnableTrigUser = 46,
     #[doc = " ENABLE TRIGGER USER"]
-    AT_DisableTrigUser = 46,
+    AT_DisableTrigUser = 47,
     #[doc = " DISABLE TRIGGER USER"]
-    AT_EnableRule = 47,
+    AT_EnableRule = 48,
     #[doc = " ENABLE RULE name"]
-    AT_EnableAlwaysRule = 48,
+    AT_EnableAlwaysRule = 49,
     #[doc = " ENABLE ALWAYS RULE name"]
-    AT_EnableReplicaRule = 49,
+    AT_EnableReplicaRule = 50,
     #[doc = " ENABLE REPLICA RULE name"]
-    AT_DisableRule = 50,
+    AT_DisableRule = 51,
     #[doc = " DISABLE RULE name"]
-    AT_AddInherit = 51,
+    AT_AddInherit = 52,
     #[doc = " INHERIT parent"]
-    AT_DropInherit = 52,
+    AT_DropInherit = 53,
     #[doc = " NO INHERIT parent"]
-    AT_AddOf = 53,
+    AT_AddOf = 54,
     #[doc = " OF <type_name>"]
-    AT_DropOf = 54,
+    AT_DropOf = 55,
     #[doc = " NOT OF"]
-    AT_ReplicaIdentity = 55,
+    AT_ReplicaIdentity = 56,
     #[doc = " REPLICA IDENTITY"]
-    AT_EnableRowSecurity = 56,
+    AT_EnableRowSecurity = 57,
     #[doc = " ENABLE ROW SECURITY"]
-    AT_DisableRowSecurity = 57,
+    AT_DisableRowSecurity = 58,
     #[doc = " DISABLE ROW SECURITY"]
-    AT_ForceRowSecurity = 58,
+    AT_ForceRowSecurity = 59,
     #[doc = " FORCE ROW SECURITY"]
-    AT_NoForceRowSecurity = 59,
+    AT_NoForceRowSecurity = 60,
     #[doc = " NO FORCE ROW SECURITY"]
-    AT_GenericOptions = 60,
+    AT_GenericOptions = 61,
     #[doc = " OPTIONS (...)"]
-    AT_AttachPartition = 61,
+    AT_AttachPartition = 62,
     #[doc = " ATTACH PARTITION"]
-    AT_DetachPartition = 62,
+    AT_DetachPartition = 63,
     #[doc = " DETACH PARTITION"]
-    AT_AddIdentity = 63,
+    AT_AddIdentity = 64,
     #[doc = " ADD IDENTITY"]
-    AT_SetIdentity = 64,
+    AT_SetIdentity = 65,
     #[doc = " SET identity column options"]
-    AT_DropIdentity = 65,
+    AT_DropIdentity = 66,
 }
 #[repr(C)]
 #[derive(Debug, Hash, PartialEq, Eq)]
@@ -18349,6 +18368,11 @@ pub struct IndexStmt {
     #[doc = " OID of an existing index, if any"]
     pub oldNode: Oid,
     #[doc = " relfilenode of existing storage, if any"]
+    pub oldCreateSubid: SubTransactionId,
+    #[doc = " rd_createSubid of oldNode"]
+    pub oldFirstRelfilenodeSubid: SubTransactionId,
+    #[doc = " rd_firstRelfilenodeSubid of"]
+    #[doc = " oldNode"]
     pub unique: bool,
     #[doc = " is index unique?"]
     pub primary: bool,
@@ -18371,7 +18395,7 @@ pub struct IndexStmt {
 fn bindgen_test_layout_IndexStmt() {
     assert_eq!(
         ::std::mem::size_of::<IndexStmt>(),
-        112usize,
+        120usize,
         concat!("Size of: ", stringify!(IndexStmt))
     );
     assert_eq!(
@@ -18510,8 +18534,30 @@ fn bindgen_test_layout_IndexStmt() {
         )
     );
     assert_eq!(
-        unsafe { &(*(::std::ptr::null::<IndexStmt>())).unique as *const _ as usize },
+        unsafe { &(*(::std::ptr::null::<IndexStmt>())).oldCreateSubid as *const _ as usize },
         96usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(IndexStmt),
+            "::",
+            stringify!(oldCreateSubid)
+        )
+    );
+    assert_eq!(
+        unsafe {
+            &(*(::std::ptr::null::<IndexStmt>())).oldFirstRelfilenodeSubid as *const _ as usize
+        },
+        100usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(IndexStmt),
+            "::",
+            stringify!(oldFirstRelfilenodeSubid)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<IndexStmt>())).unique as *const _ as usize },
+        104usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18521,7 +18567,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).primary as *const _ as usize },
-        97usize,
+        105usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18531,7 +18577,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).isconstraint as *const _ as usize },
-        98usize,
+        106usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18541,7 +18587,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).deferrable as *const _ as usize },
-        99usize,
+        107usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18551,7 +18597,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).initdeferred as *const _ as usize },
-        100usize,
+        108usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18561,7 +18607,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).transformed as *const _ as usize },
-        101usize,
+        109usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18571,7 +18617,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).concurrent as *const _ as usize },
-        102usize,
+        110usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18581,7 +18627,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).if_not_exists as *const _ as usize },
-        103usize,
+        111usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18591,7 +18637,7 @@ fn bindgen_test_layout_IndexStmt() {
     );
     assert_eq!(
         unsafe { &(*(::std::ptr::null::<IndexStmt>())).reset_default_tblspc as *const _ as usize },
-        104usize,
+        112usize,
         concat!(
             "Offset of field: ",
             stringify!(IndexStmt),
@@ -18707,6 +18753,76 @@ fn bindgen_test_layout_CreateStatsStmt() {
     );
 }
 impl Default for CreateStatsStmt {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[doc = "    Alter Statistics Statement"]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Hash, PartialEq, Eq)]
+pub struct AlterStatsStmt {
+    pub type_: NodeTag,
+    pub defnames: *mut List,
+    #[doc = " qualified name (list of Value strings)"]
+    pub stxstattarget: ::std::os::raw::c_int,
+    #[doc = " statistics target"]
+    pub missing_ok: bool,
+}
+#[test]
+fn bindgen_test_layout_AlterStatsStmt() {
+    assert_eq!(
+        ::std::mem::size_of::<AlterStatsStmt>(),
+        24usize,
+        concat!("Size of: ", stringify!(AlterStatsStmt))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<AlterStatsStmt>(),
+        8usize,
+        concat!("Alignment of ", stringify!(AlterStatsStmt))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterStatsStmt>())).type_ as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterStatsStmt),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterStatsStmt>())).defnames as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterStatsStmt),
+            "::",
+            stringify!(defnames)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterStatsStmt>())).stxstattarget as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterStatsStmt),
+            "::",
+            stringify!(stxstattarget)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterStatsStmt>())).missing_ok as *const _ as usize },
+        20usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterStatsStmt),
+            "::",
+            stringify!(missing_ok)
+        )
+    );
+}
+impl Default for AlterStatsStmt {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
@@ -19353,12 +19469,14 @@ pub struct AlterObjectDependsStmt {
     pub object: *mut Node,
     #[doc = " name of the object"]
     pub extname: *mut Value,
+    #[doc = " extension name"]
+    pub remove: bool,
 }
 #[test]
 fn bindgen_test_layout_AlterObjectDependsStmt() {
     assert_eq!(
         ::std::mem::size_of::<AlterObjectDependsStmt>(),
-        32usize,
+        40usize,
         concat!("Size of: ", stringify!(AlterObjectDependsStmt))
     );
     assert_eq!(
@@ -19416,6 +19534,16 @@ fn bindgen_test_layout_AlterObjectDependsStmt() {
             stringify!(AlterObjectDependsStmt),
             "::",
             stringify!(extname)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterObjectDependsStmt>())).remove as *const _ as usize },
+        32usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterObjectDependsStmt),
+            "::",
+            stringify!(remove)
         )
     );
 }
@@ -19604,7 +19732,7 @@ impl Default for AlterOwnerStmt {
         unsafe { ::std::mem::zeroed() }
     }
 }
-#[doc = "    Alter Operator Set Restrict, Join"]
+#[doc = "    Alter Operator Set ( thisnthat )"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Hash, PartialEq, Eq)]
@@ -19658,6 +19786,64 @@ fn bindgen_test_layout_AlterOperatorStmt() {
     );
 }
 impl Default for AlterOperatorStmt {
+    fn default() -> Self {
+        unsafe { ::std::mem::zeroed() }
+    }
+}
+#[doc = "    Alter Type Set ( thisnthat )"]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Hash, PartialEq, Eq)]
+pub struct AlterTypeStmt {
+    pub type_: NodeTag,
+    pub typeName: *mut List,
+    #[doc = " type name (possibly qualified)"]
+    pub options: *mut List,
+}
+#[test]
+fn bindgen_test_layout_AlterTypeStmt() {
+    assert_eq!(
+        ::std::mem::size_of::<AlterTypeStmt>(),
+        24usize,
+        concat!("Size of: ", stringify!(AlterTypeStmt))
+    );
+    assert_eq!(
+        ::std::mem::align_of::<AlterTypeStmt>(),
+        8usize,
+        concat!("Alignment of ", stringify!(AlterTypeStmt))
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterTypeStmt>())).type_ as *const _ as usize },
+        0usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterTypeStmt),
+            "::",
+            stringify!(type_)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterTypeStmt>())).typeName as *const _ as usize },
+        8usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterTypeStmt),
+            "::",
+            stringify!(typeName)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<AlterTypeStmt>())).options as *const _ as usize },
+        16usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(AlterTypeStmt),
+            "::",
+            stringify!(options)
+        )
+    );
+}
+impl Default for AlterTypeStmt {
     fn default() -> Self {
         unsafe { ::std::mem::zeroed() }
     }
@@ -20670,12 +20856,14 @@ pub struct DropdbStmt {
     pub dbname: *mut ::std::os::raw::c_char,
     #[doc = " database to drop"]
     pub missing_ok: bool,
+    #[doc = " skip error if db is missing?"]
+    pub options: *mut List,
 }
 #[test]
 fn bindgen_test_layout_DropdbStmt() {
     assert_eq!(
         ::std::mem::size_of::<DropdbStmt>(),
-        24usize,
+        32usize,
         concat!("Size of: ", stringify!(DropdbStmt))
     );
     assert_eq!(
@@ -20711,6 +20899,16 @@ fn bindgen_test_layout_DropdbStmt() {
             stringify!(DropdbStmt),
             "::",
             stringify!(missing_ok)
+        )
+    );
+    assert_eq!(
+        unsafe { &(*(::std::ptr::null::<DropdbStmt>())).options as *const _ as usize },
+        24usize,
+        concat!(
+            "Offset of field: ",
+            stringify!(DropdbStmt),
+            "::",
+            stringify!(options)
         )
     );
 }

@@ -39,6 +39,7 @@ pub enum Node {
     AlterRoleSetStmt(AlterRoleSetStmt),
     AlterRoleStmt(AlterRoleStmt),
     AlterSeqStmt(AlterSeqStmt),
+    AlterStatsStmt(AlterStatsStmt),
     AlterSubscriptionStmt(AlterSubscriptionStmt),
     AlterSystemStmt(AlterSystemStmt),
     AlterTSConfigurationStmt(AlterTSConfigurationStmt),
@@ -47,6 +48,7 @@ pub enum Node {
     AlterTableMoveAllStmt(AlterTableMoveAllStmt),
     AlterTableSpaceOptionsStmt(AlterTableSpaceOptionsStmt),
     AlterTableStmt(AlterTableStmt),
+    AlterTypeStmt(AlterTypeStmt),
     AlterUserMappingStmt(AlterUserMappingStmt),
     AlternativeSubPlan(AlternativeSubPlan),
     ArrayCoerceExpr(ArrayCoerceExpr),
@@ -309,8 +311,8 @@ pub struct Var {
     pub vartypmod: i32,
     pub varcollid: crate::sys::Oid,
     pub varlevelsup: crate::sys::Index,
-    pub varnoold: crate::sys::Index,
-    pub varoattno: crate::sys::AttrNumber,
+    pub varnosyn: crate::sys::Index,
+    pub varattnosyn: crate::sys::AttrNumber,
     pub location: i32,
 }
 #[allow(non_camel_case_types)]
@@ -1150,6 +1152,8 @@ pub struct IndexElem {
     pub collation: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opclass: Option<Vec<Node>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub opclassopts: Option<Vec<Node>>,
     pub ordering: crate::sys::SortByDir,
     pub nulls_ordering: crate::sys::SortByNulls,
 }
@@ -1473,6 +1477,7 @@ pub struct SelectStmt {
     pub limitOffset: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limitCount: Option<Box<Node>>,
+    pub limitOption: crate::sys::LimitOption,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lockingClause: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2266,6 +2271,8 @@ pub struct IndexStmt {
     pub idxcomment: Option<String>,
     pub indexOid: crate::sys::Oid,
     pub oldNode: crate::sys::Oid,
+    pub oldCreateSubid: crate::sys::SubTransactionId,
+    pub oldFirstRelfilenodeSubid: crate::sys::SubTransactionId,
     pub unique: bool,
     pub primary: bool,
     pub isconstraint: bool,
@@ -2291,6 +2298,15 @@ pub struct CreateStatsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stxcomment: Option<String>,
     pub if_not_exists: bool,
+}
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+pub struct AlterStatsStmt {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub defnames: Option<Vec<Node>>,
+    pub stxstattarget: i32,
+    pub missing_ok: bool,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -2387,6 +2403,7 @@ pub struct AlterObjectDependsStmt {
     pub object: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<Box<Value>>,
+    pub remove: bool,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -2419,6 +2436,15 @@ pub struct AlterOwnerStmt {
 pub struct AlterOperatorStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opername: Option<Box<ObjectWithArgs>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<Node>>,
+}
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+pub struct AlterTypeStmt {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub typeName: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
 }
@@ -2572,6 +2598,8 @@ pub struct DropdbStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
     pub missing_ok: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -2976,6 +3004,10 @@ impl crate::convert::ConvertNode for crate::sys::Node {
                 let ptr = self as *const _ as *const crate::sys::AlterSeqStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
             }
+            crate::sys::NodeTag::T_AlterStatsStmt => {
+                let ptr = self as *const _ as *const crate::sys::AlterStatsStmt;
+                unsafe { ptr.as_ref().unwrap().convert() }
+            }
             crate::sys::NodeTag::T_AlterSubscriptionStmt => {
                 let ptr = self as *const _ as *const crate::sys::AlterSubscriptionStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
@@ -3006,6 +3038,10 @@ impl crate::convert::ConvertNode for crate::sys::Node {
             }
             crate::sys::NodeTag::T_AlterTableStmt => {
                 let ptr = self as *const _ as *const crate::sys::AlterTableStmt;
+                unsafe { ptr.as_ref().unwrap().convert() }
+            }
+            crate::sys::NodeTag::T_AlterTypeStmt => {
+                let ptr = self as *const _ as *const crate::sys::AlterTypeStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
             }
             crate::sys::NodeTag::T_AlterUserMappingStmt => {
@@ -3962,8 +3998,8 @@ impl crate::convert::ConvertNode for crate::sys::Var {
             vartypmod: self.vartypmod as i32,
             varcollid: self.varcollid as crate::sys::Oid,
             varlevelsup: self.varlevelsup as crate::sys::Index,
-            varnoold: self.varnoold as crate::sys::Index,
-            varoattno: self.varoattno as crate::sys::AttrNumber,
+            varnosyn: self.varnosyn as crate::sys::Index,
+            varattnosyn: self.varattnosyn as crate::sys::AttrNumber,
             location: self.location as i32,
         })
     }
@@ -5735,6 +5771,14 @@ impl crate::convert::ConvertNode for crate::sys::IndexElem {
                     _ => panic!("not a List!"),
                 }
             },
+            opclassopts: if self.opclassopts.is_null() {
+                None
+            } else {
+                match unsafe { self.opclassopts.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
             ordering: self.ordering as crate::sys::SortByDir,
             nulls_ordering: self.nulls_ordering as crate::sys::SortByNulls,
         })
@@ -6576,6 +6620,7 @@ impl crate::convert::ConvertNode for crate::sys::SelectStmt {
                     self.limitCount.as_ref().unwrap().convert()
                 }))
             },
+            limitOption: self.limitOption as crate::sys::LimitOption,
             lockingClause: if self.lockingClause.is_null() {
                 None
             } else {
@@ -8810,6 +8855,8 @@ impl crate::convert::ConvertNode for crate::sys::IndexStmt {
             },
             indexOid: self.indexOid as crate::sys::Oid,
             oldNode: self.oldNode as crate::sys::Oid,
+            oldCreateSubid: self.oldCreateSubid as crate::sys::SubTransactionId,
+            oldFirstRelfilenodeSubid: self.oldFirstRelfilenodeSubid as crate::sys::SubTransactionId,
             unique: self.unique as bool,
             primary: self.primary as bool,
             isconstraint: self.isconstraint as bool,
@@ -8868,6 +8915,22 @@ impl crate::convert::ConvertNode for crate::sys::CreateStatsStmt {
                 })
             },
             if_not_exists: self.if_not_exists as bool,
+        })
+    }
+}
+impl crate::convert::ConvertNode for crate::sys::AlterStatsStmt {
+    fn convert(&self) -> crate::nodes::Node {
+        Node::AlterStatsStmt(AlterStatsStmt {
+            defnames: if self.defnames.is_null() {
+                None
+            } else {
+                match unsafe { self.defnames.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
+            stxstattarget: self.stxstattarget as i32,
+            missing_ok: self.missing_ok as bool,
         })
     }
 }
@@ -9116,6 +9179,7 @@ impl crate::convert::ConvertNode for crate::sys::AlterObjectDependsStmt {
                     ),
                 }
             },
+            remove: self.remove as bool,
         })
     }
 }
@@ -9203,6 +9267,28 @@ impl crate::convert::ConvertNode for crate::sys::AlterOperatorStmt {
                         stringify!(opername),
                         stringify!(ObjectWithArgs)
                     ),
+                }
+            },
+            options: if self.options.is_null() {
+                None
+            } else {
+                match unsafe { self.options.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
+        })
+    }
+}
+impl crate::convert::ConvertNode for crate::sys::AlterTypeStmt {
+    fn convert(&self) -> crate::nodes::Node {
+        Node::AlterTypeStmt(AlterTypeStmt {
+            typeName: if self.typeName.is_null() {
+                None
+            } else {
+                match unsafe { self.typeName.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
                 }
             },
             options: if self.options.is_null() {
@@ -9619,6 +9705,14 @@ impl crate::convert::ConvertNode for crate::sys::DropdbStmt {
                 })
             },
             missing_ok: self.missing_ok as bool,
+            options: if self.options.is_null() {
+                None
+            } else {
+                match unsafe { self.options.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
         })
     }
 }

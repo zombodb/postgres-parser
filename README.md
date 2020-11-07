@@ -6,12 +6,12 @@
 ## postgres-parser
 
 
-This project is the beginnings of using Postgres v12's SQL Parser
+This project is the beginnings of using Postgres v13.0's SQL Parser
 (effectively `gram.y` and the `List *raw_parser(const char *str)` function)
 from Rust.
 
 The way this works is by downloading the Postgres source code, patching
-a few of its Makefiles (see [`patches/makefiles-12.3.patch`](patches/makefiles-12.3.patch)),
+a few of its Makefiles (see [`patches/makefiles-13.0.patch`](patches/makefiles-12.3.patch)),
 compiling it to LLVM IR, optimizing/assembling that to LLVM bitcode, performing
 link-time optimization (LTO) to generate a static library containing only the symbols/code
 necessary to properly use Postgres' `raw_parser()` function, and finally, 
