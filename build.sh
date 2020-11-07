@@ -24,7 +24,7 @@ if [ "x${TARGET_DIR}" == "x" ] ; then
 fi
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
-PGVER="13.0"
+PGVER="12.3"
 POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
 POSTGRES_PARSER_SO="${TARGET_DIR}/libpostgres_parser.so"
 POSTGRES_BC="${TARGET_DIR}/postgres.bc"
@@ -104,6 +104,7 @@ opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 # need in order to use Postgres' parser
 llvm-lto "${POSTGRES_BC}" \
   --exported-symbol=_raw_parser --exported-symbol=raw_parser \
+  --exported-symbol=_list_nth --exported-symbol=list_nth \
   --exported-symbol=_MemoryContextInit --exported-symbol=MemoryContextInit \
   --exported-symbol=_CopyErrorData --exported-symbol=CopyErrorData \
   --exported-symbol=_FreeErrorData --exported-symbol=FreeErrorData \

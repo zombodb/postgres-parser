@@ -32,14 +32,10 @@ pub(crate) trait ConvertNode {
 
 impl ConvertNode for crate::sys::List {
     fn convert(&self) -> crate::nodes::Node {
-        let list_elements =
-            unsafe { std::slice::from_raw_parts(self.elements, self.length as usize) };
+        let selfptr = self as *const _ as *const crate::sys::List;
         let mut elements = Vec::new();
         for i in 0..self.length {
-            let node = unsafe {
-                (*list_elements[i as usize].ptr_value.as_ref()) as *const _
-                    as *const crate::sys::Node
-            };
+            let node = unsafe { crate::sys::list_nth(selfptr, i) } as *const crate::sys::Node;
 
             // we should never see a null element inside a list
             if !node.is_null() {

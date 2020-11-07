@@ -70,6 +70,7 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
     let mut builder = bindgen::Builder::default()
         .header(include_h.to_str().unwrap())
         .clang_arg(&format!("-I{}", include_path.display()))
+        .whitelist_function("list_nth")
         .whitelist_function("MemoryContextInit")
         // .whitelist_function("SetDatabaseEncoding")
         .whitelist_function("CopyErrorData")
