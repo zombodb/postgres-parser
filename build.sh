@@ -20,16 +20,19 @@ set -x
 
 TARGET_DIR=${CARGO_TARGET_DIR}
 if [ "x${TARGET_DIR}" == "x" ] ; then
-  TARGET_DIR="${PWD}/target/"
+  TARGET_DIR="${PWD}/target"
 fi
 UNAME=$(uname)
 MANIFEST_DIR="${PWD}"
 PGVER="12.3"
 POSTGRES_PARSER_A="${TARGET_DIR}/libpostgres_parser.a"
+POSTGRES_PARSER_SO="${TARGET_DIR}/libpostgres_parser.so"
 POSTGRES_BC="${TARGET_DIR}/postgres.bc"
 BUILD_DIR="${TARGET_DIR}/${PGVER}-build"
 POSTGRES_LL="${BUILD_DIR}/postgresql-${PGVER}/src/backend/postgres.ll"
-INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install/"
+INSTALL_DIR="${BUILD_DIR}/postgresql-${PGVER}/temp-install"
+CFLAGS="-flto -fPIC"
+CC="clang"
 
 if [ "x${NUM_CPUS}" == "x" ]; then
     NUM_CPUS="1"
@@ -51,7 +54,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
 
   # download/untar Postgres
   if [ ! -f postgresql-${PGVER}.tar.bz2 ] ; then
-    wget -q https://ftp.postgresql.org/pub/source/v12.3/postgresql-${PGVER}.tar.bz2 || exit 1
+    wget -q https://ftp.postgresql.org/pub/source/v${PGVER}/postgresql-${PGVER}.tar.bz2 || exit 1
   fi
   tar xjf postgresql-${PGVER}.tar.bz2 || exit 1
 
@@ -70,7 +73,7 @@ if [ ! -f "${POSTGRES_LL}" ] ; then
     fi
     CFLAGS="-B${PWD}/build_bin"
   fi
-  AR="llvm-ar" CC="clang" CFLAGS="${CFLAGS} -flto" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
+  AR="llvm-ar" CC="${CC}" CFLAGS="${CFLAGS}" ./configure --without-readline --without-zlib --prefix="${INSTALL_DIR}" || exit 1
   make -j${NUM_CPUS} clean || exit 1
   make -j${NUM_CPUS} || exit 1
   rm -rf "${INSTALL_DIR}" || exit 1
@@ -117,4 +120,9 @@ llvm-lto "${POSTGRES_BC}" \
 
 # create an archive which the Rust crate will statically link
 llvm-ar crv "${POSTGRES_PARSER_A}" "${TARGET_DIR}/raw_parser.o" || exit 1
+
+# create dynamic shared object
+CFLAGS="{$CFLAGS}" ${CC} -shared -o "${POSTGRES_PARSER_SO}" "${TARGET_DIR}/raw_parser.o" || exit 1
+
+# output the static library information
 echo "${POSTGRES_PARSER_A};${INSTALL_DIR}"
