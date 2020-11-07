@@ -24,10 +24,10 @@ index bcdbd9588a..d453242675 100644
  ifeq ($(with_llvm), yes)
  SUBDIRS += backend/jit/llvm
 diff --git a/src/backend/Makefile b/src/backend/Makefile
-index 9706a95848..69ffea6159 100644
+index b03d5e510f..d40ceff5c3 100644
 --- a/src/backend/Makefile
 +++ b/src/backend/Makefile
-@@ -62,8 +62,11 @@ ifneq ($(PORTNAME), cygwin)
+@@ -59,8 +59,11 @@ ifneq ($(PORTNAME), cygwin)
  ifneq ($(PORTNAME), win32)
  ifneq ($(PORTNAME), aix)
  
@@ -40,30 +40,22 @@ index 9706a95848..69ffea6159 100644
  endif
  endif
 diff --git a/src/common/Makefile b/src/common/Makefile
-index 16619e4ba8..21066d8fc4 100644
+index 2f22b9b101..f6e90a28f5 100644
 --- a/src/common/Makefile
 +++ b/src/common/Makefile
-@@ -46,7 +46,6 @@ LIBS += $(PTHREAD_LIBS)
- # If you add objects here, see also src/tools/msvc/Mkvcbuild.pm
- 
- OBJS_COMMON = \
--	archive.o \
- 	base64.o \
- 	checksum_helper.o \
- 	config_info.o \
-@@ -147,6 +146,7 @@ libpgcommon_shlib.a: $(OBJS_SHLIB)
+@@ -116,6 +116,7 @@ libpgcommon_shlib.a: $(OBJS_SHLIB)
  libpgcommon_srv.a: $(OBJS_SRV)
  	rm -f $@
  	$(AR) $(AROPT) $@ $^
 +	llvm-link -S -v $(OBJS_SRV) -o libpgcommon_srv.ll
- 
+
  # Because this uses its own compilation rule, it doesn't use the
  # dependency tracking logic from Makefile.global.  To make sure that
 diff --git a/src/port/Makefile b/src/port/Makefile
-index 8defa1257b..eefee8a393 100644
+index b9492b741f..3d64a7584b 100644
 --- a/src/port/Makefile
 +++ b/src/port/Makefile
-@@ -121,6 +121,7 @@ libpgport_shlib.a: $(OBJS_SHLIB)
+@@ -102,6 +102,7 @@ libpgport_shlib.a: $(OBJS_SHLIB)
  libpgport_srv.a: $(OBJS_SRV)
  	rm -f $@
  	$(AR) $(AROPT) $@ $^
