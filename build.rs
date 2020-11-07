@@ -70,7 +70,6 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
     let mut builder = bindgen::Builder::default()
         .header(include_h.to_str().unwrap())
         .clang_arg(&format!("-I{}", include_path.display()))
-        .whitelist_function("list_nth")
         .whitelist_function("MemoryContextInit")
         // .whitelist_function("SetDatabaseEncoding")
         .whitelist_function("CopyErrorData")
@@ -366,6 +365,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
         #[allow(non_camel_case_types)]
         #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
+        #[derive(Clone)]
         pub enum Node {
             #enum_stream
         }
@@ -387,6 +387,7 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                         output.extend(quote! {
                             #[derive(Debug, Eq, PartialEq)]
                             #[derive(Serialize, Deserialize)]
+                            #[derive(Clone)]
                             #attributes
                             pub struct Value {
                                 #[serde(skip_serializing_if = "Option::is_none")]
@@ -484,6 +485,7 @@ fn generate_single_struct(
         #[allow(non_snake_case)]
         #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
+        #[derive(Clone)]
         #attributes
         pub struct #struct_name {
             #fields_stream

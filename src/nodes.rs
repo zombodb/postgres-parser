@@ -6,7 +6,7 @@
 use serde::{Deserialize, Serialize};
 #[doc = r" All the various Postgres parse tree nodes that can be returned upon parsing a SQL statement"]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub enum Node {
     A_ArrayExpr(A_ArrayExpr),
     A_Const(A_Const),
@@ -39,6 +39,7 @@ pub enum Node {
     AlterRoleSetStmt(AlterRoleSetStmt),
     AlterRoleStmt(AlterRoleStmt),
     AlterSeqStmt(AlterSeqStmt),
+    AlterStatsStmt(AlterStatsStmt),
     AlterSubscriptionStmt(AlterSubscriptionStmt),
     AlterSystemStmt(AlterSystemStmt),
     AlterTSConfigurationStmt(AlterTSConfigurationStmt),
@@ -47,6 +48,7 @@ pub enum Node {
     AlterTableMoveAllStmt(AlterTableMoveAllStmt),
     AlterTableSpaceOptionsStmt(AlterTableSpaceOptionsStmt),
     AlterTableStmt(AlterTableStmt),
+    AlterTypeStmt(AlterTypeStmt),
     AlterUserMappingStmt(AlterUserMappingStmt),
     AlternativeSubPlan(AlternativeSubPlan),
     ArrayCoerceExpr(ArrayCoerceExpr),
@@ -226,14 +228,7 @@ pub enum Node {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alias"]
-#[doc = "   specifies an alias for a range variable; the alias might also"]
-#[doc = "   specify renaming of columns within the table."]
-#[doc = ""]
-#[doc = " Note: colnames is a list of Value nodes (always strings).  In Alias structs"]
-#[doc = " associated with RTEs, there may be entries corresponding to dropped"]
-#[doc = " columns; these are normally empty strings (\"\").  See parsenodes.h for info."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Alias {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aliasname: Option<String>,
@@ -242,13 +237,7 @@ pub struct Alias {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeVar  range variable, used in FROM clauses"]
-#[doc = ""]
-#[doc = " Also used to represent table names in utility statements; there, the alias"]
-#[doc = " field is not used, and inh tells whether to apply the operation"]
-#[doc = " recursively to child tables.  In some contexts it is also useful to carry"]
-#[doc = " a TEMP table indication here."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeVar {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub catalogname: Option<String>,
@@ -264,11 +253,7 @@ pub struct RangeVar {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TableFunc  node for a table function, such as XMLTABLE."]
-#[doc = ""]
-#[doc = " Entries in the ns_names list are either string Value nodes containing"]
-#[doc = " literal namespace names, or NULL pointers to represent DEFAULT."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TableFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ns_uris: Option<Vec<Node>>,
@@ -295,13 +280,7 @@ pub struct TableFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " IntoClause  target information for SELECT INTO, CREATE TABLE AS, and"]
-#[doc = " CREATE MATERIALIZED VIEW"]
-#[doc = ""]
-#[doc = " For CREATE MATERIALIZED VIEW, viewQuery is the parsedbutnotrewritten"]
-#[doc = " SELECT Query for the view; otherwise it's NULL.  (Although it's actually"]
-#[doc = " Query*, we declare it as Node* to avoid a forward reference.)"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct IntoClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rel: Option<Box<RangeVar>>,
@@ -320,17 +299,11 @@ pub struct IntoClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Expr  generic superclass for executableexpression nodes"]
-#[doc = ""]
-#[doc = " All node types that are used in executable expression trees should derive"]
-#[doc = " from Expr (that is, have Expr as their first field).  Since Expr only"]
-#[doc = " contains NodeTag, this is a formality, but it is an easy form of"]
-#[doc = " documentation.  See also the ExprState node types in execnodes.h."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Expr {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Var {
     pub varno: crate::sys::Index,
     pub varattno: crate::sys::AttrNumber,
@@ -338,19 +311,13 @@ pub struct Var {
     pub vartypmod: i32,
     pub varcollid: crate::sys::Oid,
     pub varlevelsup: crate::sys::Index,
-    pub varnoold: crate::sys::Index,
-    pub varoattno: crate::sys::AttrNumber,
+    pub varnosyn: crate::sys::Index,
+    pub varattnosyn: crate::sys::AttrNumber,
     pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Const"]
-#[doc = ""]
-#[doc = " Note: for varlena data types, we make a rule that a Const node's value"]
-#[doc = " must be in nonextended form (4byte header, no compression or external"]
-#[doc = " references).  This ensures that the Const node is selfcontained and makes"]
-#[doc = " it more likely that equal() will see logically identical values as equal."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Const {
     pub consttype: crate::sys::Oid,
     pub consttypmod: i32,
@@ -363,7 +330,7 @@ pub struct Const {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Param {
     pub paramkind: crate::sys::ParamKind,
     pub paramid: i32,
@@ -374,44 +341,7 @@ pub struct Param {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Aggref"]
-#[doc = ""]
-#[doc = " The aggregate's args list is a targetlist, ie, a list of TargetEntry nodes."]
-#[doc = ""]
-#[doc = " For a normal (nonorderedset) aggregate, the nonresjunk TargetEntries"]
-#[doc = " represent the aggregate's regular arguments (if any) and resjunk TLEs can"]
-#[doc = " be added at the end to represent ORDER BY expressions that are not also"]
-#[doc = " arguments.  As in a toplevel Query, the TLEs can be marked with"]
-#[doc = " ressortgroupref indexes to let them be referenced by SortGroupClause"]
-#[doc = " entries in the aggorder and/or aggdistinct lists.  This represents ORDER BY"]
-#[doc = " and DISTINCT operations to be applied to the aggregate input rows before"]
-#[doc = " they are passed to the transition function.  The grammar only allows a"]
-#[doc = " simple \"DISTINCT\" specifier for the arguments, but we use the full"]
-#[doc = " querylevel representation to allow more code sharing."]
-#[doc = ""]
-#[doc = " For an orderedset aggregate, the args list represents the WITHIN GROUP"]
-#[doc = " (aggregated) arguments, all of which will be listed in the aggorder list."]
-#[doc = " DISTINCT is not supported in this case, so aggdistinct will be NIL."]
-#[doc = " The direct arguments appear in aggdirectargs (as a list of plain"]
-#[doc = " expressions, not TargetEntry nodes)."]
-#[doc = ""]
-#[doc = " aggtranstype is the data type of the state transition values for this"]
-#[doc = " aggregate (resolved to an actual type, if agg's transtype is polymorphic)."]
-#[doc = " This is determined during planning and is InvalidOid before that."]
-#[doc = ""]
-#[doc = " aggargtypes is an OID list of the data types of the direct and regular"]
-#[doc = " arguments.  Normally it's redundant with the aggdirectargs and args lists,"]
-#[doc = " but in a combining aggregate, it's not because the args list has been"]
-#[doc = " replaced with a single argument representing the partialaggregate"]
-#[doc = " transition values."]
-#[doc = ""]
-#[doc = " aggsplit indicates the expected partialaggregation mode for the Aggref's"]
-#[doc = " parent plan node.  It's always set to AGGSPLIT_SIMPLE in the parser, but"]
-#[doc = " the planner might change it to something else.  We use this mainly as"]
-#[doc = " a crosscheck that the Aggrefs match the plan; but note that when aggsplit"]
-#[doc = " indicates a nonfinal mode, aggtype reflects the transition data type"]
-#[doc = " not the SQLlevel output type of the aggregate."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Aggref {
     pub aggfnoid: crate::sys::Oid,
     pub aggtype: crate::sys::Oid,
@@ -439,29 +369,7 @@ pub struct Aggref {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " GroupingFunc"]
-#[doc = ""]
-#[doc = " A GroupingFunc is a GROUPING(...) expression, which behaves in many ways"]
-#[doc = " like an aggregate function (e.g. it \"belongs\" to a specific query level,"]
-#[doc = " which might not be the one immediately containing it), but also differs in"]
-#[doc = " an important respect: it never evaluates its arguments, they merely"]
-#[doc = " designate expressions from the GROUP BY clause of the query level to which"]
-#[doc = " it belongs."]
-#[doc = ""]
-#[doc = " The spec defines the evaluation of GROUPING() purely by syntactic"]
-#[doc = " replacement, but we make it a real expression for optimization purposes so"]
-#[doc = " that one Agg node can handle multiple grouping sets at once.  Evaluating the"]
-#[doc = " result only needs the column positions to check against the grouping set"]
-#[doc = " being projected.  However, for EXPLAIN to produce meaningful output, we have"]
-#[doc = " to keep the original expressions around, since expression deparse does not"]
-#[doc = " give us any feasible way to get at the GROUP BY clause."]
-#[doc = ""]
-#[doc = " Also, we treat two GroupingFunc nodes as equal if they have equal arguments"]
-#[doc = " lists and agglevelsup, without comparing the refs and cols annotations."]
-#[doc = ""]
-#[doc = " In raw parse output we have only the args list; parse analysis fills in the"]
-#[doc = " refs list, and the planner fills in the cols list."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct GroupingFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
@@ -474,8 +382,7 @@ pub struct GroupingFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " WindowFunc"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct WindowFunc {
     pub winfnoid: crate::sys::Oid,
     pub wintype: crate::sys::Oid,
@@ -492,35 +399,7 @@ pub struct WindowFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " SubscriptingRef: describes a subscripting operation over a container"]
-#[doc = "       (array, etc)."]
-#[doc = ""]
-#[doc = " A SubscriptingRef can describe fetching a single element from a container,"]
-#[doc = " fetching a part of container (e.g. array slice), storing a single element into"]
-#[doc = " a container, or storing a slice.  The \"store\" cases work with an"]
-#[doc = " initial container value and a source value that is inserted into the"]
-#[doc = " appropriate part of the container; the result of the operation is an"]
-#[doc = " entire new modified container value."]
-#[doc = ""]
-#[doc = " If reflowerindexpr = NIL, then we are fetching or storing a single container"]
-#[doc = " element at the subscripts given by refupperindexpr. Otherwise we are"]
-#[doc = " fetching or storing a container slice, that is a rectangular subcontainer"]
-#[doc = " with lower and upper bounds given by the index expressions."]
-#[doc = " reflowerindexpr must be the same length as refupperindexpr when it"]
-#[doc = " is not NIL."]
-#[doc = ""]
-#[doc = " In the slice case, individual expressions in the subscript lists can be"]
-#[doc = " NULL, meaning \"substitute the array's current lower or upper bound\"."]
-#[doc = ""]
-#[doc = " Note: the result datatype is the element type when fetching a single"]
-#[doc = " element; but it is the array type when doing subarray fetch or either"]
-#[doc = " type of store."]
-#[doc = ""]
-#[doc = " Note: for the cases where a container is returned, if refexpr yields a R/W"]
-#[doc = " expanded container, then the implementation is allowed to modify that object"]
-#[doc = " inplace and return the same object.)"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SubscriptingRef {
     pub refcontainertype: crate::sys::Oid,
     pub refelemtype: crate::sys::Oid,
@@ -537,8 +416,7 @@ pub struct SubscriptingRef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " FuncExpr  expression node for a function call"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FuncExpr {
     pub funcid: crate::sys::Oid,
     pub funcresulttype: crate::sys::Oid,
@@ -553,19 +431,7 @@ pub struct FuncExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " NamedArgExpr  a named argument of a function"]
-#[doc = ""]
-#[doc = " This node type can only appear in the args list of a FuncCall or FuncExpr"]
-#[doc = " node.  We support pure positional call notation (no named arguments),"]
-#[doc = " named notation (all arguments are named), and mixed notation (unnamed"]
-#[doc = " arguments followed by named ones)."]
-#[doc = ""]
-#[doc = " Parse analysis sets argnumber to the positional index of the argument,"]
-#[doc = " but doesn't rearrange the argument list."]
-#[doc = ""]
-#[doc = " The planner will convert argument lists to pure positional notation"]
-#[doc = " during expression preprocessing, so execution never sees a NamedArgExpr."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NamedArgExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -576,14 +442,7 @@ pub struct NamedArgExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " OpExpr  expression node for an operator invocation"]
-#[doc = ""]
-#[doc = " Semantically, this is essentially the same as a function call."]
-#[doc = ""]
-#[doc = " Note that opfuncid is not necessarily filled in immediately on creation"]
-#[doc = " of the node.  The planner makes sure it is valid before passing the node"]
-#[doc = " tree to the executor, but during parsing/planning opfuncid can be 0."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct OpExpr {
     pub opno: crate::sys::Oid,
     pub opfuncid: crate::sys::Oid,
@@ -597,15 +456,7 @@ pub struct OpExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ScalarArrayOpExpr  expression node for \"scalar op ANY/ALL (array)\""]
-#[doc = ""]
-#[doc = " The operator must yield boolean.  It is applied to the left operand"]
-#[doc = " and each element of the righthand array, and the results are combined"]
-#[doc = " with OR or AND (for ANY or ALL respectively).  The node representation"]
-#[doc = " is almost the same as for the underlying operator, but we need a useOr"]
-#[doc = " flag to remember whether it's ANY or ALL, and we don't have to store"]
-#[doc = " the result type (or the collation) because it must be boolean."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ScalarArrayOpExpr {
     pub opno: crate::sys::Oid,
     pub opfuncid: crate::sys::Oid,
@@ -617,7 +468,7 @@ pub struct ScalarArrayOpExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct BoolExpr {
     pub boolop: crate::sys::BoolExprType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -626,7 +477,7 @@ pub struct BoolExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SubLink {
     pub subLinkType: crate::sys::SubLinkType,
     pub subLinkId: i32,
@@ -640,26 +491,14 @@ pub struct SubLink {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " AlternativeSubPlan  expression node for a choice among SubPlans"]
-#[doc = ""]
-#[doc = " The subplans are given as a List so that the node definition need not"]
-#[doc = " change if there's ever more than two alternatives.  For the moment,"]
-#[doc = " though, there are always exactly two; and the first one is the faststart"]
-#[doc = " plan."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlternativeSubPlan {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subplans: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " FieldSelect"]
-#[doc = ""]
-#[doc = " FieldSelect represents the operation of extracting one field from a tuple"]
-#[doc = " value.  At runtime, the input expression is expected to yield a rowtype"]
-#[doc = " Datum.  The specified field number is extracted and returned as a Datum."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FieldSelect {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -670,22 +509,7 @@ pub struct FieldSelect {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " FieldStore"]
-#[doc = ""]
-#[doc = " FieldStore represents the operation of modifying one field in a tuple"]
-#[doc = " value, yielding a new tuple value (the input is not touched!).  Like"]
-#[doc = " the assign case of SubscriptingRef, this is used to implement UPDATE of a"]
-#[doc = " portion of a column."]
-#[doc = ""]
-#[doc = " resulttype is always a named composite type (not a domain).  To update"]
-#[doc = " a composite domain value, apply CoerceToDomain to the FieldStore."]
-#[doc = ""]
-#[doc = " A single FieldStore can actually represent updates of several different"]
-#[doc = " fields.  The parser only generates FieldStores with singleelement lists,"]
-#[doc = " but the planner will collapse multiple updates of the same base column"]
-#[doc = " into one FieldStore."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FieldStore {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -697,17 +521,7 @@ pub struct FieldStore {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RelabelType"]
-#[doc = ""]
-#[doc = " RelabelType represents a \"dummy\" type coercion between two binary"]
-#[doc = " compatible datatypes, such as reinterpreting the result of an OID"]
-#[doc = " expression as an int4.  It is a noop at runtime; we only need it"]
-#[doc = " to provide a place to store the correct type to be attributed to"]
-#[doc = " the expression result during type resolution.  (We can't get away"]
-#[doc = " with just overwriting the type field of the input expression node,"]
-#[doc = " so we need a separate node to show the coercion's result type.)"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RelabelType {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -719,13 +533,7 @@ pub struct RelabelType {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CoerceViaIO"]
-#[doc = ""]
-#[doc = " CoerceViaIO represents a type coercion between two types whose textual"]
-#[doc = " representations are compatible, implemented by invoking the source type's"]
-#[doc = " typoutput function then the destination type's typinput function."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoerceViaIO {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -736,17 +544,7 @@ pub struct CoerceViaIO {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ArrayCoerceExpr"]
-#[doc = ""]
-#[doc = " ArrayCoerceExpr represents a type coercion from one array type to another,"]
-#[doc = " which is implemented by applying the perelement coercion expression"]
-#[doc = " \"elemexpr\" to each element of the source array.  Within elemexpr, the"]
-#[doc = " source element is represented by a CaseTestExpr node.  Note that even if"]
-#[doc = " elemexpr is a noop (that is, just CaseTestExpr + RelabelType), the"]
-#[doc = " coercion still requires some effort: we have to fix the element type OID"]
-#[doc = " stored in the array header."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ArrayCoerceExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -760,17 +558,7 @@ pub struct ArrayCoerceExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ConvertRowtypeExpr"]
-#[doc = ""]
-#[doc = " ConvertRowtypeExpr represents a type coercion from one composite type"]
-#[doc = " to another, where the source type is guaranteed to contain all the columns"]
-#[doc = " needed for the destination type plus possibly others; the columns need not"]
-#[doc = " be in the same positions, but are matched up by name.  This is primarily"]
-#[doc = " used to convert a wholerow value of an inheritance child table into a"]
-#[doc = " valid wholerow value of its parent table's rowtype.  Both resulttype"]
-#[doc = " and the exposed type of \"arg\" must be named composite types (not domains)."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ConvertRowtypeExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -780,12 +568,7 @@ pub struct ConvertRowtypeExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CollateExpr  COLLATE"]
-#[doc = ""]
-#[doc = " The planner replaces CollateExpr with RelabelType during expression"]
-#[doc = " preprocessing, so execution never sees a CollateExpr."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CollateExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -794,27 +577,7 @@ pub struct CollateExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CaseExpr  a CASE expression"]
-#[doc = ""]
-#[doc = " We support two distinct forms of CASE expression:"]
-#[doc = "    CASE WHEN boolexpr THEN expr [ WHEN boolexpr THEN expr ... ]"]
-#[doc = "    CASE testexpr WHEN compexpr THEN expr [ WHEN compexpr THEN expr ... ]"]
-#[doc = " These are distinguishable by the \"arg\" field being NULL in the first case"]
-#[doc = " and the testexpr in the second case."]
-#[doc = ""]
-#[doc = " In the raw grammar output for the second form, the condition expressions"]
-#[doc = " of the WHEN clauses are just the comparison values.  Parse analysis"]
-#[doc = " converts these to valid boolean expressions of the form"]
-#[doc = "    CaseTestExpr '=' compexpr"]
-#[doc = " where the CaseTestExpr node is a placeholder that emits the correct"]
-#[doc = " value at runtime.  This structure is used so that the testexpr need be"]
-#[doc = " evaluated only once.  Note that after parse analysis, the condition"]
-#[doc = " expressions always yield boolean."]
-#[doc = ""]
-#[doc = " Note: we can test whether a CaseExpr has been through parse analysis"]
-#[doc = " yet by checking whether casetype is InvalidOid or not."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CaseExpr {
     pub casetype: crate::sys::Oid,
     pub casecollid: crate::sys::Oid,
@@ -828,8 +591,7 @@ pub struct CaseExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CaseWhen  one arm of a CASE expression"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CaseWhen {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Expr>>,
@@ -839,25 +601,7 @@ pub struct CaseWhen {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Placeholder node for the test value to be processed by a CASE expression."]
-#[doc = " This is effectively like a Param, but can be implemented more simply"]
-#[doc = " since we need only one replacement value at a time."]
-#[doc = ""]
-#[doc = " We also abuse this node type for some other purposes, including:"]
-#[doc = " * Placeholder for the current array element value in ArrayCoerceExpr;"]
-#[doc = "   see build_coercion_expression()."]
-#[doc = " * Nested FieldStore/SubscriptingRef assignment expressions in INSERT/UPDATE;"]
-#[doc = "   see transformAssignmentIndirection()."]
-#[doc = ""]
-#[doc = " The uses in CaseExpr and ArrayCoerceExpr are safe only to the extent that"]
-#[doc = " there is not any other CaseExpr or ArrayCoerceExpr between the value source"]
-#[doc = " node and its child CaseTestExpr(s).  This is true in the parse analysis"]
-#[doc = " output, but the planner's functioninlining logic has to be careful not to"]
-#[doc = " break it."]
-#[doc = ""]
-#[doc = " The nestedassignmentexpression case is safe because the only node types"]
-#[doc = " that can be above such CaseTestExprs are FieldStore and SubscriptingRef."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CaseTestExpr {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -865,13 +609,7 @@ pub struct CaseTestExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ArrayExpr  an ARRAY[] expression"]
-#[doc = ""]
-#[doc = " Note: if multidims is false, the constituent expressions all yield the"]
-#[doc = " scalar type identified by element_typeid.  If multidims is true, the"]
-#[doc = " constituent expressions all yield arrays of element_typeid (ie, the same"]
-#[doc = " type as array_typeid); at runtime we must check for compatible subscripts."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ArrayExpr {
     pub array_typeid: crate::sys::Oid,
     pub array_collid: crate::sys::Oid,
@@ -883,28 +621,7 @@ pub struct ArrayExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RowExpr  a ROW() expression"]
-#[doc = ""]
-#[doc = " Note: the list of fields must have a oneforone correspondence with"]
-#[doc = " physical fields of the associated rowtype, although it is okay for it"]
-#[doc = " to be shorter than the rowtype.  That is, the N'th list element must"]
-#[doc = " match up with the N'th physical field.  When the N'th physical field"]
-#[doc = " is a dropped column (attisdropped) then the N'th list element can just"]
-#[doc = " be a NULL constant.  (This case can only occur for named composite types,"]
-#[doc = " not RECORD types, since those are built from the RowExpr itself rather"]
-#[doc = " than vice versa.)  It is important not to assume that length(args) is"]
-#[doc = " the same as the number of columns logically present in the rowtype."]
-#[doc = ""]
-#[doc = " colnames provides field names in cases where the names can't easily be"]
-#[doc = " obtained otherwise.  Names *must* be provided if row_typeid is RECORDOID."]
-#[doc = " If row_typeid identifies a known composite type, colnames can be NIL to"]
-#[doc = " indicate the type's cataloged field names apply.  Note that colnames can"]
-#[doc = " be nonNIL even for a composite type, and typically is when the RowExpr"]
-#[doc = " was created by expanding a wholerow Var.  This is so that we can retain"]
-#[doc = " the column alias names of the RTE that the Var referenced (which would"]
-#[doc = " otherwise be very difficult to extract from the parsetree).  Like the"]
-#[doc = " args list, colnames is oneforone with physical fields of the rowtype."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RowExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
@@ -916,7 +633,7 @@ pub struct RowExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RowCompareExpr {
     pub rctype: crate::sys::RowCompareType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -932,8 +649,7 @@ pub struct RowCompareExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CoalesceExpr  a COALESCE expression"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoalesceExpr {
     pub coalescetype: crate::sys::Oid,
     pub coalescecollid: crate::sys::Oid,
@@ -943,7 +659,7 @@ pub struct CoalesceExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MinMaxExpr {
     pub minmaxtype: crate::sys::Oid,
     pub minmaxcollid: crate::sys::Oid,
@@ -955,7 +671,7 @@ pub struct MinMaxExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SQLValueFunction {
     pub op: crate::sys::SQLValueFunctionOp,
     pub typmod: i32,
@@ -963,7 +679,7 @@ pub struct SQLValueFunction {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct XmlExpr {
     pub op: crate::sys::XmlExprOp,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -980,7 +696,7 @@ pub struct XmlExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NullTest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -990,7 +706,7 @@ pub struct NullTest {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct BooleanTest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -999,14 +715,7 @@ pub struct BooleanTest {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CoerceToDomain"]
-#[doc = ""]
-#[doc = " CoerceToDomain represents the operation of coercing a value to a domain"]
-#[doc = " type.  At runtime (and not before) the precise set of constraints to be"]
-#[doc = " checked will be determined.  If the value passes, it is returned as the"]
-#[doc = " result; if not, an error is raised.  Note that this is equivalent to"]
-#[doc = " RelabelType in the scenario where no constraints are applied."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoerceToDomain {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
@@ -1018,14 +727,7 @@ pub struct CoerceToDomain {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Placeholder node for the value to be processed by a domain's check"]
-#[doc = " constraint.  This is effectively like a Param, but can be implemented more"]
-#[doc = " simply since we need only one replacement value at a time."]
-#[doc = ""]
-#[doc = " Note: the typeId/typeMod/collation will be set from the domain's base type,"]
-#[doc = " not the domain itself.  This is because we shouldn't consider the value"]
-#[doc = " to be a member of the domain if we haven't yet checked its constraints."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoerceToDomainValue {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -1034,12 +736,7 @@ pub struct CoerceToDomainValue {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Placeholder node for a DEFAULT marker in an INSERT or UPDATE command."]
-#[doc = ""]
-#[doc = " This is not an executable expression: it must be replaced by the actual"]
-#[doc = " column default expression during rewriting.  But it is convenient to"]
-#[doc = " treat it as an expression node during parsing and rewriting."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SetToDefault {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -1048,17 +745,7 @@ pub struct SetToDefault {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Node representing [WHERE] CURRENT OF cursor_name"]
-#[doc = ""]
-#[doc = " CURRENT OF is a bit like a Var, in that it carries the rangetable index"]
-#[doc = " of the target relation being constrained; this aids placing the expression"]
-#[doc = " correctly during planning.  We can assume however that its \"levelsup\" is"]
-#[doc = " always zero, due to the syntactic constraints on where it can appear."]
-#[doc = ""]
-#[doc = " The referenced cursor can be represented either as a hardwired string"]
-#[doc = " or as a reference to a runtime parameter of type REFCURSOR.  The latter"]
-#[doc = " case is for the convenience of plpgsql."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CurrentOfExpr {
     pub cvarno: crate::sys::Index,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1067,24 +754,14 @@ pub struct CurrentOfExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " NextValueExpr  get next value from sequence"]
-#[doc = ""]
-#[doc = " This has the same effect as calling the nextval() function, but it does not"]
-#[doc = " check permissions on the sequence.  This is used for identity columns,"]
-#[doc = " where the sequence is an implicit dependency without its own permissions."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NextValueExpr {
     pub seqid: crate::sys::Oid,
     pub typeId: crate::sys::Oid,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " InferenceElem  an element of a unique index inference specification"]
-#[doc = ""]
-#[doc = " This mostly matches the structure of IndexElems, but having a dedicated"]
-#[doc = " primnode allows for a clean separation between the use of index parameters"]
-#[doc = " by utility commands, and this node."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct InferenceElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Node>>,
@@ -1093,59 +770,7 @@ pub struct InferenceElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TargetEntry"]
-#[doc = "    a target entry (used in query target lists)"]
-#[doc = ""]
-#[doc = " Strictly speaking, a TargetEntry isn't an expression node (since it can't"]
-#[doc = " be evaluated by ExecEvalExpr).  But we treat it as one anyway, since in"]
-#[doc = " very many places it's convenient to process a whole query targetlist as a"]
-#[doc = " single expression tree."]
-#[doc = ""]
-#[doc = " In a SELECT's targetlist, resno should always be equal to the item's"]
-#[doc = " ordinal position (counting from 1).  However, in an INSERT or UPDATE"]
-#[doc = " targetlist, resno represents the attribute number of the destination"]
-#[doc = " column for the item; so there may be missing or outoforder resnos."]
-#[doc = " It is even legal to have duplicated resnos; consider"]
-#[doc = "    UPDATE table SET arraycol[1] = ..., arraycol[2] = ..., ..."]
-#[doc = " The two meanings come together in the executor, because the planner"]
-#[doc = " transforms INSERT/UPDATE tlists into a normalized form with exactly"]
-#[doc = " one entry for each column of the destination table.  Before that's"]
-#[doc = " happened, however, it is risky to assume that resno == position."]
-#[doc = " Generally get_tle_by_resno() should be used rather than list_nth()"]
-#[doc = " to fetch tlist entries by resno, and only in SELECT should you assume"]
-#[doc = " that resno is a unique identifier."]
-#[doc = ""]
-#[doc = " resname is required to represent the correct column name in nonresjunk"]
-#[doc = " entries of toplevel SELECT targetlists, since it will be used as the"]
-#[doc = " column title sent to the frontend.  In most other contexts it is only"]
-#[doc = " a debugging aid, and may be wrong or even NULL.  (In particular, it may"]
-#[doc = " be wrong in a tlist from a stored rule, if the referenced column has been"]
-#[doc = " renamed by ALTER TABLE since the rule was made.  Also, the planner tends"]
-#[doc = " to store NULL rather than look up a valid name for tlist entries in"]
-#[doc = " nontoplevel plan nodes.)  In resjunk entries, resname should be either"]
-#[doc = " a specific systemgenerated name (such as \"ctid\") or NULL; anything else"]
-#[doc = " risks confusing ExecGetJunkAttribute!"]
-#[doc = ""]
-#[doc = " ressortgroupref is used in the representation of ORDER BY, GROUP BY, and"]
-#[doc = " DISTINCT items.  Targetlist entries with ressortgroupref=0 are not"]
-#[doc = " sort/group items.  If ressortgroupref>0, then this item is an ORDER BY,"]
-#[doc = " GROUP BY, and/or DISTINCT target value.  No two entries in a targetlist"]
-#[doc = " may have the same nonzero ressortgroupref  but there is no particular"]
-#[doc = " meaning to the nonzero values, except as tags.  (For example, one must"]
-#[doc = " not assume that lower ressortgroupref means a more significant sort key.)"]
-#[doc = " The order of the associated SortGroupClause lists determine the semantics."]
-#[doc = ""]
-#[doc = " resorigtbl/resorigcol identify the source of the column, if it is a"]
-#[doc = " simple reference to a column of a base table (or view).  If it is not"]
-#[doc = " a simple reference, these fields are zeroes."]
-#[doc = ""]
-#[doc = " If resjunk is true then the column is a working column (such as a sort key)"]
-#[doc = " that should be removed from the final output of the query.  Resjunk columns"]
-#[doc = " must have resnos that cannot duplicate any regular column's resno.  Also"]
-#[doc = " note that there are places that assume resjunk columns come after nonjunk"]
-#[doc = " columns."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TargetEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Expr>>,
@@ -1159,39 +784,13 @@ pub struct TargetEntry {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeTblRef  reference to an entry in the query's rangetable"]
-#[doc = ""]
-#[doc = " We could use direct pointers to the RT entries and skip having these"]
-#[doc = " nodes, but multiple pointers to the same node in a querytree cause"]
-#[doc = " lots of headaches, so it seems better to store an index into the RT."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeTblRef {
     pub rtindex: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " JoinExpr  for SQL JOIN expressions"]
-#[doc = ""]
-#[doc = " isNatural, usingClause, and quals are interdependent.  The user can write"]
-#[doc = " only one of NATURAL, USING(), or ON() (this is enforced by the grammar)."]
-#[doc = " If he writes NATURAL then parse analysis generates the equivalent USING()"]
-#[doc = " list, and from that fills in \"quals\" with the right equality comparisons."]
-#[doc = " If he writes USING() then \"quals\" is filled with equality comparisons."]
-#[doc = " If he writes ON() then only \"quals\" is set.  Note that NATURAL/USING"]
-#[doc = " are not equivalent to ON() since they also affect the output column list."]
-#[doc = ""]
-#[doc = " alias is an Alias node representing the AS aliasclause attached to the"]
-#[doc = " join expression, or NULL if no clause.  NB: presence or absence of the"]
-#[doc = " alias has a critical impact on semantics, because a join with an alias"]
-#[doc = " restricts visibility of the tables/columns inside it."]
-#[doc = ""]
-#[doc = " During parse analysis, an RTE is created for the Join, and its index"]
-#[doc = " is filled into rtindex.  This RTE is present mainly so that Vars can"]
-#[doc = " be created that refer to the outputs of the join.  The planner sometimes"]
-#[doc = " generates JoinExprs internally; these can have rtindex = 0 if there are"]
-#[doc = " no join alias variables referencing such joins."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct JoinExpr {
     pub jointype: crate::sys::JoinType,
     pub isNatural: bool,
@@ -1209,14 +808,7 @@ pub struct JoinExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " FromExpr  represents a FROM ... WHERE ... construct"]
-#[doc = ""]
-#[doc = " This is both more flexible than a JoinExpr (it can have any number of"]
-#[doc = " children, including zero) and less so  we don't need to deal with"]
-#[doc = " aliases and so on.  The output column set is implicitly just the union"]
-#[doc = " of the outputs of the children."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FromExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fromlist: Option<Vec<Node>>,
@@ -1225,14 +817,7 @@ pub struct FromExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " OnConflictExpr  represents an ON CONFLICT DO ... expression"]
-#[doc = ""]
-#[doc = " The optimizer requires a list of inference elements, and optionally a WHERE"]
-#[doc = " clause to infer a unique index.  The unique index (or, occasionally,"]
-#[doc = " indexes) inferred are used to arbitrate whether or not the alternative ON"]
-#[doc = " CONFLICT path is taken."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct OnConflictExpr {
     pub action: crate::sys::OnConflictAction,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1248,7 +833,7 @@ pub struct OnConflictExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exclRelTlist: Option<Vec<Node>>,
 }
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Value {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub string: Option<String>,
@@ -1263,18 +848,7 @@ pub struct Value {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TypeName  specifies a type in definitions"]
-#[doc = ""]
-#[doc = " For TypeName structures generated internally, it is often easier to"]
-#[doc = " specify the type by OID than by name.  If \"names\" is NIL then the"]
-#[doc = " actual type OID is given by typeOid, otherwise typeOid is unused."]
-#[doc = " Similarly, if \"typmods\" is NIL then the actual typmod is expected to"]
-#[doc = " be prespecified in typemod, otherwise typemod is unused."]
-#[doc = ""]
-#[doc = " If pct_type is true, then names is actually a field name and we look up"]
-#[doc = " the type of that field.  Otherwise (the normal case), names is a type"]
-#[doc = " name possibly qualified with schema and database name."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TypeName {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub names: Option<Vec<Node>>,
@@ -1290,18 +864,7 @@ pub struct TypeName {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ColumnRef  specifies a reference to a column, or possibly a whole tuple"]
-#[doc = ""]
-#[doc = " The \"fields\" list must be nonempty.  It can contain string Value nodes"]
-#[doc = " (representing names) and A_Star nodes (representing occurrence of a '*')."]
-#[doc = " Currently, A_Star must appear only as the last list element  the grammar"]
-#[doc = " is responsible for enforcing this!"]
-#[doc = ""]
-#[doc = " Note: any container subscripting or selection of fields from composite columns"]
-#[doc = " is represented by an A_Indirection node above the ColumnRef.  However,"]
-#[doc = " for simplicity in the normal case, initial field selection from a table"]
-#[doc = " name is represented within ColumnRef and not by adding A_Indirection."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ColumnRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<Vec<Node>>,
@@ -1309,15 +872,14 @@ pub struct ColumnRef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ParamRef  specifies a $n parameter reference"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ParamRef {
     pub number: i32,
     pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Expr {
     pub kind: crate::sys::A_Expr_Kind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1330,16 +892,14 @@ pub struct A_Expr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " A_Const  a literal constant"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Const {
     pub val: Value,
     pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TypeCast  a CAST expression"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TypeCast {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -1349,8 +909,7 @@ pub struct TypeCast {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CollateClause  a COLLATE expression"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CollateClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -1360,7 +919,7 @@ pub struct CollateClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RoleSpec {
     pub roletype: crate::sys::RoleSpecType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1369,19 +928,7 @@ pub struct RoleSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " FuncCall  a function or aggregate invocation"]
-#[doc = ""]
-#[doc = " agg_order (if not NIL) indicates we saw 'foo(... ORDER BY ...)', or if"]
-#[doc = " agg_within_group is true, it was 'foo(...) WITHIN GROUP (ORDER BY ...)'."]
-#[doc = " agg_star indicates we saw a 'foo(*)' construct, while agg_distinct"]
-#[doc = " indicates we saw 'foo(DISTINCT ...)'.  In any of these cases, the"]
-#[doc = " construct *must* be an aggregate call.  Otherwise, it might be either an"]
-#[doc = " aggregate or some other kind of function.  However, if FILTER or OVER is"]
-#[doc = " present it had better be an aggregate or window function."]
-#[doc = ""]
-#[doc = " Normally, you'd initialize this via makeFuncCall() and then only change the"]
-#[doc = " parts of the struct its defaults don't match afterwards, as needed."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FuncCall {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funcname: Option<Vec<Node>>,
@@ -1401,19 +948,11 @@ pub struct FuncCall {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " A_Star  '*' representing all columns of a table or compound field"]
-#[doc = ""]
-#[doc = " This can appear within ColumnRef.fields, A_Indirection.indirection, and"]
-#[doc = " ResTarget.indirection lists."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Star {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " A_Indices  array subscript or slice bounds ([idx] or [lidx:uidx])"]
-#[doc = ""]
-#[doc = " In slice case, either or both of lidx and uidx can be NULL (omitted)."]
-#[doc = " In nonslice case, uidx holds the single subscript and lidx is always NULL."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Indices {
     pub is_slice: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1423,20 +962,7 @@ pub struct A_Indices {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " A_Indirection  select a field and/or array element from an expression"]
-#[doc = ""]
-#[doc = " The indirection list can contain A_Indices nodes (representing"]
-#[doc = " subscripting), string Value nodes (representing field selection  the"]
-#[doc = " string value is the name of the field to select), and A_Star nodes"]
-#[doc = " (representing selection of all fields of a composite type)."]
-#[doc = " For example, a complex selection operation like"]
-#[doc = "          (foo).field1[42][7].field2"]
-#[doc = " would be represented with a single A_Indirection node having a 4element"]
-#[doc = " indirection list."]
-#[doc = ""]
-#[doc = " Currently, A_Star must appear only as the last list element  the grammar"]
-#[doc = " is responsible for enforcing this!"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Indirection {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -1445,8 +971,7 @@ pub struct A_Indirection {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " A_ArrayExpr  an ARRAY[] construct"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_ArrayExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub elements: Option<Vec<Node>>,
@@ -1454,23 +979,7 @@ pub struct A_ArrayExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ResTarget"]
-#[doc = "   result target (used in target list of pretransformed parse trees)"]
-#[doc = ""]
-#[doc = " In a SELECT target list, 'name' is the column label from an"]
-#[doc = " 'AS ColumnLabel' clause, or NULL if there was none, and 'val' is the"]
-#[doc = " value expression itself.  The 'indirection' field is not used."]
-#[doc = ""]
-#[doc = " INSERT uses ResTarget in its targetcolumnnames list.  Here, 'name' is"]
-#[doc = " the name of the destination column, 'indirection' stores any subscripts"]
-#[doc = " attached to the destination, and 'val' is not used."]
-#[doc = ""]
-#[doc = " In an UPDATE target list, 'name' is the name of the destination column,"]
-#[doc = " 'indirection' stores any subscripts attached to the destination, and"]
-#[doc = " 'val' is the expression to assign."]
-#[doc = ""]
-#[doc = " See A_Indirection for more info about what can appear in 'indirection'."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ResTarget {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1482,14 +991,7 @@ pub struct ResTarget {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " MultiAssignRef  element of a row source expression for UPDATE"]
-#[doc = ""]
-#[doc = " In an UPDATE target list, when we have SET (a,b,c) = rowvaluedexpression,"]
-#[doc = " we generate separate ResTarget items for each of a,b,c.  Their \"val\" trees"]
-#[doc = " are MultiAssignRef nodes numbered 1..n, linking to a common copy of the"]
-#[doc = " rowvaluedexpression (which parse analysis will process only once, when"]
-#[doc = " handling the MultiAssignRef with colno=1)."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct MultiAssignRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<Box<Node>>,
@@ -1498,8 +1000,7 @@ pub struct MultiAssignRef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " SortBy  for ORDER BY clause"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SortBy {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node: Option<Box<Node>>,
@@ -1511,13 +1012,7 @@ pub struct SortBy {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " WindowDef  raw representation of WINDOW and OVER clauses"]
-#[doc = ""]
-#[doc = " For entries in a WINDOW list, \"name\" is the window name being defined."]
-#[doc = " For OVER clauses, we use \"name\" for the \"OVER window\" syntax, or \"refname\""]
-#[doc = " for the \"OVER (window)\" syntax, which is subtly different  the latter"]
-#[doc = " implies overriding the window frame clause."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct WindowDef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1536,8 +1031,7 @@ pub struct WindowDef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeSubselect  subquery appearing in a FROM clause"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeSubselect {
     pub lateral: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1547,19 +1041,7 @@ pub struct RangeSubselect {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeFunction  function call appearing in a FROM clause"]
-#[doc = ""]
-#[doc = " functions is a List because we use this to represent the construct"]
-#[doc = " ROWS FROM(func1(...), func2(...), ...).  Each element of this list is a"]
-#[doc = " twoelement sublist, the first element being the untransformed function"]
-#[doc = " call tree, and the second element being a possiblyempty list of ColumnDef"]
-#[doc = " nodes representing any columndef list attached to that function within the"]
-#[doc = " ROWS FROM() syntax."]
-#[doc = ""]
-#[doc = " alias and coldeflist represent any alias and/or columndef list attached"]
-#[doc = " at the top level.  (We disallow coldeflist appearing both here and"]
-#[doc = " perfunction, but that's checked in parse analysis, not by the grammar.)"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeFunction {
     pub lateral: bool,
     pub ordinality: bool,
@@ -1573,8 +1055,7 @@ pub struct RangeFunction {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeTableFunc  raw form of \"table functions\" such as XMLTABLE"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeTableFunc {
     pub lateral: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1591,11 +1072,7 @@ pub struct RangeTableFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeTableFuncCol  one column in a RangeTableFunc>columns"]
-#[doc = ""]
-#[doc = " If for_ordinality is true (FOR ORDINALITY), then the column is an int4"]
-#[doc = " column and the rest of the fields are ignored."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeTableFuncCol {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colname: Option<String>,
@@ -1611,15 +1088,7 @@ pub struct RangeTableFuncCol {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RangeTableSample  TABLESAMPLE appearing in a raw FROM clause"]
-#[doc = ""]
-#[doc = " This node, appearing only in raw parse trees, represents"]
-#[doc = "    <relation> TABLESAMPLE <method> (<params>) REPEATABLE (<num>)"]
-#[doc = " Currently, the <relation> can only be a RangeVar, but we might in future"]
-#[doc = " allow RangeSubselect and other options.  Note that the RangeTableSample"]
-#[doc = " is wrapped around the node representing the <relation>, rather than being"]
-#[doc = " a subfield of it."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RangeTableSample {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<Node>>,
@@ -1633,23 +1102,7 @@ pub struct RangeTableSample {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ColumnDef  column definition (used in various creates)"]
-#[doc = ""]
-#[doc = " If the column has a default value, we may have the value expression"]
-#[doc = " in either \"raw\" form (an untransformed parse tree) or \"cooked\" form"]
-#[doc = " (a postparseanalysis, executable expression tree), depending on"]
-#[doc = " how this ColumnDef node was created (by parsing, or by inheritance"]
-#[doc = " from an existing relation).  We should never have both in the same node!"]
-#[doc = ""]
-#[doc = " Similarly, we may have a COLLATE specification in either raw form"]
-#[doc = " (represented as a CollateClause with arg==NULL) or cooked form"]
-#[doc = " (the collation's OID)."]
-#[doc = ""]
-#[doc = " The constraints list may contain a CONSTR_DEFAULT item in a raw"]
-#[doc = " parsetree produced by gram.y, but transformCreateStmt will remove"]
-#[doc = " the item and set raw_default instead.  CONSTR_DEFAULT items"]
-#[doc = " should not appear in any subsequent processing."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ColumnDef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colname: Option<String>,
@@ -1679,8 +1132,7 @@ pub struct ColumnDef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TableLikeClause  CREATE TABLE ( ... LIKE ... ) clause"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TableLikeClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1688,12 +1140,7 @@ pub struct TableLikeClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " IndexElem  index parameters (used in CREATE INDEX, and in ON CONFLICT)"]
-#[doc = ""]
-#[doc = " For a plain index attribute, 'name' is the name of the table column to"]
-#[doc = " index, and 'expr' is NULL.  For an index expression, 'name' is NULL and"]
-#[doc = " 'expr' is the expression tree."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct IndexElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1705,12 +1152,14 @@ pub struct IndexElem {
     pub collation: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opclass: Option<Vec<Node>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub opclassopts: Option<Vec<Node>>,
     pub ordering: crate::sys::SortByDir,
     pub nulls_ordering: crate::sys::SortByNulls,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DefElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defnamespace: Option<String>,
@@ -1723,14 +1172,7 @@ pub struct DefElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " LockingClause  raw representation of FOR [NO KEY] UPDATE/[KEY] SHARE"]
-#[doc = "    options"]
-#[doc = ""]
-#[doc = " Note: lockedRels == NIL means \"all relations in query\".  Otherwise it"]
-#[doc = " is a list of RangeVar nodes.  (We use RangeVar mainly because it carries"]
-#[doc = " a location field  currently, parse analysis insists on unqualified"]
-#[doc = " names in LockingClause.)"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct LockingClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lockedRels: Option<Vec<Node>>,
@@ -1739,8 +1181,7 @@ pub struct LockingClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " XMLSERIALIZE (in raw parse tree only)"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct XmlSerialize {
     pub xmloption: crate::sys::XmlOptionType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1751,11 +1192,7 @@ pub struct XmlSerialize {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " PartitionElem  parsetime representation of a single partition key"]
-#[doc = ""]
-#[doc = " expr can be either a raw expression tree or a parseanalyzed expression."]
-#[doc = " We don't store these ondisk, though."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PartitionElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1769,10 +1206,7 @@ pub struct PartitionElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " PartitionSpec  parsetime representation of a partition key specification"]
-#[doc = ""]
-#[doc = " This represents the key space we will be partitioning on."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PartitionSpec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strategy: Option<String>,
@@ -1782,11 +1216,7 @@ pub struct PartitionSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " PartitionBoundSpec  a partition bound specification"]
-#[doc = ""]
-#[doc = " This represents the portion of the partition key space assigned to a"]
-#[doc = " particular partition.  These are stored on disk in pg_class.relpartbound."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PartitionBoundSpec {
     pub strategy: char,
     pub is_default: bool,
@@ -1802,7 +1232,7 @@ pub struct PartitionBoundSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PartitionRangeDatum {
     pub kind: crate::sys::PartitionRangeDatumKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1811,8 +1241,7 @@ pub struct PartitionRangeDatum {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " PartitionCmd  info for ALTER TABLE/INDEX ATTACH/DETACH PARTITION commands"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PartitionCmd {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<RangeVar>>,
@@ -1821,10 +1250,7 @@ pub struct PartitionCmd {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TableSampleClause  TABLESAMPLE appearing in a transformed FROM clause"]
-#[doc = ""]
-#[doc = " Unlike RangeTableSample, this is a subnode of the relevant RangeTblEntry."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TableSampleClause {
     pub tsmhandler: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1834,7 +1260,7 @@ pub struct TableSampleClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct WithCheckOption {
     pub kind: crate::sys::WCOKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1847,63 +1273,7 @@ pub struct WithCheckOption {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " SortGroupClause"]
-#[doc = "    representation of ORDER BY, GROUP BY, PARTITION BY,"]
-#[doc = "    DISTINCT, DISTINCT ON items"]
-#[doc = ""]
-#[doc = " You might think that ORDER BY is only interested in defining ordering,"]
-#[doc = " and GROUP/DISTINCT are only interested in defining equality.  However,"]
-#[doc = " one way to implement grouping is to sort and then apply a \"uniq\"like"]
-#[doc = " filter.  So it's also interesting to keep track of possible sort operators"]
-#[doc = " for GROUP/DISTINCT, and in particular to try to sort for the grouping"]
-#[doc = " in a way that will also yield a requested ORDER BY ordering.  So we need"]
-#[doc = " to be able to compare ORDER BY and GROUP/DISTINCT lists, which motivates"]
-#[doc = " the decision to give them the same representation."]
-#[doc = ""]
-#[doc = " tleSortGroupRef must match ressortgroupref of exactly one entry of the"]
-#[doc = "    query's targetlist; that is the expression to be sorted or grouped by."]
-#[doc = " eqop is the OID of the equality operator."]
-#[doc = " sortop is the OID of the ordering operator (a \"<\" or \">\" operator),"]
-#[doc = "    or InvalidOid if not available."]
-#[doc = " nulls_first means about what you'd expect.  If sortop is InvalidOid"]
-#[doc = "    then nulls_first is meaningless and should be set to false."]
-#[doc = " hashable is true if eqop is hashable (note this condition also depends"]
-#[doc = "    on the datatype of the input expression)."]
-#[doc = ""]
-#[doc = " In an ORDER BY item, all fields must be valid.  (The eqop isn't essential"]
-#[doc = " here, but it's cheap to get it along with the sortop, and requiring it"]
-#[doc = " to be valid eases comparisons to grouping items.)  Note that this isn't"]
-#[doc = " actually enough information to determine an ordering: if the sortop is"]
-#[doc = " collationsensitive, a collation OID is needed too.  We don't store the"]
-#[doc = " collation in SortGroupClause because it's not available at the time the"]
-#[doc = " parser builds the SortGroupClause; instead, consult the exposed collation"]
-#[doc = " of the referenced targetlist expression to find out what it is."]
-#[doc = ""]
-#[doc = " In a grouping item, eqop must be valid.  If the eqop is a btree equality"]
-#[doc = " operator, then sortop should be set to a compatible ordering operator."]
-#[doc = " We prefer to set eqop/sortop/nulls_first to match any ORDER BY item that"]
-#[doc = " the query presents for the same tlist item.  If there is none, we just"]
-#[doc = " use the default ordering op for the datatype."]
-#[doc = ""]
-#[doc = " If the tlist item's type has a hash opclass but no btree opclass, then"]
-#[doc = " we will set eqop to the hash equality operator, sortop to InvalidOid,"]
-#[doc = " and nulls_first to false.  A grouping item of this kind can only be"]
-#[doc = " implemented by hashing, and of course it'll never match an ORDER BY item."]
-#[doc = ""]
-#[doc = " The hashable flag is provided since we generally have the requisite"]
-#[doc = " information readily available when the SortGroupClause is constructed,"]
-#[doc = " and it's relatively expensive to get it again later.  Note there is no"]
-#[doc = " need for a \"sortable\" flag since OidIsValid(sortop) serves the purpose."]
-#[doc = ""]
-#[doc = " A query might have both ORDER BY and DISTINCT (or DISTINCT ON) clauses."]
-#[doc = " In SELECT DISTINCT, the distinctClause list is as long or longer than the"]
-#[doc = " sortClause list, while in SELECT DISTINCT ON it's typically shorter."]
-#[doc = " The two lists must match up to the end of the shorter one  the parser"]
-#[doc = " rearranges the distinctClause if necessary to make this true.  (This"]
-#[doc = " restriction ensures that only one sort step is needed to both satisfy the"]
-#[doc = " ORDER BY and set up for the Unique step.  This is semantically necessary"]
-#[doc = " for DISTINCT ON, and presents no real drawback for DISTINCT.)"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SortGroupClause {
     pub tleSortGroupRef: crate::sys::Index,
     pub eqop: crate::sys::Oid,
@@ -1913,7 +1283,7 @@ pub struct SortGroupClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct GroupingSet {
     pub kind: crate::sys::GroupingSetKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1922,22 +1292,7 @@ pub struct GroupingSet {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " WindowClause"]
-#[doc = "    transformed representation of WINDOW and OVER clauses"]
-#[doc = ""]
-#[doc = " A parsed Query's windowClause list contains these structs.  \"name\" is set"]
-#[doc = " if the clause originally came from WINDOW, and is NULL if it originally"]
-#[doc = " was an OVER clause (but note that we collapse out duplicate OVERs)."]
-#[doc = " partitionClause and orderClause are lists of SortGroupClause structs."]
-#[doc = " If we have RANGE with offset PRECEDING/FOLLOWING, the semantics of that are"]
-#[doc = " specified by startInRangeFunc/inRangeColl/inRangeAsc/inRangeNullsFirst"]
-#[doc = " for the start offset, or endInRangeFunc/inRange* for the end offset."]
-#[doc = " winref is an ID number referenced by WindowFunc nodes; it must be unique"]
-#[doc = " among the members of a Query's windowClause list."]
-#[doc = " When refname isn't null, the partitionClause is always copied from there;"]
-#[doc = " the orderClause might or might not be copied (see copiedOrder); the framing"]
-#[doc = " options are never copied, per spec."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct WindowClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1962,17 +1317,7 @@ pub struct WindowClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " RowMarkClause"]
-#[doc = "    parser output representation of FOR [KEY] UPDATE/SHARE clauses"]
-#[doc = ""]
-#[doc = " Query.rowMarks contains a separate RowMarkClause node for each relation"]
-#[doc = " identified as a FOR [KEY] UPDATE/SHARE target.  If one of these clauses"]
-#[doc = " is applied to a subquery, we generate RowMarkClauses for all normal and"]
-#[doc = " subquery rels in the subquery, but they are marked pushedDown = true to"]
-#[doc = " distinguish them from clauses that were explicitly written at this query"]
-#[doc = " level.  Also, Query.hasForUpdate tells whether there were explicit FOR"]
-#[doc = " UPDATE/SHARE/KEY SHARE clauses in the current query level."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RowMarkClause {
     pub rti: crate::sys::Index,
     pub strength: crate::sys::LockClauseStrength,
@@ -1981,12 +1326,7 @@ pub struct RowMarkClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " WithClause"]
-#[doc = "    representation of WITH clause"]
-#[doc = ""]
-#[doc = " Note: WithClause does not propagate into the Query representation;"]
-#[doc = " but CommonTableExpr does."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct WithClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctes: Option<Vec<Node>>,
@@ -1995,11 +1335,7 @@ pub struct WithClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " InferClause"]
-#[doc = "    ON CONFLICT unique index inference clause"]
-#[doc = ""]
-#[doc = " Note: InferClause does not propagate into the Query representation."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct InferClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indexElems: Option<Vec<Node>>,
@@ -2011,11 +1347,7 @@ pub struct InferClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " OnConflictClause"]
-#[doc = "    representation of ON CONFLICT clause"]
-#[doc = ""]
-#[doc = " Note: OnConflictClause does not propagate into the Query representation."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct OnConflictClause {
     pub action: crate::sys::OnConflictAction,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2028,7 +1360,7 @@ pub struct OnConflictClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CommonTableExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctename: Option<String>,
@@ -2051,13 +1383,7 @@ pub struct CommonTableExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TriggerTransition"]
-#[doc = "    representation of transition row or table naming clause"]
-#[doc = ""]
-#[doc = " Only transition tables are initially supported in the syntax, and only for"]
-#[doc = " AFTER triggers, but other permutations are accepted by the parser so we can"]
-#[doc = " give a meaningful message from C code."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TriggerTransition {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -2066,17 +1392,7 @@ pub struct TriggerTransition {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    RawStmt  container for any one statement's raw parse tree"]
-#[doc = ""]
-#[doc = " Parse analysis converts a raw parse tree headed by a RawStmt node into"]
-#[doc = " an analyzed statement headed by a Query node.  For optimizable statements,"]
-#[doc = " the conversion is complex.  For utility statements, the parser usually just"]
-#[doc = " transfers the raw parse tree (sans RawStmt) into the utilityStmt field of"]
-#[doc = " the Query node, and all the useful work happens at execution time."]
-#[doc = ""]
-#[doc = " stmt_location/stmt_len identify the portion of the source text string"]
-#[doc = " containing this raw statement (useful for multistatement strings)."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RawStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stmt: Option<Box<Node>>,
@@ -2085,13 +1401,7 @@ pub struct RawStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Insert Statement"]
-#[doc = ""]
-#[doc = " The source expression is represented by SelectStmt for both the"]
-#[doc = " SELECT and VALUES cases.  If selectStmt is NULL, then the query"]
-#[doc = " is INSERT ... DEFAULT VALUES."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct InsertStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2109,9 +1419,7 @@ pub struct InsertStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Delete Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DeleteStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2126,9 +1434,7 @@ pub struct DeleteStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Update Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct UpdateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2145,7 +1451,7 @@ pub struct UpdateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SelectStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub distinctClause: Option<Vec<Node>>,
@@ -2171,6 +1477,7 @@ pub struct SelectStmt {
     pub limitOffset: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limitCount: Option<Box<Node>>,
+    pub limitOption: crate::sys::LimitOption,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lockingClause: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2184,24 +1491,7 @@ pub struct SelectStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Set Operation node for postanalysis query trees"]
-#[doc = ""]
-#[doc = " After parse analysis, a SELECT with set operations is represented by a"]
-#[doc = " toplevel Query node containing the leaf SELECTs as subqueries in its"]
-#[doc = " range table.  Its setOperations field shows the tree of set operations,"]
-#[doc = " with leaf SelectStmt nodes replaced by RangeTblRef nodes, and internal"]
-#[doc = " nodes replaced by SetOperationStmt nodes.  Information about the output"]
-#[doc = " column types is added, too.  (Note that the child nodes do not necessarily"]
-#[doc = " produce these types directly, but we've checked that their output types"]
-#[doc = " can be coerced to the output column type.)  Also, if it's not UNION ALL,"]
-#[doc = " information about the types' sort/group semantics is provided in the form"]
-#[doc = " of a SortGroupClause list (same representation as, eg, DISTINCT)."]
-#[doc = " The resolved common column collations are provided too; but note that if"]
-#[doc = " it's not UNION ALL, it's okay for a column to not have a common collation,"]
-#[doc = " so a member of the colCollations list could be InvalidOid even though the"]
-#[doc = " column has a collatable type."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SetOperationStmt {
     pub op: crate::sys::SetOperation,
     pub all: bool,
@@ -2220,13 +1510,7 @@ pub struct SetOperationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Schema Statement"]
-#[doc = ""]
-#[doc = " NOTE: the schemaElts list contains raw parsetrees for component statements"]
-#[doc = " of the schema, such as CREATE TABLE, GRANT, etc.  These are analyzed and"]
-#[doc = " executed after the schema itself is created."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateSchemaStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schemaname: Option<String>,
@@ -2238,9 +1522,7 @@ pub struct CreateSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alter Table"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTableStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2251,7 +1533,7 @@ pub struct AlterTableStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ReplicaIdentityStmt {
     pub identity_type: char,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2259,7 +1541,7 @@ pub struct ReplicaIdentityStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTableCmd {
     pub subtype: crate::sys::AlterTableType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2274,21 +1556,14 @@ pub struct AlterTableCmd {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alter Collation"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterCollationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collname: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alter Domain"]
-#[doc = ""]
-#[doc = " The fields are used in different ways by the different variants of"]
-#[doc = " this command."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterDomainStmt {
     pub subtype: char,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2302,7 +1577,7 @@ pub struct AlterDomainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct GrantStmt {
     pub is_grant: bool,
     pub targtype: crate::sys::GrantTargetType,
@@ -2318,10 +1593,7 @@ pub struct GrantStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Note: ObjectWithArgs carries only the types of the input parameters of the"]
-#[doc = " function.  So it is sufficient to identify an existing function, but it"]
-#[doc = " is not enough info to define a function nor to call it."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ObjectWithArgs {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub objname: Option<Vec<Node>>,
@@ -2331,12 +1603,7 @@ pub struct ObjectWithArgs {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " An access privilege, with optional list of column names"]
-#[doc = " priv_name == NULL denotes ALL PRIVILEGES (only used with a column list)"]
-#[doc = " cols == NIL denotes \"all columns\""]
-#[doc = " Note that simple \"ALL PRIVILEGES\" is represented as a NIL list, not"]
-#[doc = " an AccessPriv with both fields null."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AccessPriv {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priv_name: Option<String>,
@@ -2345,14 +1612,7 @@ pub struct AccessPriv {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Grant/Revoke Role Statement"]
-#[doc = ""]
-#[doc = " Note: because of the parsing ambiguity with the GRANT <privileges>"]
-#[doc = " statement, granted_roles is a list of AccessPriv; the execution code"]
-#[doc = " should complain if any column lists appear.  grantee_roles is a list"]
-#[doc = " of role names, as Value strings."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct GrantRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub granted_roles: Option<Vec<Node>>,
@@ -2366,9 +1626,7 @@ pub struct GrantRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alter Default Privileges Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterDefaultPrivilegesStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
@@ -2377,13 +1635,7 @@ pub struct AlterDefaultPrivilegesStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Copy Statement"]
-#[doc = ""]
-#[doc = " We support \"COPY relation FROM file\", \"COPY relation TO file\", and"]
-#[doc = " \"COPY (query) TO file\".  In any given CopyStmt, exactly one of \"relation\""]
-#[doc = " and \"query\" must be nonNULL."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CopyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2402,7 +1654,7 @@ pub struct CopyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct VariableSetStmt {
     pub kind: crate::sys::VariableSetKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2413,24 +1665,14 @@ pub struct VariableSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Show Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct VariableShowStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Table Statement"]
-#[doc = ""]
-#[doc = " NOTE: in the raw gram.y output, ColumnDef and Constraint nodes are"]
-#[doc = " intermixed in tableElts, and constraints is NIL.  After parse analysis,"]
-#[doc = " tableElts contains just ColumnDefs, and constraints contains just"]
-#[doc = " Constraint nodes (in fact, only CONSTR_CHECK nodes, in the present"]
-#[doc = " implementation)."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2457,7 +1699,7 @@ pub struct CreateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Constraint {
     pub contype: crate::sys::ConstrType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2505,9 +1747,7 @@ pub struct Constraint {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create/Drop Table Space Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateTableSpaceStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -2520,7 +1760,7 @@ pub struct CreateTableSpaceStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropTableSpaceStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -2528,7 +1768,7 @@ pub struct DropTableSpaceStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTableSpaceOptionsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -2538,7 +1778,7 @@ pub struct AlterTableSpaceOptionsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTableMoveAllStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub orig_tablespacename: Option<String>,
@@ -2551,9 +1791,7 @@ pub struct AlterTableMoveAllStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create/Alter Extension Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateExtensionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -2563,8 +1801,7 @@ pub struct CreateExtensionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Only used for ALTER EXTENSION UPDATE; later might need an action field"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterExtensionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -2573,7 +1810,7 @@ pub struct AlterExtensionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterExtensionContentsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -2584,9 +1821,7 @@ pub struct AlterExtensionContentsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create/Alter FOREIGN DATA WRAPPER Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateFdwStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fdwname: Option<String>,
@@ -2597,7 +1832,7 @@ pub struct CreateFdwStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterFdwStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fdwname: Option<String>,
@@ -2608,9 +1843,7 @@ pub struct AlterFdwStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create/Alter FOREIGN SERVER Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateForeignServerStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servername: Option<String>,
@@ -2626,7 +1859,7 @@ pub struct CreateForeignServerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterForeignServerStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servername: Option<String>,
@@ -2638,9 +1871,7 @@ pub struct AlterForeignServerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create FOREIGN TABLE Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateForeignTableStmt {
     pub base: CreateStmt,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2650,9 +1881,7 @@ pub struct CreateForeignTableStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create/Drop USER MAPPING Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -2664,7 +1893,7 @@ pub struct CreateUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -2675,7 +1904,7 @@ pub struct AlterUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -2685,7 +1914,7 @@ pub struct DropUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ImportForeignSchemaStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub server_name: Option<String>,
@@ -2701,9 +1930,7 @@ pub struct ImportForeignSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create POLICY Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreatePolicyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub policy_name: Option<String>,
@@ -2721,9 +1948,7 @@ pub struct CreatePolicyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter POLICY Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterPolicyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub policy_name: Option<String>,
@@ -2738,9 +1963,7 @@ pub struct AlterPolicyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create ACCESS METHOD Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateAmStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amname: Option<String>,
@@ -2750,9 +1973,7 @@ pub struct CreateAmStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create TRIGGER Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -2779,9 +2000,7 @@ pub struct CreateTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create EVENT TRIGGER Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateEventTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -2794,9 +2013,7 @@ pub struct CreateEventTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter EVENT TRIGGER Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterEventTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -2804,9 +2021,7 @@ pub struct AlterEventTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create LANGUAGE Statements"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreatePLangStmt {
     pub replace: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2821,7 +2036,7 @@ pub struct CreatePLangStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateRoleStmt {
     pub stmt_type: crate::sys::RoleStmtType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2831,7 +2046,7 @@ pub struct CreateRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub role: Option<Box<RoleSpec>>,
@@ -2841,7 +2056,7 @@ pub struct AlterRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterRoleSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub role: Option<Box<RoleSpec>>,
@@ -2852,7 +2067,7 @@ pub struct AlterRoleSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -2860,9 +2075,7 @@ pub struct DropRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    {Create|Alter} SEQUENCE Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateSeqStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequence: Option<Box<RangeVar>>,
@@ -2874,7 +2087,7 @@ pub struct CreateSeqStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterSeqStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequence: Option<Box<RangeVar>>,
@@ -2885,9 +2098,7 @@ pub struct AlterSeqStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create {Aggregate|Operator|Type} Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DefineStmt {
     pub kind: crate::sys::ObjectType,
     pub oldstyle: bool,
@@ -2902,9 +2113,7 @@ pub struct DefineStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Domain Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateDomainStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub domainname: Option<Vec<Node>>,
@@ -2917,9 +2126,7 @@ pub struct CreateDomainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Operator Class Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateOpClassStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opclassname: Option<Vec<Node>>,
@@ -2935,7 +2142,7 @@ pub struct CreateOpClassStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateOpClassItem {
     pub itemtype: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2950,9 +2157,7 @@ pub struct CreateOpClassItem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Operator Family Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateOpFamilyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opfamilyname: Option<Vec<Node>>,
@@ -2961,9 +2166,7 @@ pub struct CreateOpFamilyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter Operator Family Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterOpFamilyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opfamilyname: Option<Vec<Node>>,
@@ -2975,9 +2178,7 @@ pub struct AlterOpFamilyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Drop Table|Sequence|View|Index|Type|Domain|Conversion|Schema Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub objects: Option<Vec<Node>>,
@@ -2988,9 +2189,7 @@ pub struct DropStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "          Truncate Table Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TruncateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relations: Option<Vec<Node>>,
@@ -2999,9 +2198,7 @@ pub struct TruncateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "          Comment On Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CommentStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3011,9 +2208,7 @@ pub struct CommentStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "          SECURITY LABEL Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct SecLabelStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3025,8 +2220,7 @@ pub struct SecLabelStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " parallel mode OK"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DeclareCursorStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portalname: Option<String>,
@@ -3036,16 +2230,14 @@ pub struct DeclareCursorStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Close Portal Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ClosePortalStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portalname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FetchStmt {
     pub direction: crate::sys::FetchDirection,
     pub howMany: i64,
@@ -3055,16 +2247,7 @@ pub struct FetchStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Index Statement"]
-#[doc = ""]
-#[doc = " This represents creation of an index and/or an associated constraint."]
-#[doc = " If isconstraint is true, we should create a pg_constraint entry along"]
-#[doc = " with the index.  But if indexOid isn't InvalidOid, we are not creating an"]
-#[doc = " index, just a UNIQUE/PKEY constraint using an existing index.  isconstraint"]
-#[doc = " must always be true in this case, and the fields describing the index"]
-#[doc = " properties are empty."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct IndexStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub idxname: Option<String>,
@@ -3088,6 +2271,8 @@ pub struct IndexStmt {
     pub idxcomment: Option<String>,
     pub indexOid: crate::sys::Oid,
     pub oldNode: crate::sys::Oid,
+    pub oldCreateSubid: crate::sys::SubTransactionId,
+    pub oldFirstRelfilenodeSubid: crate::sys::SubTransactionId,
     pub unique: bool,
     pub primary: bool,
     pub isconstraint: bool,
@@ -3100,9 +2285,7 @@ pub struct IndexStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Statistics Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateStatsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defnames: Option<Vec<Node>>,
@@ -3118,9 +2301,16 @@ pub struct CreateStatsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Function Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+pub struct AlterStatsStmt {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub defnames: Option<Vec<Node>>,
+    pub stxstattarget: i32,
+    pub missing_ok: bool,
+}
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateFunctionStmt {
     pub is_procedure: bool,
     pub replace: bool,
@@ -3135,7 +2325,7 @@ pub struct CreateFunctionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FunctionParameter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -3147,7 +2337,7 @@ pub struct FunctionParameter {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterFunctionStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3157,18 +2347,14 @@ pub struct AlterFunctionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    DO Statement"]
-#[doc = ""]
-#[doc = " DoStmt is the raw parser output, InlineCodeBlock is the executiontime API"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DoStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct InlineCodeBlock {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_text: Option<String>,
@@ -3178,24 +2364,20 @@ pub struct InlineCodeBlock {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    CALL statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CallStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funccall: Option<Box<FuncCall>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CallContext {
     pub atomic: bool,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter Object Rename Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RenameStmt {
     pub renameType: crate::sys::ObjectType,
     pub relationType: crate::sys::ObjectType,
@@ -3212,9 +2394,7 @@ pub struct RenameStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " ALTER object DEPENDS ON EXTENSION extname"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterObjectDependsStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3223,12 +2403,11 @@ pub struct AlterObjectDependsStmt {
     pub object: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<Box<Value>>,
+    pub remove: bool,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    ALTER object SET SCHEMA Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterObjectSchemaStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3241,9 +2420,7 @@ pub struct AlterObjectSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter Object Owner Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterOwnerStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3255,9 +2432,7 @@ pub struct AlterOwnerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter Operator Set Restrict, Join"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterOperatorStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opername: Option<Box<ObjectWithArgs>>,
@@ -3266,9 +2441,16 @@ pub struct AlterOperatorStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Rule Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+pub struct AlterTypeStmt {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub typeName: Option<Vec<Node>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<Node>>,
+}
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RuleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -3284,9 +2466,7 @@ pub struct RuleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Notify Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NotifyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
@@ -3295,25 +2475,21 @@ pub struct NotifyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Listen Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ListenStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Unlisten Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct UnlistenStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TransactionStmt {
     pub kind: crate::sys::TransactionStmtKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3326,9 +2502,7 @@ pub struct TransactionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Type Statement, composite types"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CompositeTypeStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typevar: Option<Box<RangeVar>>,
@@ -3337,9 +2511,7 @@ pub struct CompositeTypeStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Type Statement, enum types"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateEnumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -3348,9 +2520,7 @@ pub struct CreateEnumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Create Type Statement, range types"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateRangeStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -3359,9 +2529,7 @@ pub struct CreateRangeStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter Type Statement, enum types"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterEnumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -3376,7 +2544,7 @@ pub struct AlterEnumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ViewStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub view: Option<Box<RangeVar>>,
@@ -3391,18 +2559,14 @@ pub struct ViewStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Load Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct LoadStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Createdb Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreatedbStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -3411,9 +2575,7 @@ pub struct CreatedbStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Alter Database"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterDatabaseStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -3422,7 +2584,7 @@ pub struct AlterDatabaseStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterDatabaseSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -3431,26 +2593,24 @@ pub struct AlterDatabaseSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Dropdb Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropdbStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
     pub missing_ok: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Alter System Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterSystemStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setstmt: Option<Box<VariableSetStmt>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ClusterStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -3460,12 +2620,7 @@ pub struct ClusterStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Vacuum and Analyze Statements"]
-#[doc = ""]
-#[doc = " Even though these are nominally two statements, it's convenient to use"]
-#[doc = " just one node type for both."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct VacuumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
@@ -3475,12 +2630,7 @@ pub struct VacuumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Info about a single target table of VACUUM/ANALYZE."]
-#[doc = ""]
-#[doc = " If the OID field is set, it always identifies the table to process."]
-#[doc = " Then the relation field can be NULL; if it isn't, it's used only to report"]
-#[doc = " failure to open/lock the relation."]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct VacuumRelation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -3490,13 +2640,7 @@ pub struct VacuumRelation {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    Explain Statement"]
-#[doc = ""]
-#[doc = " The \"query\" field is initially a raw parse tree, and is converted to a"]
-#[doc = " Query node during parse analysis.  Note that rewriting and planning"]
-#[doc = " of the query are always postponed until execution."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ExplainStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<Box<Node>>,
@@ -3505,18 +2649,7 @@ pub struct ExplainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    CREATE TABLE AS Statement (a/k/a SELECT INTO)"]
-#[doc = ""]
-#[doc = " A query written as CREATE TABLE AS will produce this node type natively."]
-#[doc = " A query written as SELECT ... INTO will be transformed to this form during"]
-#[doc = " parse analysis."]
-#[doc = " A query written as CREATE MATERIALIZED view will produce this node type,"]
-#[doc = " during parse analysis, since it needs all the same data."]
-#[doc = ""]
-#[doc = " The \"query\" field is handled similarly to EXPLAIN, though note that it"]
-#[doc = " can be a SELECT or an EXECUTE, but not other DML statements."]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateTableAsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<Box<Node>>,
@@ -3528,9 +2661,7 @@ pub struct CreateTableAsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    REFRESH MATERIALIZED VIEW Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RefreshMatViewStmt {
     pub concurrent: bool,
     pub skipData: bool,
@@ -3539,21 +2670,17 @@ pub struct RefreshMatViewStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " Checkpoint Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CheckPointStmt {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DiscardStmt {
     pub target: crate::sys::DiscardMode,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    LOCK Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct LockStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relations: Option<Vec<Node>>,
@@ -3562,9 +2689,7 @@ pub struct LockStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    SET CONSTRAINTS Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ConstraintsSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraints: Option<Vec<Node>>,
@@ -3572,7 +2697,7 @@ pub struct ConstraintsSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ReindexStmt {
     pub kind: crate::sys::ReindexObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3584,9 +2709,7 @@ pub struct ReindexStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    CREATE CONVERSION Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateConversionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversion_name: Option<Vec<Node>>,
@@ -3600,9 +2723,7 @@ pub struct CreateConversionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CREATE CAST Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateCastStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sourcetype: Option<Box<TypeName>>,
@@ -3615,9 +2736,7 @@ pub struct CreateCastStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " CREATE TRANSFORM Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateTransformStmt {
     pub replace: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3631,9 +2750,7 @@ pub struct CreateTransformStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    PREPARE Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct PrepareStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -3644,9 +2761,7 @@ pub struct PrepareStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    EXECUTE Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ExecuteStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -3655,17 +2770,14 @@ pub struct ExecuteStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    DEALLOCATE Statement"]
-#[doc = ""]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DeallocateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    DROP OWNED statement"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropOwnedStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -3673,8 +2785,7 @@ pub struct DropOwnedStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = "    REASSIGN OWNED statement"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ReassignOwnedStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -3683,8 +2794,7 @@ pub struct ReassignOwnedStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
-#[doc = " TS Dictionary stmts: DefineStmt, RenameStmt and DropStmt are default"]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTSDictionaryStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dictname: Option<Vec<Node>>,
@@ -3693,7 +2803,7 @@ pub struct AlterTSDictionaryStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterTSConfigurationStmt {
     pub kind: crate::sys::AlterTSConfigType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3708,7 +2818,7 @@ pub struct AlterTSConfigurationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreatePublicationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pubname: Option<String>,
@@ -3720,7 +2830,7 @@ pub struct CreatePublicationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterPublicationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pubname: Option<String>,
@@ -3733,7 +2843,7 @@ pub struct AlterPublicationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CreateSubscriptionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subname: Option<String>,
@@ -3746,7 +2856,7 @@ pub struct CreateSubscriptionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct AlterSubscriptionStmt {
     pub kind: crate::sys::AlterSubscriptionType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3760,7 +2870,7 @@ pub struct AlterSubscriptionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct DropSubscriptionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subname: Option<String>,
@@ -3894,6 +3004,10 @@ impl crate::convert::ConvertNode for crate::sys::Node {
                 let ptr = self as *const _ as *const crate::sys::AlterSeqStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
             }
+            crate::sys::NodeTag::T_AlterStatsStmt => {
+                let ptr = self as *const _ as *const crate::sys::AlterStatsStmt;
+                unsafe { ptr.as_ref().unwrap().convert() }
+            }
             crate::sys::NodeTag::T_AlterSubscriptionStmt => {
                 let ptr = self as *const _ as *const crate::sys::AlterSubscriptionStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
@@ -3924,6 +3038,10 @@ impl crate::convert::ConvertNode for crate::sys::Node {
             }
             crate::sys::NodeTag::T_AlterTableStmt => {
                 let ptr = self as *const _ as *const crate::sys::AlterTableStmt;
+                unsafe { ptr.as_ref().unwrap().convert() }
+            }
+            crate::sys::NodeTag::T_AlterTypeStmt => {
+                let ptr = self as *const _ as *const crate::sys::AlterTypeStmt;
                 unsafe { ptr.as_ref().unwrap().convert() }
             }
             crate::sys::NodeTag::T_AlterUserMappingStmt => {
@@ -4880,8 +3998,8 @@ impl crate::convert::ConvertNode for crate::sys::Var {
             vartypmod: self.vartypmod as i32,
             varcollid: self.varcollid as crate::sys::Oid,
             varlevelsup: self.varlevelsup as crate::sys::Index,
-            varnoold: self.varnoold as crate::sys::Index,
-            varoattno: self.varoattno as crate::sys::AttrNumber,
+            varnosyn: self.varnosyn as crate::sys::Index,
+            varattnosyn: self.varattnosyn as crate::sys::AttrNumber,
             location: self.location as i32,
         })
     }
@@ -6653,6 +5771,14 @@ impl crate::convert::ConvertNode for crate::sys::IndexElem {
                     _ => panic!("not a List!"),
                 }
             },
+            opclassopts: if self.opclassopts.is_null() {
+                None
+            } else {
+                match unsafe { self.opclassopts.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
             ordering: self.ordering as crate::sys::SortByDir,
             nulls_ordering: self.nulls_ordering as crate::sys::SortByNulls,
         })
@@ -7494,6 +6620,7 @@ impl crate::convert::ConvertNode for crate::sys::SelectStmt {
                     self.limitCount.as_ref().unwrap().convert()
                 }))
             },
+            limitOption: self.limitOption as crate::sys::LimitOption,
             lockingClause: if self.lockingClause.is_null() {
                 None
             } else {
@@ -9728,6 +8855,8 @@ impl crate::convert::ConvertNode for crate::sys::IndexStmt {
             },
             indexOid: self.indexOid as crate::sys::Oid,
             oldNode: self.oldNode as crate::sys::Oid,
+            oldCreateSubid: self.oldCreateSubid as crate::sys::SubTransactionId,
+            oldFirstRelfilenodeSubid: self.oldFirstRelfilenodeSubid as crate::sys::SubTransactionId,
             unique: self.unique as bool,
             primary: self.primary as bool,
             isconstraint: self.isconstraint as bool,
@@ -9786,6 +8915,22 @@ impl crate::convert::ConvertNode for crate::sys::CreateStatsStmt {
                 })
             },
             if_not_exists: self.if_not_exists as bool,
+        })
+    }
+}
+impl crate::convert::ConvertNode for crate::sys::AlterStatsStmt {
+    fn convert(&self) -> crate::nodes::Node {
+        Node::AlterStatsStmt(AlterStatsStmt {
+            defnames: if self.defnames.is_null() {
+                None
+            } else {
+                match unsafe { self.defnames.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
+            stxstattarget: self.stxstattarget as i32,
+            missing_ok: self.missing_ok as bool,
         })
     }
 }
@@ -10034,6 +9179,7 @@ impl crate::convert::ConvertNode for crate::sys::AlterObjectDependsStmt {
                     ),
                 }
             },
+            remove: self.remove as bool,
         })
     }
 }
@@ -10121,6 +9267,28 @@ impl crate::convert::ConvertNode for crate::sys::AlterOperatorStmt {
                         stringify!(opername),
                         stringify!(ObjectWithArgs)
                     ),
+                }
+            },
+            options: if self.options.is_null() {
+                None
+            } else {
+                match unsafe { self.options.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
+        })
+    }
+}
+impl crate::convert::ConvertNode for crate::sys::AlterTypeStmt {
+    fn convert(&self) -> crate::nodes::Node {
+        Node::AlterTypeStmt(AlterTypeStmt {
+            typeName: if self.typeName.is_null() {
+                None
+            } else {
+                match unsafe { self.typeName.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
                 }
             },
             options: if self.options.is_null() {
@@ -10537,6 +9705,14 @@ impl crate::convert::ConvertNode for crate::sys::DropdbStmt {
                 })
             },
             missing_ok: self.missing_ok as bool,
+            options: if self.options.is_null() {
+                None
+            } else {
+                match unsafe { self.options.as_ref().unwrap().convert() } {
+                    crate::nodes::Node::List(list) => Some(list),
+                    _ => panic!("not a List!"),
+                }
+            },
         })
     }
 }
