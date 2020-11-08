@@ -15,19 +15,7 @@
 */
 //! Provides a safe function (`parse_query()`) that parses SQL statements.
 use crate::convert::ConvertNode;
-use crate::PgParserError;
-use lazy_static::lazy_static;
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref PARSER_LOCK: Mutex<()> = Mutex::new(());
-    static ref ONETIME_SETUP: () = {
-        unsafe {
-            crate::sys::MemoryContextInit();
-            // crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
-        }
-    };
-}
+use crate::{access_lock, PgParserError};
 
 /// Parse a string of delimited SQL statements.
 ///
@@ -170,10 +158,7 @@ pub fn parse_query(statements: &str) -> std::result::Result<Vec<crate::Node>, Pg
     }
 
     // all access to the parser must be synchronized
-    let _mutex = PARSER_LOCK.lock();
-
-    // make sure Postgres' MemoryContext system is initialized
-    let _ = *ONETIME_SETUP;
+    let _mutex = access_lock();
 
     // create and switch to a new memory context so that we can free it without
     // damaging anything that might be allocated by Postgres in Postgres' TopMemoryContext,

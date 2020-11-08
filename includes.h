@@ -5,6 +5,7 @@
 #include "nodes/parsenodes.h"
 #include "nodes/pg_list.h"
 #include "parser/parser.h"
+#include "utils/builtins.h"
 #include "utils/elog.h"
 #include "utils/memutils.h"
 #include "utils/palloc.h"

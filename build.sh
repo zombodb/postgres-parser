@@ -104,6 +104,8 @@ opt -O3 "${POSTGRES_LL}" -o "${POSTGRES_BC}" || exit 1
 # need in order to use Postgres' parser
 llvm-lto "${POSTGRES_BC}" \
   --exported-symbol=_raw_parser --exported-symbol=raw_parser \
+  --exported-symbol=_quote_identifier --exported-symbol=quote_identifier \
+  --exported-symbol=_pfree --exported-symbol=pfree \
   --exported-symbol=_MemoryContextInit --exported-symbol=MemoryContextInit \
   --exported-symbol=_CopyErrorData --exported-symbol=CopyErrorData \
   --exported-symbol=_FreeErrorData --exported-symbol=FreeErrorData \

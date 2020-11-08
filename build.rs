@@ -78,6 +78,8 @@ fn bindgen(manifest_dir: &PathBuf, install_dir: PathBuf) {
         .whitelist_function("MemoryContextReset")
         .whitelist_function("AllocSetContextCreateInternal")
         .whitelist_function("raw_parser")
+        .whitelist_function("quote_identifier")
+        .whitelist_function("pfree")
         .derive_debug(true)
         .derive_copy(false)
         .derive_default(true)

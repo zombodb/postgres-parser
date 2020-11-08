@@ -566,6 +566,9 @@ impl Default for MemoryContextCallback {
 extern "C" {
     pub static mut CurrentMemoryContext: MemoryContext;
 }
+extern "C" {
+    pub fn pfree(pointer: *mut ::std::os::raw::c_void);
+}
 pub type Datum = usize;
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
@@ -22945,6 +22948,9 @@ impl Default for DropSubscriptionStmt {
 }
 extern "C" {
     pub fn raw_parser(str_: *const ::std::os::raw::c_char) -> *mut List;
+}
+extern "C" {
+    pub fn quote_identifier(ident: *const ::std::os::raw::c_char) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
     pub static mut TopMemoryContext: MemoryContext;

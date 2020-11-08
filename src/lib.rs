@@ -170,9 +170,30 @@ mod scanner;
 pub mod nodes;
 pub mod sys;
 
+use lazy_static::lazy_static;
 pub use nodes::Node;
 pub use parser::*;
 pub use scanner::*;
+use std::sync::{LockResult, Mutex, MutexGuard};
+
+lazy_static! {
+    static ref PARSER_LOCK: Mutex<()> = Mutex::new(());
+    static ref ONETIME_SETUP: () = {
+        unsafe {
+            crate::sys::MemoryContextInit();
+            // crate::sys::SetDatabaseEncoding(crate::sys::pg_enc::PG_UTF8 as i32);
+        }
+    };
+}
+
+/// If you intend to use any functions from the unsafe `crate::sys::` module, they
+/// must be used while the returned `LockResult` is held.  Failure to do so will
+/// lead to undefined behavior with those functions.
+pub fn access_lock() -> LockResult<MutexGuard<'static, ()>> {
+    let result = PARSER_LOCK.lock();
+    *ONETIME_SETUP;
+    result
+}
 
 /// Represents various errors that can occur while parsing a SQL statement.
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
@@ -233,5 +254,47 @@ pub fn join_name_list(list_of_names: &crate::Node) -> Result<String, PgParserErr
         }
 
         _ => Err(PgParserError::NotAList),
+    }
+}
+
+/// A safe wrapper around Postgres' internal `quote_identifier()` function.
+///
+/// The function signature is purposely `&Option<String>` as that's what's used
+/// throughout the various nodes in `crate::nodes::*`.
+///
+/// Note that `quote_identifier` only quotes identifiers that require quotes.
+///
+/// If the `ident` argument is `None`, this function will return an empty String.  Likewise,
+/// if the `ident` argument is `Some`, but the internal String is empty, this function will return
+/// an empty String
+pub fn quote_identifier(ident: &Option<String>) -> String {
+    match ident {
+        Some(ident) if !ident.is_empty() => {
+            let cstr =
+                std::ffi::CString::new(ident.as_str()).expect("identifier is not a valid CString");
+            let cstr_ptr = cstr.as_ptr();
+
+            let _mutex = access_lock();
+            let quoted = unsafe { crate::sys::quote_identifier(cstr_ptr) };
+            if quoted.is_null() {
+                panic!("quoted identifier was null");
+            } else {
+                unsafe {
+                    let quoted_identifier = std::ffi::CStr::from_ptr(quoted)
+                        .to_str()
+                        .expect("invalid quoted identifier")
+                        .to_string();
+
+                    // free postgres-allocated memory if Postgres needed to allocate
+                    if quoted != cstr_ptr {
+                        crate::sys::pfree(quoted as *mut std::os::raw::c_void);
+                    }
+
+                    return quoted_identifier;
+                }
+            }
+        }
+
+        _ => String::new(),
     }
 }
