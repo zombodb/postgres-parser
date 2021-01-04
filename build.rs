@@ -273,7 +273,9 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
                         .iter()
                         .find(|p| match p.ident.as_ref() {
                             Some(ident) => {
-                                "type_" == ident.to_string() || "xpr" == ident.to_string()
+                                "type_" == ident.to_string()
+                                    || "xpr" == ident.to_string()
+                                    || "location" == ident.to_string()
                             }
                             None => false,
                         })
@@ -431,6 +433,8 @@ fn generate_single_struct(
             continue;
         } else if "xpr" == namestr {
             continue;
+        } else if "location" == namestr {
+            continue;
         } else if "CallStmt" == struct_name.to_string() && "funcexpr" == namestr {
             // this comes from the "CallStmt" struct
             // not sure how else to handle this case, as
@@ -547,6 +551,8 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
         if "type_" == namestr {
             continue;
         } else if "xpr" == namestr {
+            continue;
+        } else if "location" == namestr {
             continue;
         } else if "CallStmt" == struct_name && "funcexpr" == namestr {
             continue;

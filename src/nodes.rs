@@ -249,7 +249,6 @@ pub struct RangeVar {
     pub relpersistence: char,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub alias: Option<Box<Alias>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -276,7 +275,6 @@ pub struct TableFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coldefexprs: Option<Vec<Node>>,
     pub ordinalitycol: i32,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -313,7 +311,6 @@ pub struct Var {
     pub varlevelsup: crate::sys::Index,
     pub varnosyn: crate::sys::Index,
     pub varattnosyn: crate::sys::AttrNumber,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -326,7 +323,6 @@ pub struct Const {
     pub constvalue: crate::sys::Datum,
     pub constisnull: bool,
     pub constbyval: bool,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -337,7 +333,6 @@ pub struct Param {
     pub paramtype: crate::sys::Oid,
     pub paramtypmod: i32,
     pub paramcollid: crate::sys::Oid,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -365,7 +360,6 @@ pub struct Aggref {
     pub aggkind: char,
     pub agglevelsup: crate::sys::Index,
     pub aggsplit: crate::sys::AggSplit,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -378,7 +372,6 @@ pub struct GroupingFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cols: Option<Vec<Node>>,
     pub agglevelsup: crate::sys::Index,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -395,7 +388,6 @@ pub struct WindowFunc {
     pub winref: crate::sys::Index,
     pub winstar: bool,
     pub winagg: bool,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -427,7 +419,6 @@ pub struct FuncExpr {
     pub inputcollid: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -438,7 +429,6 @@ pub struct NamedArgExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub argnumber: i32,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -452,7 +442,6 @@ pub struct OpExpr {
     pub inputcollid: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -464,7 +453,6 @@ pub struct ScalarArrayOpExpr {
     pub inputcollid: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -473,7 +461,6 @@ pub struct BoolExpr {
     pub boolop: crate::sys::BoolExprType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -487,7 +474,6 @@ pub struct SubLink {
     pub operName: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subselect: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -529,7 +515,6 @@ pub struct RelabelType {
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
     pub relabelformat: crate::sys::CoercionForm,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -540,7 +525,6 @@ pub struct CoerceViaIO {
     pub resulttype: crate::sys::Oid,
     pub resultcollid: crate::sys::Oid,
     pub coerceformat: crate::sys::CoercionForm,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -554,7 +538,6 @@ pub struct ArrayCoerceExpr {
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
     pub coerceformat: crate::sys::CoercionForm,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -564,7 +547,6 @@ pub struct ConvertRowtypeExpr {
     pub arg: Option<Box<Expr>>,
     pub resulttype: crate::sys::Oid,
     pub convertformat: crate::sys::CoercionForm,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -573,7 +555,6 @@ pub struct CollateExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
     pub collOid: crate::sys::Oid,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -587,7 +568,6 @@ pub struct CaseExpr {
     pub args: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defresult: Option<Box<Expr>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -597,7 +577,6 @@ pub struct CaseWhen {
     pub expr: Option<Box<Expr>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub result: Option<Box<Expr>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -617,7 +596,6 @@ pub struct ArrayExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub elements: Option<Vec<Node>>,
     pub multidims: bool,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -629,7 +607,6 @@ pub struct RowExpr {
     pub row_format: crate::sys::CoercionForm,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colnames: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -655,7 +632,6 @@ pub struct CoalesceExpr {
     pub coalescecollid: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -667,7 +643,6 @@ pub struct MinMaxExpr {
     pub op: crate::sys::MinMaxOp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -675,7 +650,6 @@ pub struct MinMaxExpr {
 pub struct SQLValueFunction {
     pub op: crate::sys::SQLValueFunctionOp,
     pub typmod: i32,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -692,7 +666,6 @@ pub struct XmlExpr {
     pub args: Option<Vec<Node>>,
     pub xmloption: crate::sys::XmlOptionType,
     pub typmod: i32,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -702,7 +675,6 @@ pub struct NullTest {
     pub arg: Option<Box<Expr>>,
     pub nulltesttype: crate::sys::NullTestType,
     pub argisrow: bool,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -711,7 +683,6 @@ pub struct BooleanTest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Expr>>,
     pub booltesttype: crate::sys::BoolTestType,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -723,7 +694,6 @@ pub struct CoerceToDomain {
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
     pub coercionformat: crate::sys::CoercionForm,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -732,7 +702,6 @@ pub struct CoerceToDomainValue {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
     pub collation: crate::sys::Oid,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -741,7 +710,6 @@ pub struct SetToDefault {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
     pub collation: crate::sys::Oid,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -860,7 +828,6 @@ pub struct TypeName {
     pub typemod: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arrayBounds: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -868,14 +835,12 @@ pub struct TypeName {
 pub struct ColumnRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ParamRef {
     pub number: i32,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -888,14 +853,12 @@ pub struct A_Expr {
     pub lexpr: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rexpr: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct A_Const {
     pub val: Value,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -905,7 +868,6 @@ pub struct TypeCast {
     pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Box<TypeName>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -915,7 +877,6 @@ pub struct CollateClause {
     pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collname: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -924,7 +885,6 @@ pub struct RoleSpec {
     pub roletype: crate::sys::RoleSpecType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rolename: Option<String>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -944,7 +904,6 @@ pub struct FuncCall {
     pub func_variadic: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub over: Option<Box<WindowDef>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -975,7 +934,6 @@ pub struct A_Indirection {
 pub struct A_ArrayExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub elements: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -987,7 +945,6 @@ pub struct ResTarget {
     pub indirection: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub val: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1008,7 +965,6 @@ pub struct SortBy {
     pub sortby_nulls: crate::sys::SortByNulls,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub useOp: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1027,7 +983,6 @@ pub struct WindowDef {
     pub startOffset: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub endOffset: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1068,7 +1023,6 @@ pub struct RangeTableFunc {
     pub columns: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub alias: Option<Box<Alias>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1084,7 +1038,6 @@ pub struct RangeTableFuncCol {
     pub colexpr: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coldefexpr: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1098,7 +1051,6 @@ pub struct RangeTableSample {
     pub args: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repeatable: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1128,7 +1080,6 @@ pub struct ColumnDef {
     pub constraints: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fdwoptions: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1168,7 +1119,6 @@ pub struct DefElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
     pub defaction: crate::sys::DefElemAction,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1188,7 +1138,6 @@ pub struct XmlSerialize {
     pub expr: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Box<TypeName>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1202,7 +1151,6 @@ pub struct PartitionElem {
     pub collation: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opclass: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1212,7 +1160,6 @@ pub struct PartitionSpec {
     pub strategy: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub partParams: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1228,7 +1175,6 @@ pub struct PartitionBoundSpec {
     pub lowerdatums: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub upperdatums: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1237,7 +1183,6 @@ pub struct PartitionRangeDatum {
     pub kind: crate::sys::PartitionRangeDatumKind,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1288,7 +1233,6 @@ pub struct GroupingSet {
     pub kind: crate::sys::GroupingSetKind,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<Vec<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1331,7 +1275,6 @@ pub struct WithClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctes: Option<Vec<Node>>,
     pub recursive: bool,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1343,7 +1286,6 @@ pub struct InferClause {
     pub whereClause: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conname: Option<String>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1356,7 +1298,6 @@ pub struct OnConflictClause {
     pub targetList: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub whereClause: Option<Box<Node>>,
-    pub location: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -1369,7 +1310,6 @@ pub struct CommonTableExpr {
     pub ctematerialized: crate::sys::CTEMaterialize,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctequery: Option<Box<Node>>,
-    pub location: i32,
     pub cterecursive: bool,
     pub cterefcount: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1706,7 +1646,6 @@ pub struct Constraint {
     pub conname: Option<String>,
     pub deferrable: bool,
     pub initdeferred: bool,
-    pub location: i32,
     pub is_no_inherit: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub raw_expr: Option<Box<Node>>,
@@ -1753,8 +1692,6 @@ pub struct CreateTableSpaceStmt {
     pub tablespacename: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<Box<RoleSpec>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub location: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
 }
@@ -3831,7 +3768,6 @@ impl crate::convert::ConvertNode for crate::sys::RangeVar {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -3917,7 +3853,6 @@ impl crate::convert::ConvertNode for crate::sys::TableFunc {
                 }
             },
             ordinalitycol: self.ordinalitycol as i32,
-            location: self.location as i32,
         })
     }
 }
@@ -4000,7 +3935,6 @@ impl crate::convert::ConvertNode for crate::sys::Var {
             varlevelsup: self.varlevelsup as crate::sys::Index,
             varnosyn: self.varnosyn as crate::sys::Index,
             varattnosyn: self.varattnosyn as crate::sys::AttrNumber,
-            location: self.location as i32,
         })
     }
 }
@@ -4014,7 +3948,6 @@ impl crate::convert::ConvertNode for crate::sys::Const {
             constvalue: self.constvalue as crate::sys::Datum,
             constisnull: self.constisnull as bool,
             constbyval: self.constbyval as bool,
-            location: self.location as i32,
         })
     }
 }
@@ -4026,7 +3959,6 @@ impl crate::convert::ConvertNode for crate::sys::Param {
             paramtype: self.paramtype as crate::sys::Oid,
             paramtypmod: self.paramtypmod as i32,
             paramcollid: self.paramcollid as crate::sys::Oid,
-            location: self.location as i32,
         })
     }
 }
@@ -4095,7 +4027,6 @@ impl crate::convert::ConvertNode for crate::sys::Aggref {
             aggkind: self.aggkind as u8 as char,
             agglevelsup: self.agglevelsup as crate::sys::Index,
             aggsplit: self.aggsplit as crate::sys::AggSplit,
-            location: self.location as i32,
         })
     }
 }
@@ -4127,7 +4058,6 @@ impl crate::convert::ConvertNode for crate::sys::GroupingFunc {
                 }
             },
             agglevelsup: self.agglevelsup as crate::sys::Index,
-            location: self.location as i32,
         })
     }
 }
@@ -4161,7 +4091,6 @@ impl crate::convert::ConvertNode for crate::sys::WindowFunc {
             winref: self.winref as crate::sys::Index,
             winstar: self.winstar as bool,
             winagg: self.winagg as bool,
-            location: self.location as i32,
         })
     }
 }
@@ -4233,7 +4162,6 @@ impl crate::convert::ConvertNode for crate::sys::FuncExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4259,7 +4187,6 @@ impl crate::convert::ConvertNode for crate::sys::NamedArgExpr {
                 })
             },
             argnumber: self.argnumber as i32,
-            location: self.location as i32,
         })
     }
 }
@@ -4280,7 +4207,6 @@ impl crate::convert::ConvertNode for crate::sys::OpExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4299,7 +4225,6 @@ impl crate::convert::ConvertNode for crate::sys::ScalarArrayOpExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4315,7 +4240,6 @@ impl crate::convert::ConvertNode for crate::sys::BoolExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4346,7 +4270,6 @@ impl crate::convert::ConvertNode for crate::sys::SubLink {
                     self.subselect.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4428,7 +4351,6 @@ impl crate::convert::ConvertNode for crate::sys::RelabelType {
             resulttypmod: self.resulttypmod as i32,
             resultcollid: self.resultcollid as crate::sys::Oid,
             relabelformat: self.relabelformat as crate::sys::CoercionForm,
-            location: self.location as i32,
         })
     }
 }
@@ -4446,7 +4368,6 @@ impl crate::convert::ConvertNode for crate::sys::CoerceViaIO {
             resulttype: self.resulttype as crate::sys::Oid,
             resultcollid: self.resultcollid as crate::sys::Oid,
             coerceformat: self.coerceformat as crate::sys::CoercionForm,
-            location: self.location as i32,
         })
     }
 }
@@ -4477,7 +4398,6 @@ impl crate::convert::ConvertNode for crate::sys::ArrayCoerceExpr {
             resulttypmod: self.resulttypmod as i32,
             resultcollid: self.resultcollid as crate::sys::Oid,
             coerceformat: self.coerceformat as crate::sys::CoercionForm,
-            location: self.location as i32,
         })
     }
 }
@@ -4494,7 +4414,6 @@ impl crate::convert::ConvertNode for crate::sys::ConvertRowtypeExpr {
             },
             resulttype: self.resulttype as crate::sys::Oid,
             convertformat: self.convertformat as crate::sys::CoercionForm,
-            location: self.location as i32,
         })
     }
 }
@@ -4510,7 +4429,6 @@ impl crate::convert::ConvertNode for crate::sys::CollateExpr {
                 }
             },
             collOid: self.collOid as crate::sys::Oid,
-            location: self.location as i32,
         })
     }
 }
@@ -4547,7 +4465,6 @@ impl crate::convert::ConvertNode for crate::sys::CaseExpr {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4578,7 +4495,6 @@ impl crate::convert::ConvertNode for crate::sys::CaseWhen {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4606,7 +4522,6 @@ impl crate::convert::ConvertNode for crate::sys::ArrayExpr {
                 }
             },
             multidims: self.multidims as bool,
-            location: self.location as i32,
         })
     }
 }
@@ -4631,7 +4546,6 @@ impl crate::convert::ConvertNode for crate::sys::RowExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4695,7 +4609,6 @@ impl crate::convert::ConvertNode for crate::sys::CoalesceExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4714,7 +4627,6 @@ impl crate::convert::ConvertNode for crate::sys::MinMaxExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -4723,7 +4635,6 @@ impl crate::convert::ConvertNode for crate::sys::SQLValueFunction {
         Node::SQLValueFunction(SQLValueFunction {
             op: self.op as crate::sys::SQLValueFunctionOp,
             typmod: self.typmod as i32,
-            location: self.location as i32,
         })
     }
 }
@@ -4767,7 +4678,6 @@ impl crate::convert::ConvertNode for crate::sys::XmlExpr {
             },
             xmloption: self.xmloption as crate::sys::XmlOptionType,
             typmod: self.typmod as i32,
-            location: self.location as i32,
         })
     }
 }
@@ -4784,7 +4694,6 @@ impl crate::convert::ConvertNode for crate::sys::NullTest {
             },
             nulltesttype: self.nulltesttype as crate::sys::NullTestType,
             argisrow: self.argisrow as bool,
-            location: self.location as i32,
         })
     }
 }
@@ -4800,7 +4709,6 @@ impl crate::convert::ConvertNode for crate::sys::BooleanTest {
                 }
             },
             booltesttype: self.booltesttype as crate::sys::BoolTestType,
-            location: self.location as i32,
         })
     }
 }
@@ -4819,7 +4727,6 @@ impl crate::convert::ConvertNode for crate::sys::CoerceToDomain {
             resulttypmod: self.resulttypmod as i32,
             resultcollid: self.resultcollid as crate::sys::Oid,
             coercionformat: self.coercionformat as crate::sys::CoercionForm,
-            location: self.location as i32,
         })
     }
 }
@@ -4829,7 +4736,6 @@ impl crate::convert::ConvertNode for crate::sys::CoerceToDomainValue {
             typeId: self.typeId as crate::sys::Oid,
             typeMod: self.typeMod as i32,
             collation: self.collation as crate::sys::Oid,
-            location: self.location as i32,
         })
     }
 }
@@ -4839,7 +4745,6 @@ impl crate::convert::ConvertNode for crate::sys::SetToDefault {
             typeId: self.typeId as crate::sys::Oid,
             typeMod: self.typeMod as i32,
             collation: self.collation as crate::sys::Oid,
-            location: self.location as i32,
         })
     }
 }
@@ -5063,7 +4968,6 @@ impl crate::convert::ConvertNode for crate::sys::TypeName {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5078,7 +4982,6 @@ impl crate::convert::ConvertNode for crate::sys::ColumnRef {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5086,7 +4989,6 @@ impl crate::convert::ConvertNode for crate::sys::ParamRef {
     fn convert(&self) -> crate::nodes::Node {
         Node::ParamRef(ParamRef {
             number: self.number as i32,
-            location: self.location as i32,
         })
     }
 }
@@ -5112,7 +5014,6 @@ impl crate::convert::ConvertNode for crate::sys::A_Expr {
             } else {
                 Some(Box::new(unsafe { self.rexpr.as_ref().unwrap().convert() }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5123,7 +5024,6 @@ impl crate::convert::ConvertNode for crate::sys::A_Const {
                 crate::nodes::Node::Value(value) => value,
                 _ => panic!("Value didn't convert to Value"),
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5147,7 +5047,6 @@ impl crate::convert::ConvertNode for crate::sys::TypeCast {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5167,7 +5066,6 @@ impl crate::convert::ConvertNode for crate::sys::CollateClause {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5185,7 +5083,6 @@ impl crate::convert::ConvertNode for crate::sys::RoleSpec {
                         .to_owned()
                 })
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5239,7 +5136,6 @@ impl crate::convert::ConvertNode for crate::sys::FuncCall {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5295,7 +5191,6 @@ impl crate::convert::ConvertNode for crate::sys::A_ArrayExpr {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5325,7 +5220,6 @@ impl crate::convert::ConvertNode for crate::sys::ResTarget {
             } else {
                 Some(Box::new(unsafe { self.val.as_ref().unwrap().convert() }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5360,7 +5254,6 @@ impl crate::convert::ConvertNode for crate::sys::SortBy {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5418,7 +5311,6 @@ impl crate::convert::ConvertNode for crate::sys::WindowDef {
                     self.endOffset.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5531,7 +5423,6 @@ impl crate::convert::ConvertNode for crate::sys::RangeTableFunc {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5576,7 +5467,6 @@ impl crate::convert::ConvertNode for crate::sys::RangeTableFuncCol {
                     self.coldefexpr.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5613,7 +5503,6 @@ impl crate::convert::ConvertNode for crate::sys::RangeTableSample {
                     self.repeatable.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5704,7 +5593,6 @@ impl crate::convert::ConvertNode for crate::sys::ColumnDef {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5813,7 +5701,6 @@ impl crate::convert::ConvertNode for crate::sys::DefElem {
                 Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             defaction: self.defaction as crate::sys::DefElemAction,
-            location: self.location as i32,
         })
     }
 }
@@ -5854,7 +5741,6 @@ impl crate::convert::ConvertNode for crate::sys::XmlSerialize {
                     ),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5892,7 +5778,6 @@ impl crate::convert::ConvertNode for crate::sys::PartitionElem {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5917,7 +5802,6 @@ impl crate::convert::ConvertNode for crate::sys::PartitionSpec {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5952,7 +5836,6 @@ impl crate::convert::ConvertNode for crate::sys::PartitionBoundSpec {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -5965,7 +5848,6 @@ impl crate::convert::ConvertNode for crate::sys::PartitionRangeDatum {
             } else {
                 Some(Box::new(unsafe { self.value.as_ref().unwrap().convert() }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -6082,7 +5964,6 @@ impl crate::convert::ConvertNode for crate::sys::GroupingSet {
                     _ => panic!("not a List!"),
                 }
             },
-            location: self.location as i32,
         })
     }
 }
@@ -6172,7 +6053,6 @@ impl crate::convert::ConvertNode for crate::sys::WithClause {
                 }
             },
             recursive: self.recursive as bool,
-            location: self.location as i32,
         })
     }
 }
@@ -6204,7 +6084,6 @@ impl crate::convert::ConvertNode for crate::sys::InferClause {
                         .to_owned()
                 })
             },
-            location: self.location as i32,
         })
     }
 }
@@ -6239,7 +6118,6 @@ impl crate::convert::ConvertNode for crate::sys::OnConflictClause {
                     self.whereClause.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
         })
     }
 }
@@ -6272,7 +6150,6 @@ impl crate::convert::ConvertNode for crate::sys::CommonTableExpr {
                     self.ctequery.as_ref().unwrap().convert()
                 }))
             },
-            location: self.location as i32,
             cterecursive: self.cterecursive as bool,
             cterefcount: self.cterefcount as i32,
             ctecolnames: if self.ctecolnames.is_null() {
@@ -7254,7 +7131,6 @@ impl crate::convert::ConvertNode for crate::sys::Constraint {
             },
             deferrable: self.deferrable as bool,
             initdeferred: self.initdeferred as bool,
-            location: self.location as i32,
             is_no_inherit: self.is_no_inherit as bool,
             raw_expr: if self.raw_expr.is_null() {
                 None
@@ -7413,16 +7289,6 @@ impl crate::convert::ConvertNode for crate::sys::CreateTableSpaceStmt {
                         stringify!(RoleSpec)
                     ),
                 }
-            },
-            location: if self.location.is_null() {
-                None
-            } else {
-                Some(unsafe {
-                    std::ffi::CStr::from_ptr(self.location)
-                        .to_str()
-                        .unwrap()
-                        .to_owned()
-                })
             },
             options: if self.options.is_null() {
                 None
