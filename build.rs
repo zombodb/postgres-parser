@@ -356,6 +356,10 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
             enum_stream.extend(quote! {
                 List(Vec<Node>),
             });
+        } else if "Expr" == *name {
+            enum_stream.extend(quote! {
+                Expr(Box<Node>),
+            })
         } else {
             let ident = syn::Ident::new(&name, enum_stream.span());
             enum_stream.extend(quote! {
@@ -472,6 +476,7 @@ fn generate_single_struct(
                     let ty = match tystr.as_str() {
                         ":: std :: os :: raw :: c_char" => quote!(Option<String>),
                         "List" => quote!(Option<Vec<Node>>),
+                        "Expr" => quote!(Option<Box<Node>>),
                         _ => quote!(Option<Box<#path>>),
                     };
 
@@ -512,6 +517,9 @@ fn generate_convert_trait_impls(
 
                 if "Node" == name {
                     generate_convert_trait_for_node(struct_names, output);
+                } else if "Expr" == name {
+                    // we manually implemented this one
+                    continue;
                 } else if "List" == name {
                     // we manually implemented this one
                     continue;
@@ -610,6 +618,13 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
                             }
                         },
                         "Node" => quote! {
+                            if self.#name.is_null() {
+                                None
+                            } else {
+                                Some(Box::new(unsafe { self.#name.as_ref().unwrap().convert() }))
+                            }
+                        },
+                        "Expr" => quote! {
                             if self.#name.is_null() {
                                 None
                             } else {

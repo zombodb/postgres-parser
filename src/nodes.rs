@@ -126,7 +126,7 @@ pub enum Node {
     DropdbStmt(DropdbStmt),
     ExecuteStmt(ExecuteStmt),
     ExplainStmt(ExplainStmt),
-    Expr(Expr),
+    Expr(Box<Node>),
     FetchStmt(FetchStmt),
     FieldSelect(FieldSelect),
     FieldStore(FieldStore),
@@ -354,7 +354,7 @@ pub struct Aggref {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aggdistinct: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aggfilter: Option<Box<Expr>>,
+    pub aggfilter: Option<Box<Node>>,
     pub aggstar: bool,
     pub aggvariadic: bool,
     pub aggkind: char,
@@ -384,7 +384,7 @@ pub struct WindowFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aggfilter: Option<Box<Expr>>,
+    pub aggfilter: Option<Box<Node>>,
     pub winref: crate::sys::Index,
     pub winstar: bool,
     pub winagg: bool,
@@ -402,9 +402,9 @@ pub struct SubscriptingRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reflowerindexpr: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub refexpr: Option<Box<Expr>>,
+    pub refexpr: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub refassgnexpr: Option<Box<Expr>>,
+    pub refassgnexpr: Option<Box<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -425,7 +425,7 @@ pub struct FuncExpr {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NamedArgExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     pub argnumber: i32,
@@ -487,7 +487,7 @@ pub struct AlternativeSubPlan {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FieldSelect {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub fieldnum: crate::sys::AttrNumber,
     pub resulttype: crate::sys::Oid,
     pub resulttypmod: i32,
@@ -498,7 +498,7 @@ pub struct FieldSelect {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct FieldStore {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub newvals: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -510,7 +510,7 @@ pub struct FieldStore {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct RelabelType {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub resulttype: crate::sys::Oid,
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
@@ -521,7 +521,7 @@ pub struct RelabelType {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoerceViaIO {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub resulttype: crate::sys::Oid,
     pub resultcollid: crate::sys::Oid,
     pub coerceformat: crate::sys::CoercionForm,
@@ -531,9 +531,9 @@ pub struct CoerceViaIO {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ArrayCoerceExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub elemexpr: Option<Box<Expr>>,
+    pub elemexpr: Option<Box<Node>>,
     pub resulttype: crate::sys::Oid,
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
@@ -544,7 +544,7 @@ pub struct ArrayCoerceExpr {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct ConvertRowtypeExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub resulttype: crate::sys::Oid,
     pub convertformat: crate::sys::CoercionForm,
 }
@@ -553,7 +553,7 @@ pub struct ConvertRowtypeExpr {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CollateExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub collOid: crate::sys::Oid,
 }
 #[allow(non_camel_case_types)]
@@ -563,20 +563,20 @@ pub struct CaseExpr {
     pub casetype: crate::sys::Oid,
     pub casecollid: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub defresult: Option<Box<Expr>>,
+    pub defresult: Option<Box<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CaseWhen {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub expr: Option<Box<Expr>>,
+    pub expr: Option<Box<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub result: Option<Box<Expr>>,
+    pub result: Option<Box<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -672,7 +672,7 @@ pub struct XmlExpr {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct NullTest {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub nulltesttype: crate::sys::NullTestType,
     pub argisrow: bool,
 }
@@ -681,7 +681,7 @@ pub struct NullTest {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct BooleanTest {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub booltesttype: crate::sys::BoolTestType,
 }
 #[allow(non_camel_case_types)]
@@ -689,7 +689,7 @@ pub struct BooleanTest {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct CoerceToDomain {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub arg: Option<Box<Expr>>,
+    pub arg: Option<Box<Node>>,
     pub resulttype: crate::sys::Oid,
     pub resulttypmod: i32,
     pub resultcollid: crate::sys::Oid,
@@ -741,7 +741,7 @@ pub struct InferenceElem {
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
 pub struct TargetEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub expr: Option<Box<Expr>>,
+    pub expr: Option<Box<Node>>,
     pub resno: crate::sys::AttrNumber,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resname: Option<String>,
@@ -1201,7 +1201,7 @@ pub struct TableSampleClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub repeatable: Option<Box<Expr>>,
+    pub repeatable: Option<Box<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
@@ -3919,11 +3919,6 @@ impl crate::convert::ConvertNode for crate::sys::IntoClause {
         })
     }
 }
-impl crate::convert::ConvertNode for crate::sys::Expr {
-    fn convert(&self) -> crate::nodes::Node {
-        Node::Expr(Expr {})
-    }
-}
 impl crate::convert::ConvertNode for crate::sys::Var {
     fn convert(&self) -> crate::nodes::Node {
         Node::Var(Var {
@@ -4013,14 +4008,9 @@ impl crate::convert::ConvertNode for crate::sys::Aggref {
             aggfilter: if self.aggfilter.is_null() {
                 None
             } else {
-                match unsafe { self.aggfilter.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(aggfilter),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.aggfilter.as_ref().unwrap().convert()
+                }))
             },
             aggstar: self.aggstar as bool,
             aggvariadic: self.aggvariadic as bool,
@@ -4079,14 +4069,9 @@ impl crate::convert::ConvertNode for crate::sys::WindowFunc {
             aggfilter: if self.aggfilter.is_null() {
                 None
             } else {
-                match unsafe { self.aggfilter.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(aggfilter),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.aggfilter.as_ref().unwrap().convert()
+                }))
             },
             winref: self.winref as crate::sys::Index,
             winstar: self.winstar as bool,
@@ -4120,26 +4105,16 @@ impl crate::convert::ConvertNode for crate::sys::SubscriptingRef {
             refexpr: if self.refexpr.is_null() {
                 None
             } else {
-                match unsafe { self.refexpr.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(refexpr),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.refexpr.as_ref().unwrap().convert()
+                }))
             },
             refassgnexpr: if self.refassgnexpr.is_null() {
                 None
             } else {
-                match unsafe { self.refassgnexpr.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(refassgnexpr),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.refassgnexpr.as_ref().unwrap().convert()
+                }))
             },
         })
     }
@@ -4171,10 +4146,7 @@ impl crate::convert::ConvertNode for crate::sys::NamedArgExpr {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             name: if self.name.is_null() {
                 None
@@ -4293,10 +4265,7 @@ impl crate::convert::ConvertNode for crate::sys::FieldSelect {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             fieldnum: self.fieldnum as crate::sys::AttrNumber,
             resulttype: self.resulttype as crate::sys::Oid,
@@ -4311,10 +4280,7 @@ impl crate::convert::ConvertNode for crate::sys::FieldStore {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             newvals: if self.newvals.is_null() {
                 None
@@ -4342,10 +4308,7 @@ impl crate::convert::ConvertNode for crate::sys::RelabelType {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             resulttype: self.resulttype as crate::sys::Oid,
             resulttypmod: self.resulttypmod as i32,
@@ -4360,10 +4323,7 @@ impl crate::convert::ConvertNode for crate::sys::CoerceViaIO {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             resulttype: self.resulttype as crate::sys::Oid,
             resultcollid: self.resultcollid as crate::sys::Oid,
@@ -4377,22 +4337,14 @@ impl crate::convert::ConvertNode for crate::sys::ArrayCoerceExpr {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             elemexpr: if self.elemexpr.is_null() {
                 None
             } else {
-                match unsafe { self.elemexpr.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(elemexpr),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.elemexpr.as_ref().unwrap().convert()
+                }))
             },
             resulttype: self.resulttype as crate::sys::Oid,
             resulttypmod: self.resulttypmod as i32,
@@ -4407,10 +4359,7 @@ impl crate::convert::ConvertNode for crate::sys::ConvertRowtypeExpr {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             resulttype: self.resulttype as crate::sys::Oid,
             convertformat: self.convertformat as crate::sys::CoercionForm,
@@ -4423,10 +4372,7 @@ impl crate::convert::ConvertNode for crate::sys::CollateExpr {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             collOid: self.collOid as crate::sys::Oid,
         })
@@ -4440,10 +4386,7 @@ impl crate::convert::ConvertNode for crate::sys::CaseExpr {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             args: if self.args.is_null() {
                 None
@@ -4456,14 +4399,9 @@ impl crate::convert::ConvertNode for crate::sys::CaseExpr {
             defresult: if self.defresult.is_null() {
                 None
             } else {
-                match unsafe { self.defresult.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(defresult),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.defresult.as_ref().unwrap().convert()
+                }))
             },
         })
     }
@@ -4474,26 +4412,12 @@ impl crate::convert::ConvertNode for crate::sys::CaseWhen {
             expr: if self.expr.is_null() {
                 None
             } else {
-                match unsafe { self.expr.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(expr),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe { self.expr.as_ref().unwrap().convert() }))
             },
             result: if self.result.is_null() {
                 None
             } else {
-                match unsafe { self.result.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(result),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe { self.result.as_ref().unwrap().convert() }))
             },
         })
     }
@@ -4687,10 +4611,7 @@ impl crate::convert::ConvertNode for crate::sys::NullTest {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             nulltesttype: self.nulltesttype as crate::sys::NullTestType,
             argisrow: self.argisrow as bool,
@@ -4703,10 +4624,7 @@ impl crate::convert::ConvertNode for crate::sys::BooleanTest {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             booltesttype: self.booltesttype as crate::sys::BoolTestType,
         })
@@ -4718,10 +4636,7 @@ impl crate::convert::ConvertNode for crate::sys::CoerceToDomain {
             arg: if self.arg.is_null() {
                 None
             } else {
-                match unsafe { self.arg.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!("{} didn't convert to {}", stringify!(arg), stringify!(Expr)),
-                }
+                Some(Box::new(unsafe { self.arg.as_ref().unwrap().convert() }))
             },
             resulttype: self.resulttype as crate::sys::Oid,
             resulttypmod: self.resulttypmod as i32,
@@ -4793,14 +4708,7 @@ impl crate::convert::ConvertNode for crate::sys::TargetEntry {
             expr: if self.expr.is_null() {
                 None
             } else {
-                match unsafe { self.expr.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(expr),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe { self.expr.as_ref().unwrap().convert() }))
             },
             resno: self.resno as crate::sys::AttrNumber,
             resname: if self.resname.is_null() {
@@ -5896,14 +5804,9 @@ impl crate::convert::ConvertNode for crate::sys::TableSampleClause {
             repeatable: if self.repeatable.is_null() {
                 None
             } else {
-                match unsafe { self.repeatable.as_ref().unwrap().convert() } {
-                    crate::nodes::Node::Expr(value) => Some(Box::new(value)),
-                    _ => panic!(
-                        "{} didn't convert to {}",
-                        stringify!(repeatable),
-                        stringify!(Expr)
-                    ),
-                }
+                Some(Box::new(unsafe {
+                    self.repeatable.as_ref().unwrap().convert()
+                }))
             },
         })
     }

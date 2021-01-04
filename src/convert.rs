@@ -30,6 +30,17 @@ pub(crate) trait ConvertNode {
     fn convert(&self) -> crate::nodes::Node;
 }
 
+impl crate::convert::ConvertNode for crate::sys::Expr {
+    fn convert(&self) -> crate::nodes::Node {
+        crate::nodes::Node::Expr(Box::new(unsafe {
+            (self as *const _ as *const crate::sys::Node)
+                .as_ref()
+                .unwrap()
+                .convert()
+        }))
+    }
+}
+
 impl ConvertNode for crate::sys::List {
     fn convert(&self) -> crate::nodes::Node {
         let list_elements =
