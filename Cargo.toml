@@ -13,7 +13,7 @@ build = "build.rs"
 
 [dependencies]
 lazy_static = "1.4.0"
-serde = { version = "1.0.114", features = ["derive"] }
+serde = { version = "1.0.123", features = ["derive"] }
 
 [build-dependencies]
 bindgen = "0.55.1"
