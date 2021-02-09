@@ -1,10 +1,10 @@
 [package]
 name = "postgres-parser"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["ZomboDB, LLC <zombodb@gmail.com>"]
 edition = "2018"
 license = "PostgreSQL"
-description = "An llvm-based safe wrapper for PostgresSQL's query parser.  Currently based on v12.3."
+description = "An llvm-based safe wrapper for PostgresSQL's query parser.  Currently based on v13"
 homepage = "https://github.com/zombodb/postgres-parser"
 documentation = "https://docs.rs/postgres-parser"
 repository = "https://github.com/zombodb/postgres-parser"
@@ -13,14 +13,14 @@ build = "build.rs"
 
 [dependencies]
 lazy_static = "1.4.0"
-serde = { version = "1.0.114", features = ["derive"] }
+serde = { version = "1.0.123", features = ["derive"] }
 
 [build-dependencies]
-bindgen = "0.55.1"
+bindgen = "0.57.0"
 num_cpus = "1.13.0"
 proc-macro2 = "1.0.24"
-quote = "1.0.7"
-syn = { version = "1.0.48", features = [ "extra-traits", "full", "fold", "parsing" ] }
+quote = "1.0.8"
+syn = { version = "1.0.60", features = [ "extra-traits", "full", "fold", "parsing" ] }
 
 [dev-dependencies]
 serde_json = "1.0.59"

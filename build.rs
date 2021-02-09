@@ -14,14 +14,13 @@
     ZomboDB, LLC HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 */
 use bindgen::EnumVariation;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::BufRead;
 use std::path::PathBuf;
 use std::process::Command;
-use syn::export::TokenStream2;
-use syn::spanned::Spanned;
 use syn::{Item, Type};
 
 fn main() -> Result<(), std::io::Error> {
@@ -293,7 +292,7 @@ fn build_struct_names(file: &syn::File) -> HashSet<String> {
 
 fn process_bindings(input: String) -> String {
     let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
-    let mut output = TokenStream2::new();
+    let mut output = TokenStream::new();
 
     output.extend(quote! {
         //! Generated types and constants from Postgres' header files necessary to represent
@@ -313,7 +312,7 @@ fn process_bindings(input: String) -> String {
     output.to_string()
 }
 
-fn generate_serde_support(ast: &syn::File, output: &mut TokenStream2) {
+fn generate_serde_support(ast: &syn::File, output: &mut TokenStream) {
     for item in &ast.items {
         match item {
             Item::Enum(e) => output.extend(quote! {
@@ -327,7 +326,7 @@ fn generate_serde_support(ast: &syn::File, output: &mut TokenStream2) {
 
 fn generate_safe_wrappers(input: String) -> String {
     let ast = syn::parse_str::<syn::File>(&input).expect("failed to parse bindings code");
-    let mut output = TokenStream2::new();
+    let mut output = TokenStream::new();
 
     let node_tags = build_node_tag_set(&ast, build_struct_names(&ast));
     let mut struct_names = node_tags.keys().map(|v| v.as_str()).collect::<Vec<&str>>();
@@ -349,8 +348,8 @@ fn generate_safe_wrappers(input: String) -> String {
     output.to_string()
 }
 
-fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
-    let mut enum_stream = TokenStream2::new();
+fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream) {
+    let mut enum_stream = TokenStream::new();
     for name in struct_names {
         if "List" == *name {
             enum_stream.extend(quote! {
@@ -361,7 +360,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
                 Expr(Box<Node>),
             })
         } else {
-            let ident = syn::Ident::new(&name, enum_stream.span());
+            let ident = syn::Ident::new(&name, Span::call_site());
             enum_stream.extend(quote! {
                 #ident(#ident),
             });
@@ -380,7 +379,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream2) {
     });
 }
 
-fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut TokenStream2) {
+fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut TokenStream) {
     for item in &ast.items {
         match item {
             Item::Struct(s) => {
@@ -423,12 +422,12 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
 fn generate_single_struct(
     item: &syn::ItemStruct,
     struct_names: &Vec<&str>,
-    output: &mut TokenStream2,
+    output: &mut TokenStream,
 ) {
     let struct_name = &item.ident;
     let attributes = extract_doc_attributes(&item.attrs);
 
-    let mut fields_stream = TokenStream2::new();
+    let mut fields_stream = TokenStream::new();
     for field in &item.fields {
         let name = field.ident.as_ref().unwrap();
         let namestr = name.to_string();
@@ -507,7 +506,7 @@ fn generate_single_struct(
 fn generate_convert_trait_impls(
     ast: &syn::File,
     struct_names: &Vec<&str>,
-    output: &mut TokenStream2,
+    output: &mut TokenStream,
 ) {
     for item in &ast.items {
         match item {
@@ -547,10 +546,10 @@ fn generate_convert_trait_impls(
     }
 }
 
-fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenStream2 {
+fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenStream {
     let ident = &s.ident;
     let struct_name = ident.to_string();
-    let mut fields_stream = TokenStream2::new();
+    let mut fields_stream = TokenStream::new();
 
     for field in &s.fields {
         let name = field.ident.as_ref().unwrap();
@@ -653,7 +652,7 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
         }
     }
 
-    let mut stream = TokenStream2::new();
+    let mut stream = TokenStream::new();
 
     stream.extend(quote! {
         Node::#ident(#ident {
@@ -664,8 +663,8 @@ fn generate_convert_fn(s: &syn::ItemStruct, struct_names: &Vec<&str>) -> TokenSt
     stream
 }
 
-fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenStream2) {
-    let mut match_arms = TokenStream2::new();
+fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenStream) {
+    let mut match_arms = TokenStream::new();
 
     for name in struct_names {
         let tag = syn::Ident::new(&format!("T_{}", name), proc_macro2::Span::call_site());
@@ -698,8 +697,8 @@ fn generate_convert_trait_for_node(struct_names: &Vec<&str>, output: &mut TokenS
     });
 }
 
-fn extract_doc_attributes(attributes: &Vec<syn::Attribute>) -> TokenStream2 {
-    let mut stream = TokenStream2::new();
+fn extract_doc_attributes(attributes: &Vec<syn::Attribute>) -> TokenStream {
+    let mut stream = TokenStream::new();
 
     for att in attributes {
         let str = format!("{}", quote!(#att));

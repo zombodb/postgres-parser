@@ -572,7 +572,7 @@ extern "C" {
 pub type Datum = usize;
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum pg_enc {
     PG_SQL_ASCII = 0,
     PG_EUC_JP = 1,
@@ -620,7 +620,7 @@ pub enum pg_enc {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum NodeTag {
     T_Invalid = 0,
     T_IndexInfo = 1,
@@ -1080,7 +1080,7 @@ impl Default for Node {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum CmdType {
     CMD_UNKNOWN = 0,
     CMD_SELECT = 1,
@@ -1092,7 +1092,7 @@ pub enum CmdType {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum JoinType {
     JOIN_INNER = 0,
     JOIN_LEFT = 1,
@@ -1105,7 +1105,7 @@ pub enum JoinType {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AggSplit {
     AGGSPLIT_SIMPLE = 0,
     AGGSPLIT_INITIAL_SERIAL = 6,
@@ -1113,7 +1113,7 @@ pub enum AggSplit {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum OnConflictAction {
     ONCONFLICT_NONE = 0,
     ONCONFLICT_NOTHING = 1,
@@ -1121,7 +1121,7 @@ pub enum OnConflictAction {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LimitOption {
     LIMIT_OPTION_COUNT = 0,
     LIMIT_OPTION_WITH_TIES = 1,
@@ -1525,7 +1525,7 @@ fn bindgen_test_layout_Bitmapset() {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LockClauseStrength {
     LCS_NONE = 0,
     LCS_FORKEYSHARE = 1,
@@ -1535,7 +1535,7 @@ pub enum LockClauseStrength {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum LockWaitPolicy {
     LockWaitBlock = 0,
     LockWaitSkip = 1,
@@ -1739,7 +1739,7 @@ impl Default for Alias {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " What to do at commit time for temporary relations"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum OnCommitAction {
     ONCOMMIT_NOOP = 0,
     #[doc = " No ON COMMIT clause (do nothing)"]
@@ -2541,7 +2541,7 @@ impl Default for Const {
 #[doc = "          of the 'paramid' field contain the SubLink's subLinkId, and"]
 #[doc = "          the loworder 16 bits contain the column number.  (This type"]
 #[doc = "          of Param is also converted to PARAM_EXEC during planning.)"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ParamKind {
     PARAM_EXTERN = 0,
     PARAM_EXEC = 1,
@@ -3362,7 +3362,7 @@ impl Default for SubscriptingRef {
 #[doc = ""]
 #[doc = " NB: ordering of the alternatives is significant; later (larger) values"]
 #[doc = " allow more casts than earlier ones."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum CoercionContext {
     COERCION_IMPLICIT = 0,
     #[doc = " coercion in context of expression"]
@@ -3379,7 +3379,7 @@ pub enum CoercionContext {
 #[doc = " the planner will consider equivalent implicit and explicit casts to be"]
 #[doc = " equivalent.  In cases where those actually behave differently, the coercion"]
 #[doc = " function's arguments will be different."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum CoercionForm {
     COERCE_EXPLICIT_CALL = 0,
     #[doc = " display as a function call"]
@@ -3875,7 +3875,7 @@ impl Default for ScalarArrayOpExpr {
 #[doc = " Notice the arguments are given as a List.  For NOT, of course the list"]
 #[doc = " must always have exactly one element.  For AND and OR, there can be two"]
 #[doc = " or more arguments."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BoolExprType {
     AND_EXPR = 0,
     OR_EXPR = 1,
@@ -3999,7 +3999,7 @@ impl Default for BoolExpr {
 #[doc = ""]
 #[doc = " The CTE_SUBLINK case never occurs in actual SubLink nodes, but it is used"]
 #[doc = " in SubPlans generated for WITH subqueries."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum SubLinkType {
     EXISTS_SUBLINK = 0,
     ALL_SUBLINK = 1,
@@ -5386,7 +5386,7 @@ impl Default for RowExpr {
 #[doc = " the = and <> cases are translated to simple AND or OR combinations"]
 #[doc = " of the pairwise comparisons.  However, we include = and <> in the"]
 #[doc = " RowCompareType enum for the convenience of parser logic."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum RowCompareType {
     #[doc = " Values of this enum are chosen to match btree strategy numbers"]
     ROWCOMPARE_LT = 1,
@@ -5589,7 +5589,7 @@ impl Default for CoalesceExpr {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " MinMaxExpr  a GREATEST or LEAST function"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum MinMaxOp {
     IS_GREATEST = 0,
     IS_LEAST = 1,
@@ -5709,7 +5709,7 @@ impl Default for MinMaxExpr {
 #[doc = " we would need to store typmod anyway for some of the datetime functions."]
 #[doc = " Note that currently, all variants return noncollating datatypes, so we do"]
 #[doc = " not need a collation field; also, all these functions are stable."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum SQLValueFunctionOp {
     SVFOP_CURRENT_DATE = 0,
     SVFOP_CURRENT_TIME = 1,
@@ -5817,7 +5817,7 @@ impl Default for SQLValueFunction {
 #[doc = " Note: result type/typmod/collation are not stored, but can be deduced"]
 #[doc = " from the XmlExprOp.  The type/typmod fields are just used for display"]
 #[doc = " purposes, and are NOT necessarily the true result type of the node."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum XmlExprOp {
     IS_XMLCONCAT = 0,
     #[doc = " XMLCONCAT(args)"]
@@ -5837,7 +5837,7 @@ pub enum XmlExprOp {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum XmlOptionType {
     XMLOPTION_DOCUMENT = 0,
     XMLOPTION_CONTENT = 1,
@@ -5999,7 +5999,7 @@ impl Default for XmlExpr {
 #[doc = " correspond to the SQL notation \"row IS [NOT] NULL\"; instead, this case"]
 #[doc = " represents the SQL notation \"row IS [NOT] DISTINCT FROM NULL\"."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum NullTestType {
     IS_NULL = 0,
     IS_NOT_NULL = 1,
@@ -6092,7 +6092,7 @@ impl Default for NullTest {
 #[doc = " is TRUE, FALSE, or UNKNOWN (ie, NULL).  All six meaningful combinations"]
 #[doc = " are supported.  Note that a NULL input does *not* cause a NULL result."]
 #[doc = " The appropriate test is performed and returned as a boolean Datum."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum BoolTestType {
     IS_TRUE = 0,
     IS_NOT_TRUE = 1,
@@ -7318,7 +7318,7 @@ impl Default for Value {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum OverridingKind {
     OVERRIDING_NOT_SET = 0,
     OVERRIDING_USER_VALUE = 1,
@@ -7327,7 +7327,7 @@ pub enum OverridingKind {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " Possible sources of a Query"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum QuerySource {
     QSRC_ORIGINAL = 0,
     #[doc = " original parsetree (explicit query)"]
@@ -7342,7 +7342,7 @@ pub enum QuerySource {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " Sort ordering options for ORDER BY and CREATE INDEX"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum SortByDir {
     SORTBY_DEFAULT = 0,
     SORTBY_ASC = 1,
@@ -7351,7 +7351,7 @@ pub enum SortByDir {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum SortByNulls {
     SORTBY_NULLS_DEFAULT = 0,
     SORTBY_NULLS_FIRST = 1,
@@ -7623,7 +7623,7 @@ impl Default for ParamRef {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " A_Expr  infix, prefix, and postfix expressions"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum A_Expr_Kind {
     AEXPR_OP = 0,
     #[doc = " normal operator"]
@@ -7946,7 +7946,7 @@ impl Default for CollateClause {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " RoleSpec  a role name or one of a few special values."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum RoleSpecType {
     ROLESPEC_CSTRING = 0,
     #[doc = " role name is stored as a C string"]
@@ -9656,7 +9656,7 @@ impl Default for TableLikeClause {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum TableLikeOption {
     CREATE_TABLE_LIKE_COMMENTS = 1,
     CREATE_TABLE_LIKE_CONSTRAINTS = 2,
@@ -9811,7 +9811,7 @@ impl Default for IndexElem {
 #[doc = " practice that the grammar allows namespace and action only in statements"]
 #[doc = " where they are relevant; C code can just ignore those fields in other"]
 #[doc = " statements.)"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DefElemAction {
     DEFELEM_UNSPEC = 0,
     #[doc = " no action given"]
@@ -10373,7 +10373,7 @@ impl PartitionRangeDatumKind {
 #[doc = " PartitionRangeDatum  one of the values in a range partition bound"]
 #[doc = ""]
 #[doc = " This can be MINVALUE, MAXVALUE or a specific bounded value."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum PartitionRangeDatumKind {
     PARTITION_RANGE_DATUM_MINVALUE = 1,
     #[doc = " less than any other value"]
@@ -10593,7 +10593,7 @@ impl Default for PartitionCmd {
 #[doc = "   Note that the planner turns each boolean expression into an implicitly"]
 #[doc = "   AND'ed sublist, as is its usual habit with qualification expressions."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum RTEKind {
     RTE_RELATION = 0,
     #[doc = " ordinary relation reference"]
@@ -10690,7 +10690,7 @@ impl Default for TableSampleClause {
 #[doc = "    representation of WITH CHECK OPTION checks to be applied to new tuples"]
 #[doc = "    when inserting/updating an autoupdatable view, or RLS WITH CHECK"]
 #[doc = "    policies to be applied when inserting/updating a relation with RLS."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum WCOKind {
     WCO_VIEW_CHECK = 0,
     #[doc = " WCO on an autoupdatable view"]
@@ -10990,7 +10990,7 @@ impl Default for SortGroupClause {
 #[doc = " and parse analysis converts it to:"]
 #[doc = ""]
 #[doc = " SETS( SIMPLE(1,2), CUBE( SIMPLE(3), SIMPLE(4,5) ) )"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum GroupingSetKind {
     GROUPING_SET_EMPTY = 0,
     GROUPING_SET_SIMPLE = 1,
@@ -11627,7 +11627,7 @@ impl Default for OnConflictClause {
 #[doc = "    representation of WITH list element"]
 #[doc = ""]
 #[doc = " We don't currently support the SEARCH or CYCLE clause."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum CTEMaterialize {
     CTEMaterializeDefault = 0,
     #[doc = " no option specified"]
@@ -12287,7 +12287,7 @@ impl Default for UpdateStmt {
 #[doc = " LIMIT, etc, clause values into a SELECT statement without worrying"]
 #[doc = " whether it is a simple or compound SELECT."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum SetOperation {
     SETOP_NONE = 0,
     SETOP_UNION = 1,
@@ -12712,7 +12712,7 @@ impl Default for SetOperationStmt {
 #[doc = " When a command can act on several kinds of objects with only one"]
 #[doc = " parse structure required, use these constants to designate the"]
 #[doc = " object type.  Note that commands typically don't support all the types."]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ObjectType {
     OBJECT_ACCESS_METHOD = 0,
     OBJECT_AGGREGATE = 1,
@@ -12898,7 +12898,7 @@ impl Default for CreateSchemaStmt {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DropBehavior {
     DROP_RESTRICT = 0,
     #[doc = " drop fails if any dependent objects"]
@@ -12988,7 +12988,7 @@ impl Default for AlterTableStmt {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AlterTableType {
     AT_AddColumn = 0,
     #[doc = " add column"]
@@ -13463,7 +13463,7 @@ impl Default for AlterDomainStmt {
 #[repr(u32)]
 #[doc = "    Grant|Revoke Statement"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum GrantTargetType {
     ACL_TARGET_OBJECT = 0,
     #[doc = " grant on specific named object(s)"]
@@ -14050,7 +14050,7 @@ impl Default for CopyStmt {
 #[doc = " \"SET var TO DEFAULT\" and \"RESET var\" are semantically equivalent, but we"]
 #[doc = " preserve the distinction in VariableSetKind for CreateCommandTag()."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum VariableSetKind {
     VAR_SET_VALUE = 0,
     #[doc = " SET var = value"]
@@ -14404,7 +14404,7 @@ impl Default for CreateStmt {
 #[doc = " a pass through the constraints list to insert the info into the appropriate"]
 #[doc = " Constraint node."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConstrType {
     CONSTR_NULL = 0,
     #[doc = " not standard SQL, but a lot of people"]
@@ -15959,7 +15959,7 @@ impl Default for DropUserMappingStmt {
 #[repr(u32)]
 #[doc = "    Import Foreign Schema Statement"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ImportForeignSchemaType {
     FDW_IMPORT_SCHEMA_ALL = 0,
     #[doc = " all relations wanted"]
@@ -16820,7 +16820,7 @@ impl Default for CreatePLangStmt {
 #[doc = " there's really no need to distinguish what the original spelling was,"]
 #[doc = " but for CREATE we mark the type because the defaults vary."]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum RoleStmtType {
     ROLESTMT_ROLE = 0,
     ROLESTMT_USER = 1,
@@ -18242,7 +18242,7 @@ impl Default for ClosePortalStmt {
 #[repr(u32)]
 #[doc = "    Fetch Statement (also Move)"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum FetchDirection {
     #[doc = " for these, howMany is how many rows to fetch; FETCH_ALL means ALL"]
     FETCH_FORWARD = 0,
@@ -18938,7 +18938,7 @@ impl Default for CreateFunctionStmt {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum FunctionParameterMode {
     #[doc = " the assigned enum values appear in pg_proc, don't change 'em!"]
     FUNC_PARAM_IN = 105,
@@ -20123,7 +20123,7 @@ impl Default for UnlistenStmt {
 #[repr(u32)]
 #[doc = "    {Begin|Commit|Rollback} Transaction Statement"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum TransactionStmtKind {
     TRANS_STMT_BEGIN = 0,
     TRANS_STMT_START = 1,
@@ -20522,7 +20522,7 @@ impl Default for AlterEnumStmt {
 #[repr(u32)]
 #[doc = "    Create View Statement"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ViewCheckOption {
     NO_CHECK_OPTION = 0,
     LOCAL_CHECK_OPTION = 1,
@@ -20970,7 +20970,7 @@ impl Default for AlterSystemStmt {
 #[repr(u32)]
 #[doc = "    Cluster Statement (support pbrown's cluster index implementation)"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ClusterOption {
     CLUOPT_RECHECK = 1,
     #[doc = " recheck relation state"]
@@ -21466,7 +21466,7 @@ impl Default for CheckPointStmt {
 #[repr(u32)]
 #[doc = " Discard Statement"]
 #[doc = ""]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum DiscardMode {
     DISCARD_ALL = 0,
     DISCARD_PLANS = 1,
@@ -21648,7 +21648,7 @@ impl Default for ConstraintsSetStmt {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " report pgstat progress"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ReindexObjectType {
     REINDEX_OBJECT_INDEX = 0,
     #[doc = " index"]
@@ -22379,7 +22379,7 @@ impl Default for AlterTSDictionaryStmt {
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
 #[doc = " TS Configuration stmts: DefineStmt, RenameStmt and DropStmt are default"]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AlterTSConfigType {
     ALTER_TSCONFIG_ADD_MAPPING = 0,
     ALTER_TSCONFIG_ALTER_MAPPING_FOR_TOKEN = 1,
@@ -22776,7 +22776,7 @@ impl Default for CreateSubscriptionStmt {
 }
 #[derive(Serialize, Deserialize)]
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum AlterSubscriptionType {
     ALTER_SUBSCRIPTION_OPTIONS = 0,
     ALTER_SUBSCRIPTION_CONNECTION = 1,
