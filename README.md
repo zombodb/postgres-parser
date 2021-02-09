@@ -29,7 +29,7 @@ Using this create is just like any other.  Add it as a dependency to your `Cargo
 
 ```toml
 [dependencies]
-postgres-parser = "0.2.0"
+postgres-parser = "0.2.1"
 ```
 
 Additionally, see the [System Requirements](#System+Requirements) section below.
