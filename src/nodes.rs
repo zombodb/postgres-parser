@@ -6,7 +6,7 @@
 use serde::{Deserialize, Serialize};
 #[doc = r" All the various Postgres parse tree nodes that can be returned upon parsing a SQL statement"]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub enum Node {
     A_ArrayExpr(A_ArrayExpr),
     A_Const(A_Const),
@@ -228,7 +228,7 @@ pub enum Node {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Alias {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aliasname: Option<String>,
@@ -237,7 +237,7 @@ pub struct Alias {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeVar {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub catalogname: Option<String>,
@@ -252,7 +252,7 @@ pub struct RangeVar {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TableFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ns_uris: Option<Vec<Node>>,
@@ -278,7 +278,7 @@ pub struct TableFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct IntoClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rel: Option<Box<RangeVar>>,
@@ -297,11 +297,11 @@ pub struct IntoClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Expr {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Var {
     pub varno: crate::sys::Index,
     pub varattno: crate::sys::AttrNumber,
@@ -314,7 +314,7 @@ pub struct Var {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Const {
     pub consttype: crate::sys::Oid,
     pub consttypmod: i32,
@@ -326,7 +326,7 @@ pub struct Const {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Param {
     pub paramkind: crate::sys::ParamKind,
     pub paramid: i32,
@@ -336,7 +336,7 @@ pub struct Param {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Aggref {
     pub aggfnoid: crate::sys::Oid,
     pub aggtype: crate::sys::Oid,
@@ -363,7 +363,7 @@ pub struct Aggref {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct GroupingFunc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
@@ -375,7 +375,7 @@ pub struct GroupingFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct WindowFunc {
     pub winfnoid: crate::sys::Oid,
     pub wintype: crate::sys::Oid,
@@ -391,7 +391,7 @@ pub struct WindowFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SubscriptingRef {
     pub refcontainertype: crate::sys::Oid,
     pub refelemtype: crate::sys::Oid,
@@ -408,7 +408,7 @@ pub struct SubscriptingRef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FuncExpr {
     pub funcid: crate::sys::Oid,
     pub funcresulttype: crate::sys::Oid,
@@ -422,7 +422,7 @@ pub struct FuncExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct NamedArgExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -432,7 +432,7 @@ pub struct NamedArgExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct OpExpr {
     pub opno: crate::sys::Oid,
     pub opfuncid: crate::sys::Oid,
@@ -445,7 +445,7 @@ pub struct OpExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ScalarArrayOpExpr {
     pub opno: crate::sys::Oid,
     pub opfuncid: crate::sys::Oid,
@@ -456,7 +456,7 @@ pub struct ScalarArrayOpExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct BoolExpr {
     pub boolop: crate::sys::BoolExprType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -464,7 +464,7 @@ pub struct BoolExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SubLink {
     pub subLinkType: crate::sys::SubLinkType,
     pub subLinkId: i32,
@@ -477,14 +477,14 @@ pub struct SubLink {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlternativeSubPlan {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subplans: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FieldSelect {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -495,7 +495,7 @@ pub struct FieldSelect {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FieldStore {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -507,7 +507,7 @@ pub struct FieldStore {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RelabelType {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -518,7 +518,7 @@ pub struct RelabelType {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CoerceViaIO {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -528,7 +528,7 @@ pub struct CoerceViaIO {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ArrayCoerceExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -541,7 +541,7 @@ pub struct ArrayCoerceExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ConvertRowtypeExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -550,7 +550,7 @@ pub struct ConvertRowtypeExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CollateExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -558,7 +558,7 @@ pub struct CollateExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CaseExpr {
     pub casetype: crate::sys::Oid,
     pub casecollid: crate::sys::Oid,
@@ -571,7 +571,7 @@ pub struct CaseExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CaseWhen {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Node>>,
@@ -580,7 +580,7 @@ pub struct CaseWhen {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CaseTestExpr {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -588,7 +588,7 @@ pub struct CaseTestExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ArrayExpr {
     pub array_typeid: crate::sys::Oid,
     pub array_collid: crate::sys::Oid,
@@ -599,7 +599,7 @@ pub struct ArrayExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RowExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
@@ -610,7 +610,7 @@ pub struct RowExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RowCompareExpr {
     pub rctype: crate::sys::RowCompareType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -626,7 +626,7 @@ pub struct RowCompareExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CoalesceExpr {
     pub coalescetype: crate::sys::Oid,
     pub coalescecollid: crate::sys::Oid,
@@ -635,7 +635,7 @@ pub struct CoalesceExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct MinMaxExpr {
     pub minmaxtype: crate::sys::Oid,
     pub minmaxcollid: crate::sys::Oid,
@@ -646,14 +646,14 @@ pub struct MinMaxExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SQLValueFunction {
     pub op: crate::sys::SQLValueFunctionOp,
     pub typmod: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct XmlExpr {
     pub op: crate::sys::XmlExprOp,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -669,7 +669,7 @@ pub struct XmlExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct NullTest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -678,7 +678,7 @@ pub struct NullTest {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct BooleanTest {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -686,7 +686,7 @@ pub struct BooleanTest {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CoerceToDomain {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -697,7 +697,7 @@ pub struct CoerceToDomain {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CoerceToDomainValue {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -705,7 +705,7 @@ pub struct CoerceToDomainValue {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SetToDefault {
     pub typeId: crate::sys::Oid,
     pub typeMod: i32,
@@ -713,7 +713,7 @@ pub struct SetToDefault {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CurrentOfExpr {
     pub cvarno: crate::sys::Index,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -722,14 +722,14 @@ pub struct CurrentOfExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct NextValueExpr {
     pub seqid: crate::sys::Oid,
     pub typeId: crate::sys::Oid,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct InferenceElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Node>>,
@@ -738,7 +738,7 @@ pub struct InferenceElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TargetEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expr: Option<Box<Node>>,
@@ -752,13 +752,13 @@ pub struct TargetEntry {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeTblRef {
     pub rtindex: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct JoinExpr {
     pub jointype: crate::sys::JoinType,
     pub isNatural: bool,
@@ -776,7 +776,7 @@ pub struct JoinExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FromExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fromlist: Option<Vec<Node>>,
@@ -785,7 +785,7 @@ pub struct FromExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct OnConflictExpr {
     pub action: crate::sys::OnConflictAction,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -801,7 +801,7 @@ pub struct OnConflictExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exclRelTlist: Option<Vec<Node>>,
 }
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Value {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub string: Option<String>,
@@ -816,7 +816,7 @@ pub struct Value {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TypeName {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub names: Option<Vec<Node>>,
@@ -831,20 +831,20 @@ pub struct TypeName {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ColumnRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fields: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ParamRef {
     pub number: i32,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_Expr {
     pub kind: crate::sys::A_Expr_Kind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -856,13 +856,13 @@ pub struct A_Expr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_Const {
     pub val: Value,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TypeCast {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -871,7 +871,7 @@ pub struct TypeCast {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CollateClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -880,7 +880,7 @@ pub struct CollateClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RoleSpec {
     pub roletype: crate::sys::RoleSpecType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -888,7 +888,7 @@ pub struct RoleSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FuncCall {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funcname: Option<Vec<Node>>,
@@ -907,11 +907,11 @@ pub struct FuncCall {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_Star {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_Indices {
     pub is_slice: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -921,7 +921,7 @@ pub struct A_Indices {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_Indirection {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arg: Option<Box<Node>>,
@@ -930,14 +930,14 @@ pub struct A_Indirection {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct A_ArrayExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub elements: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ResTarget {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -948,7 +948,7 @@ pub struct ResTarget {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct MultiAssignRef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<Box<Node>>,
@@ -957,7 +957,7 @@ pub struct MultiAssignRef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SortBy {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub node: Option<Box<Node>>,
@@ -968,7 +968,7 @@ pub struct SortBy {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct WindowDef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -986,7 +986,7 @@ pub struct WindowDef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeSubselect {
     pub lateral: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -996,7 +996,7 @@ pub struct RangeSubselect {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeFunction {
     pub lateral: bool,
     pub ordinality: bool,
@@ -1010,7 +1010,7 @@ pub struct RangeFunction {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeTableFunc {
     pub lateral: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1026,7 +1026,7 @@ pub struct RangeTableFunc {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeTableFuncCol {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colname: Option<String>,
@@ -1041,7 +1041,7 @@ pub struct RangeTableFuncCol {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RangeTableSample {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<Node>>,
@@ -1054,7 +1054,7 @@ pub struct RangeTableSample {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ColumnDef {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub colname: Option<String>,
@@ -1083,7 +1083,7 @@ pub struct ColumnDef {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TableLikeClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1091,7 +1091,7 @@ pub struct TableLikeClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct IndexElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1110,7 +1110,7 @@ pub struct IndexElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DefElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defnamespace: Option<String>,
@@ -1122,7 +1122,7 @@ pub struct DefElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct LockingClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lockedRels: Option<Vec<Node>>,
@@ -1131,7 +1131,7 @@ pub struct LockingClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct XmlSerialize {
     pub xmloption: crate::sys::XmlOptionType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1141,7 +1141,7 @@ pub struct XmlSerialize {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PartitionElem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1154,7 +1154,7 @@ pub struct PartitionElem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PartitionSpec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strategy: Option<String>,
@@ -1163,7 +1163,7 @@ pub struct PartitionSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PartitionBoundSpec {
     pub strategy: char,
     pub is_default: bool,
@@ -1178,7 +1178,7 @@ pub struct PartitionBoundSpec {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PartitionRangeDatum {
     pub kind: crate::sys::PartitionRangeDatumKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1186,7 +1186,7 @@ pub struct PartitionRangeDatum {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PartitionCmd {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Box<RangeVar>>,
@@ -1195,7 +1195,7 @@ pub struct PartitionCmd {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TableSampleClause {
     pub tsmhandler: crate::sys::Oid,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1205,7 +1205,7 @@ pub struct TableSampleClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct WithCheckOption {
     pub kind: crate::sys::WCOKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1218,7 +1218,7 @@ pub struct WithCheckOption {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SortGroupClause {
     pub tleSortGroupRef: crate::sys::Index,
     pub eqop: crate::sys::Oid,
@@ -1228,7 +1228,7 @@ pub struct SortGroupClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct GroupingSet {
     pub kind: crate::sys::GroupingSetKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1236,7 +1236,7 @@ pub struct GroupingSet {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct WindowClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1261,7 +1261,7 @@ pub struct WindowClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RowMarkClause {
     pub rti: crate::sys::Index,
     pub strength: crate::sys::LockClauseStrength,
@@ -1270,7 +1270,7 @@ pub struct RowMarkClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct WithClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctes: Option<Vec<Node>>,
@@ -1278,7 +1278,7 @@ pub struct WithClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct InferClause {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub indexElems: Option<Vec<Node>>,
@@ -1289,7 +1289,7 @@ pub struct InferClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct OnConflictClause {
     pub action: crate::sys::OnConflictAction,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1301,7 +1301,7 @@ pub struct OnConflictClause {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CommonTableExpr {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ctename: Option<String>,
@@ -1323,7 +1323,7 @@ pub struct CommonTableExpr {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TriggerTransition {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -1332,7 +1332,7 @@ pub struct TriggerTransition {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RawStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stmt: Option<Box<Node>>,
@@ -1341,7 +1341,7 @@ pub struct RawStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct InsertStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1359,7 +1359,7 @@ pub struct InsertStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DeleteStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1374,7 +1374,7 @@ pub struct DeleteStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct UpdateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1391,7 +1391,7 @@ pub struct UpdateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SelectStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub distinctClause: Option<Vec<Node>>,
@@ -1431,7 +1431,7 @@ pub struct SelectStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SetOperationStmt {
     pub op: crate::sys::SetOperation,
     pub all: bool,
@@ -1450,7 +1450,7 @@ pub struct SetOperationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateSchemaStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schemaname: Option<String>,
@@ -1462,7 +1462,7 @@ pub struct CreateSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTableStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1473,7 +1473,7 @@ pub struct AlterTableStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ReplicaIdentityStmt {
     pub identity_type: char,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1481,7 +1481,7 @@ pub struct ReplicaIdentityStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTableCmd {
     pub subtype: crate::sys::AlterTableType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1496,14 +1496,14 @@ pub struct AlterTableCmd {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterCollationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collname: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterDomainStmt {
     pub subtype: char,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1517,7 +1517,7 @@ pub struct AlterDomainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct GrantStmt {
     pub is_grant: bool,
     pub targtype: crate::sys::GrantTargetType,
@@ -1533,7 +1533,7 @@ pub struct GrantStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ObjectWithArgs {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub objname: Option<Vec<Node>>,
@@ -1543,7 +1543,7 @@ pub struct ObjectWithArgs {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AccessPriv {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priv_name: Option<String>,
@@ -1552,7 +1552,7 @@ pub struct AccessPriv {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct GrantRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub granted_roles: Option<Vec<Node>>,
@@ -1566,7 +1566,7 @@ pub struct GrantRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterDefaultPrivilegesStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
@@ -1575,7 +1575,7 @@ pub struct AlterDefaultPrivilegesStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CopyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1594,7 +1594,7 @@ pub struct CopyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct VariableSetStmt {
     pub kind: crate::sys::VariableSetKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1605,14 +1605,14 @@ pub struct VariableSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct VariableShowStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -1639,7 +1639,7 @@ pub struct CreateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct Constraint {
     pub contype: crate::sys::ConstrType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1686,7 +1686,7 @@ pub struct Constraint {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateTableSpaceStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -1697,7 +1697,7 @@ pub struct CreateTableSpaceStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropTableSpaceStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -1705,7 +1705,7 @@ pub struct DropTableSpaceStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTableSpaceOptionsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tablespacename: Option<String>,
@@ -1715,7 +1715,7 @@ pub struct AlterTableSpaceOptionsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTableMoveAllStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub orig_tablespacename: Option<String>,
@@ -1728,7 +1728,7 @@ pub struct AlterTableMoveAllStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateExtensionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -1738,7 +1738,7 @@ pub struct CreateExtensionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterExtensionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -1747,7 +1747,7 @@ pub struct AlterExtensionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterExtensionContentsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub extname: Option<String>,
@@ -1758,7 +1758,7 @@ pub struct AlterExtensionContentsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateFdwStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fdwname: Option<String>,
@@ -1769,7 +1769,7 @@ pub struct CreateFdwStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterFdwStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fdwname: Option<String>,
@@ -1780,7 +1780,7 @@ pub struct AlterFdwStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateForeignServerStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servername: Option<String>,
@@ -1796,7 +1796,7 @@ pub struct CreateForeignServerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterForeignServerStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servername: Option<String>,
@@ -1808,7 +1808,7 @@ pub struct AlterForeignServerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateForeignTableStmt {
     pub base: CreateStmt,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1818,7 +1818,7 @@ pub struct CreateForeignTableStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -1830,7 +1830,7 @@ pub struct CreateUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -1841,7 +1841,7 @@ pub struct AlterUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropUserMappingStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<Box<RoleSpec>>,
@@ -1851,7 +1851,7 @@ pub struct DropUserMappingStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ImportForeignSchemaStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub server_name: Option<String>,
@@ -1867,7 +1867,7 @@ pub struct ImportForeignSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreatePolicyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub policy_name: Option<String>,
@@ -1885,7 +1885,7 @@ pub struct CreatePolicyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterPolicyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub policy_name: Option<String>,
@@ -1900,7 +1900,7 @@ pub struct AlterPolicyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateAmStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amname: Option<String>,
@@ -1910,7 +1910,7 @@ pub struct CreateAmStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -1937,7 +1937,7 @@ pub struct CreateTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateEventTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -1950,7 +1950,7 @@ pub struct CreateEventTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterEventTrigStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trigname: Option<String>,
@@ -1958,7 +1958,7 @@ pub struct AlterEventTrigStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreatePLangStmt {
     pub replace: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1973,7 +1973,7 @@ pub struct CreatePLangStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateRoleStmt {
     pub stmt_type: crate::sys::RoleStmtType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1983,7 +1983,7 @@ pub struct CreateRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub role: Option<Box<RoleSpec>>,
@@ -1993,7 +1993,7 @@ pub struct AlterRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterRoleSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub role: Option<Box<RoleSpec>>,
@@ -2004,7 +2004,7 @@ pub struct AlterRoleSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropRoleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -2012,7 +2012,7 @@ pub struct DropRoleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateSeqStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequence: Option<Box<RangeVar>>,
@@ -2024,7 +2024,7 @@ pub struct CreateSeqStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterSeqStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequence: Option<Box<RangeVar>>,
@@ -2035,7 +2035,7 @@ pub struct AlterSeqStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DefineStmt {
     pub kind: crate::sys::ObjectType,
     pub oldstyle: bool,
@@ -2050,7 +2050,7 @@ pub struct DefineStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateDomainStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub domainname: Option<Vec<Node>>,
@@ -2063,7 +2063,7 @@ pub struct CreateDomainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateOpClassStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opclassname: Option<Vec<Node>>,
@@ -2079,7 +2079,7 @@ pub struct CreateOpClassStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateOpClassItem {
     pub itemtype: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2094,7 +2094,7 @@ pub struct CreateOpClassItem {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateOpFamilyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opfamilyname: Option<Vec<Node>>,
@@ -2103,7 +2103,7 @@ pub struct CreateOpFamilyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterOpFamilyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opfamilyname: Option<Vec<Node>>,
@@ -2115,7 +2115,7 @@ pub struct AlterOpFamilyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub objects: Option<Vec<Node>>,
@@ -2126,7 +2126,7 @@ pub struct DropStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TruncateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relations: Option<Vec<Node>>,
@@ -2135,7 +2135,7 @@ pub struct TruncateStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CommentStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2145,7 +2145,7 @@ pub struct CommentStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct SecLabelStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2157,7 +2157,7 @@ pub struct SecLabelStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DeclareCursorStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portalname: Option<String>,
@@ -2167,14 +2167,14 @@ pub struct DeclareCursorStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ClosePortalStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portalname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FetchStmt {
     pub direction: crate::sys::FetchDirection,
     pub howMany: i64,
@@ -2184,7 +2184,7 @@ pub struct FetchStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct IndexStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub idxname: Option<String>,
@@ -2222,7 +2222,7 @@ pub struct IndexStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateStatsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defnames: Option<Vec<Node>>,
@@ -2238,7 +2238,7 @@ pub struct CreateStatsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterStatsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defnames: Option<Vec<Node>>,
@@ -2247,7 +2247,7 @@ pub struct AlterStatsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateFunctionStmt {
     pub is_procedure: bool,
     pub replace: bool,
@@ -2262,7 +2262,7 @@ pub struct CreateFunctionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct FunctionParameter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -2274,7 +2274,7 @@ pub struct FunctionParameter {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterFunctionStmt {
     pub objtype: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2284,14 +2284,14 @@ pub struct AlterFunctionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DoStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub args: Option<Vec<Node>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct InlineCodeBlock {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_text: Option<String>,
@@ -2301,20 +2301,20 @@ pub struct InlineCodeBlock {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CallStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funccall: Option<Box<FuncCall>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CallContext {
     pub atomic: bool,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RenameStmt {
     pub renameType: crate::sys::ObjectType,
     pub relationType: crate::sys::ObjectType,
@@ -2331,7 +2331,7 @@ pub struct RenameStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterObjectDependsStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2344,7 +2344,7 @@ pub struct AlterObjectDependsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterObjectSchemaStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2357,7 +2357,7 @@ pub struct AlterObjectSchemaStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterOwnerStmt {
     pub objectType: crate::sys::ObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2369,7 +2369,7 @@ pub struct AlterOwnerStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterOperatorStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub opername: Option<Box<ObjectWithArgs>>,
@@ -2378,7 +2378,7 @@ pub struct AlterOperatorStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTypeStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -2387,7 +2387,7 @@ pub struct AlterTypeStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RuleStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2403,7 +2403,7 @@ pub struct RuleStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct NotifyStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
@@ -2412,21 +2412,21 @@ pub struct NotifyStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ListenStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct UnlistenStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conditionname: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct TransactionStmt {
     pub kind: crate::sys::TransactionStmtKind,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2439,7 +2439,7 @@ pub struct TransactionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CompositeTypeStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typevar: Option<Box<RangeVar>>,
@@ -2448,7 +2448,7 @@ pub struct CompositeTypeStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateEnumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -2457,7 +2457,7 @@ pub struct CreateEnumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateRangeStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -2466,7 +2466,7 @@ pub struct CreateRangeStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterEnumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub typeName: Option<Vec<Node>>,
@@ -2481,7 +2481,7 @@ pub struct AlterEnumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ViewStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub view: Option<Box<RangeVar>>,
@@ -2496,14 +2496,14 @@ pub struct ViewStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct LoadStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreatedbStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -2512,7 +2512,7 @@ pub struct CreatedbStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterDatabaseStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -2521,7 +2521,7 @@ pub struct AlterDatabaseStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterDatabaseSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -2530,7 +2530,7 @@ pub struct AlterDatabaseSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropdbStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dbname: Option<String>,
@@ -2540,14 +2540,14 @@ pub struct DropdbStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterSystemStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setstmt: Option<Box<VariableSetStmt>>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ClusterStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2557,7 +2557,7 @@ pub struct ClusterStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct VacuumStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<Node>>,
@@ -2567,7 +2567,7 @@ pub struct VacuumStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct VacuumRelation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<Box<RangeVar>>,
@@ -2577,7 +2577,7 @@ pub struct VacuumRelation {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ExplainStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<Box<Node>>,
@@ -2586,7 +2586,7 @@ pub struct ExplainStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateTableAsStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub query: Option<Box<Node>>,
@@ -2598,7 +2598,7 @@ pub struct CreateTableAsStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct RefreshMatViewStmt {
     pub concurrent: bool,
     pub skipData: bool,
@@ -2607,17 +2607,17 @@ pub struct RefreshMatViewStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CheckPointStmt {}
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DiscardStmt {
     pub target: crate::sys::DiscardMode,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct LockStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relations: Option<Vec<Node>>,
@@ -2626,7 +2626,7 @@ pub struct LockStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ConstraintsSetStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraints: Option<Vec<Node>>,
@@ -2634,7 +2634,7 @@ pub struct ConstraintsSetStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ReindexStmt {
     pub kind: crate::sys::ReindexObjectType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2646,7 +2646,7 @@ pub struct ReindexStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateConversionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conversion_name: Option<Vec<Node>>,
@@ -2660,7 +2660,7 @@ pub struct CreateConversionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateCastStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sourcetype: Option<Box<TypeName>>,
@@ -2673,7 +2673,7 @@ pub struct CreateCastStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateTransformStmt {
     pub replace: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2687,7 +2687,7 @@ pub struct CreateTransformStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct PrepareStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -2698,7 +2698,7 @@ pub struct PrepareStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ExecuteStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -2707,14 +2707,14 @@ pub struct ExecuteStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DeallocateStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropOwnedStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -2722,7 +2722,7 @@ pub struct DropOwnedStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct ReassignOwnedStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub roles: Option<Vec<Node>>,
@@ -2731,7 +2731,7 @@ pub struct ReassignOwnedStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTSDictionaryStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dictname: Option<Vec<Node>>,
@@ -2740,7 +2740,7 @@ pub struct AlterTSDictionaryStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterTSConfigurationStmt {
     pub kind: crate::sys::AlterTSConfigType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2755,7 +2755,7 @@ pub struct AlterTSConfigurationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreatePublicationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pubname: Option<String>,
@@ -2767,7 +2767,7 @@ pub struct CreatePublicationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterPublicationStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pubname: Option<String>,
@@ -2780,7 +2780,7 @@ pub struct AlterPublicationStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct CreateSubscriptionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subname: Option<String>,
@@ -2793,7 +2793,7 @@ pub struct CreateSubscriptionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct AlterSubscriptionStmt {
     pub kind: crate::sys::AlterSubscriptionType,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2807,7 +2807,7 @@ pub struct AlterSubscriptionStmt {
 }
 #[allow(non_camel_case_types)]
 #[allow(non_snake_case)]
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Hash)]
 pub struct DropSubscriptionStmt {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subname: Option<String>,

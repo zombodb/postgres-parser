@@ -373,6 +373,7 @@ fn generate_node_enum(struct_names: &Vec<&str>, output: &mut TokenStream) {
         #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
         #[derive(Clone)]
+        #[derive(Hash)]
         pub enum Node {
             #enum_stream
         }
@@ -395,6 +396,7 @@ fn generate_structs(ast: &syn::File, struct_names: &Vec<&str>, output: &mut Toke
                             #[derive(Debug, Eq, PartialEq)]
                             #[derive(Serialize, Deserialize)]
                             #[derive(Clone)]
+                            #[derive(Hash)]
                             #attributes
                             pub struct Value {
                                 #[serde(skip_serializing_if = "Option::is_none")]
@@ -496,6 +498,7 @@ fn generate_single_struct(
         #[derive(Debug, Eq, PartialEq)]
         #[derive(Serialize, Deserialize)]
         #[derive(Clone)]
+        #[derive(Hash)]
         #attributes
         pub struct #struct_name {
             #fields_stream
