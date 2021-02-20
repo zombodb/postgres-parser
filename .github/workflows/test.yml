@@ -33,7 +33,7 @@ jobs:
         run: brew install wget llvm
       - name: adjust macos PATH
         if: ${{ matrix.os == 'macos-latest' }}
-        run: echo "/System/Volumes/Data/usr/local/Cellar/llvm/10.0.0_3/bin/" >> $GITHUB_PATH
+        run: echo "$(brew --prefix llvm)/bin" >> $GITHUB_PATH
 
       - name: Checkout sources
         uses: actions/checkout@v2
